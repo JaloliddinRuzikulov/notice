@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting to Working SIP Phone</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #1a1a1a;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: #2a2a2a;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0,255,0,0.3);
+        }
+        h1 {
+            color: #0f0;
+            text-shadow: 0 0 20px #0f0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 20px 40px;
+            margin: 20px;
+            font-size: 20px;
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+        .warning {
+            background: #ff0000;
+            color: white;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 AUDIO ISHLASHI UCHUN</h1>
+        
+        <div class="warning">
+            <strong>ESKI SAHIFA ISHLAMAYDI!</strong><br>
+            Backend SIP audio yo'q
+        </div>
+        
+        <h2>Yangi sahifalarga o'ting:</h2>
+        
+        <a href="/webrtc-only.html" class="btn">
+            ✅ WebRTC Only (ISHLAYDI!)
+        </a>
+        
+        <a href="/final-test.html" class="btn">
+            🧪 Final Test Page
+        </a>
+        
+        <a href="/test-status.html" class="btn">
+            📊 System Status
+        </a>
+        
+        <p style="margin-top: 40px; color: #888;">
+            Eski /sip-phone sahifa faqat signaling uchun.<br>
+            Audio uchun WebRTC kerak!
+        </p>
+    </div>
+    
+    <script>
+        // Auto redirect after 5 seconds
+        setTimeout(() => {
+            window.location.href = '/webrtc-only.html';
+        }, 5000);
+    </script>
+</body>
+</html>

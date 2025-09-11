@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+
+/**
+ * Asterisk AGI Script for DTMF Confirmation
+ * This bridges Asterisk DTMF events to Node.js application
+ */
+
+const net = require('net');
+const readline = require('readline');
+
+// AGI interface
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+// Parse AGI variables
+const agiVars = {};
+let readingVars = true;
+
+function log(message) {
+    console.error(`[AGI] ${message}`);
+}
+
+// Send AGI command
+function sendCommand(command) {
+    console.log(command);
+}
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const broadcastId = args[0] || '';
+const phoneNumber = args[1] || '';
+const digit = args[2] || '1';
+
+log(`Called with: broadcastId=${broadcastId}, phone=${phoneNumber}, digit=${digit}`);
+
+// Read AGI variables
+rl.on('line', (line) => {
+    if (readingVars) {
+        if (line === '') {
+            readingVars = false;
+            handleConfirmation();
+        } else {
+            const match = line.match(/^agi_(\w+):\s*(.*)$/);
+            if (match) {
+                agiVars[match[1]] = match[2];
+            }
+        }
+    }
+});
+
+function handleConfirmation() {
+    log('Handling DTMF confirmation...');
+    
+    // Connect to Node.js application
+    const client = net.createConnection({
+        host: 'localhost',
+        port: 8445 // Internal API port
+    }, () => {
+        log('Connected to Node.js app');
+        
+        // Send confirmation
+        const data = JSON.stringify({
+            type: 'dtmf-confirmation',
+            broadcastId: broadcastId,
+            phoneNumber: phoneNumber || agiVars.callerid,
+            digit: digit,
+            timestamp: new Date().toISOString(),
+            channel: agiVars.channel,
+            uniqueid: agiVars.uniqueid
+        });
+        
+        client.write(data);
+        client.end();
+    });
+    
+    client.on('error', (err) => {
+        log(`Error connecting to app: ${err.message}`);
+    });
+    
+    client.on('end', () => {
+        log('Confirmation sent');
+        // AGI response
+        sendCommand('200 result=1');
+        process.exit(0);
+    });
+    
+    // Timeout
+    setTimeout(() => {
+        log('Timeout waiting for response');
+        sendCommand('200 result=0');
+        process.exit(1);
+    }, 5000);
+}
+
+// Start reading
+log('AGI script started');

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %> - <%= typeof t !== 'undefined' ? t('navigation.dashboard') : 'Bosh sahifa' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <!-- Include MD3 Navigation -->
+        <%- include('partials/navigation') %>
+        
+        <!-- Main App Content -->
+        <div class="md-app-content">
+            <!-- Main Content Area -->
+            <main class="md-main-content">
+                <div class="md-container">
+                    <!-- Page Header -->
+                    <header style="margin-bottom: var(--md-sys-spacing-8);">
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            <%= typeof t !== 'undefined' ? t('dashboard.subtitle') : 'Qashqadaryo IIB xabarnoma tizimi boshqaruv paneli' %>
+                        </p>
+                    </header>
+
+                    <!-- Statistics Cards Grid -->
+                    <section style="margin-bottom: var(--md-sys-spacing-10);">
+                        <h2 class="md-typescale-headline-medium" style="margin-bottom: var(--md-sys-spacing-6); color: var(--md-sys-color-on-surface);">
+                            <%= typeof t !== 'undefined' ? t('dashboard.system_statistics') : 'Tizim statistikasi' %>
+                        </h2>
+                        
+                        <!-- District Statistics Grid -->
+                        <div id="districtStatistics" class="md-grid md-grid-cols-4">
+                            <!-- District cards will be dynamically added here -->
+                        </div>
+                    </section>
+
+                    <!-- Quick Actions Grid -->
+                    <section style="margin-bottom: var(--md-sys-spacing-10);">
+                        <h2 class="md-typescale-headline-medium" style="margin-bottom: var(--md-sys-spacing-6); color: var(--md-sys-color-on-surface);">
+                            <%= typeof t !== 'undefined' ? t('dashboard.quick_actions') : 'Tezkor harakatlar' %>
+                        </h2>
+                        
+                        <div class="md-grid md-grid-cols-4">
+                            <% if (user.role === 'admin' || (user.permissions && user.permissions.sipPhone)) { %>
+                            <a href="/sip-phone" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-primary-container);">
+                                            phone
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        SIP Telefon
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Web-based SIP telefon
+                                    </p>
+                                </div>
+                            </a>
+                            <% } %>
+                            
+                            <% if (user.role === 'admin' || (user.permissions && user.permissions.broadcast)) { %>
+                            <a href="/broadcast" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-secondary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-secondary-container);">
+                                            mic
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        Xabar yuborish
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Yangi xabarnoma yaratish
+                                    </p>
+                                </div>
+                            </a>
+                            <% } %>
+                            
+                            <% if (user.role === 'admin' || (user.permissions && user.permissions.employees)) { %>
+                            <a href="/employees" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-tertiary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-tertiary-container);">
+                                            group
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        Xodimlar
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Xodimlar ro'yxati
+                                    </p>
+                                </div>
+                            </a>
+                            <% } %>
+                            
+                            <% if (user.role === 'admin' || (user.permissions && user.permissions.reports)) { %>
+                            <a href="/reports" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-primary-container);">
+                                            analytics
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        Hisobotlar
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Statistika va hisobotlar
+                                    </p>
+                                </div>
+                            </a>
+                            <% } %>
+                        </div>
+                    </section>
+
+                    <!-- Recent Broadcasts Table -->
+                    <section>
+                        <div class="md-card md-card-outlined">
+                            <div class="md-card-header">
+                                <h2 class="md-card-title"><%= typeof t !== 'undefined' ? t('dashboard.recent_broadcasts') : 'Oxirgi xabarlar' %></h2>
+                                <p class="md-card-subtitle"><%= typeof t !== 'undefined' ? t('dashboard.recent_broadcasts_subtitle') : "So'nggi yuborilgan xabarlar ro'yxati" %></p>
+                            </div>
+                            <div class="md-card-content">
+                                <div style="overflow-x: auto;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr style="border-bottom: 1px solid var(--md-sys-color-outline-variant);">
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Vaqt
+                                                </th>
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Xabar
+                                                </th>
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Jami
+                                                </th>
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Tasdiqlangan
+                                                </th>
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Status
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentBroadcasts">
+                                            <tr>
+                                                <td colspan="5" class="md-typescale-body-medium" style="text-align: center; padding: var(--md-sys-spacing-8); color: var(--md-sys-color-on-surface-variant);">
+                                                    Ma'lumot yuklanmoqda...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- FAB for quick broadcast -->
+    <% if (user.role === 'admin' || (user.permissions && user.permissions.broadcast)) { %>
+    <a href="/broadcast" class="md-fab md-fab-extended" title="Yangi xabar yuborish">
+        <span class="material-symbols-outlined">add</span>
+        Yangi xabar
+    </a>
+    <% } %>
+
+    <script src="/js/language-manager.js"></script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/dashboard.js?v=1.6.1"></script>
+</body>
+</html>

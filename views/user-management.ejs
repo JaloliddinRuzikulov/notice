@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foydalanuvchilar boshqaruvi - Xabarnoma Tizimi</title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <!-- Bootstrap removed to prevent slow loading in closed network -->
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Override Bootstrap form-check styles - Using Flexbox for better alignment */
+        .modal-body .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            min-height: 1.5rem;
+        }
+        
+        .modal-body .form-check-input {
+            position: static;
+            margin: 0;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+            width: 1.125rem;
+            height: 1.125rem;
+            cursor: pointer;
+        }
+        
+        .modal-body .form-check-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+            cursor: pointer;
+            user-select: none;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+        
+        .permissions-grid {
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #666 #333;
+        }
+        
+        .permissions-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .permissions-grid::-webkit-scrollbar-track {
+            background: #333;
+        }
+        
+        .permissions-grid::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 4px;
+        }
+        
+        #districtCheckboxes {
+            margin-top: 10px;
+        }
+        
+        #districtCheckboxes .col-md-4,
+        #districtCheckboxes .col-sm-6 {
+            margin-bottom: 10px;
+        }
+        
+        .badge-success {
+            background-color: #28a745;
+        }
+        
+        .badge-secondary {
+            background-color: #6c757d;
+        }
+        
+        .modal-body .form-check-label:hover {
+            color: #fff;
+        }
+        
+        .modal-body .form-check-input:checked ~ .form-check-label {
+            color: #10b981;
+            font-weight: 500;
+        }
+        
+        hr {
+            opacity: 0.3;
+        }
+        
+        /* Ensure icons have consistent spacing */
+        .modal-body .form-check-label i {
+            display: inline-block;
+            width: 1.25rem;
+            text-align: center;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        /* Fix for Bootstrap 4 checkbox styles */
+        .modal-body .form-check-input[type="checkbox"] {
+            margin-top: 0;
+        }
+        
+        /* Ensure proper spacing in grid layout */
+        .permissions-grid .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        
+        .permissions-grid .col-md-4 {
+            padding-left: 0;
+            padding-right: 15px;
+        }
+        
+        /* Special styling for "all districts" checkbox */
+        #district-all ~ label {
+            font-weight: bold !important;
+            color: #10b981 !important;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navigation') %>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-end align-items-center mb-4">
+            <button class="btn btn-primary" onclick="showCreateUserModal()">
+                <i class="fas fa-plus"></i> Yangi foydalanuvchi
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Foydalanuvchi nomi</th>
+                        <th>To'liq ismi</th>
+                        <th>Roli</th>
+                        <th>Ruxsat etilgan tumanlar</th>
+                        <th>Holati</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" class="text-center">Yuklanmoqda...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalTitle">Yangi foydalanuvchi</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="username">Foydalanuvchi nomi</label>
+                                    <input type="text" class="form-control" id="username" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" id="passwordGroup">
+                                    <label for="password">Parol</label>
+                                    <input type="password" class="form-control" id="password" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">To'liq ismi</label>
+                                    <input type="text" class="form-control" id="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="role">Roli</label>
+                                    <select class="form-control" id="role" required>
+                                        <option value="user">Foydalanuvchi</option>
+                                        <option value="admin">Administrator</option>
+                                        <option value="viewer">Ko'ruvchi</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ruxsat etilgan tumanlar</label>
+                            <div class="permissions-grid" style="border: 1px solid #333; padding: 15px; border-radius: 4px; background: #1a1a1a;">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" value="all" id="district-all" onchange="handleAllDistrictsChange(this)">
+                                    <label class="form-check-label" for="district-all" style="font-weight: bold; color: #10b981;">
+                                        <i class="fas fa-globe"></i> Barcha tumanlar
+                                    </label>
+                                </div>
+                                <hr style="border-color: #333; margin: 10px 0;">
+                                <div class="row" id="districtCheckboxes">
+                                    <!-- Districts will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Modullar ruxsati</label>
+                            <div class="permissions-grid" style="border: 1px solid #333; padding: 15px; border-radius: 4px; background: #1a1a1a;">
+                                <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-dashboard">
+                                        <label class="form-check-label" for="perm-dashboard">
+                                            <i class="fas fa-home"></i> Bosh sahifa
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-employees">
+                                        <label class="form-check-label" for="perm-employees">
+                                            <i class="fas fa-users"></i> Xodimlar
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-broadcast">
+                                        <label class="form-check-label" for="perm-broadcast">
+                                            <i class="fas fa-broadcast-tower"></i> Xabarnoma
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-reports">
+                                        <label class="form-check-label" for="perm-reports">
+                                            <i class="fas fa-chart-bar"></i> Hisobotlar
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-departments">
+                                        <label class="form-check-label" for="perm-departments">
+                                            <i class="fas fa-building"></i> Bo'limlar
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-groups">
+                                        <label class="form-check-label" for="perm-groups">
+                                            <i class="fas fa-user-friends"></i> Guruhlar
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-phonebook">
+                                        <label class="form-check-label" for="perm-phonebook">
+                                            <i class="fas fa-phone-alt"></i> Telefon kitobi
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-users">
+                                        <label class="form-check-label" for="perm-users">
+                                            <i class="fas fa-user-cog"></i> Foydalanuvchilar
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="perm-sipAccounts">
+                                        <label class="form-check-label" for="perm-sipAccounts">
+                                            <i class="fas fa-phone-volume"></i> SIP hisoblar
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="active" checked>
+                                <label class="form-check-label" for="active">
+                                    Faol
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Bekor qilish</button>
+                    <button type="button" class="btn btn-primary" onclick="saveUser()">Saqlash</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery removed to prevent slow loading in closed network -->
+    <!-- Bootstrap JS removed to prevent slow loading in closed network -->
+    <script src="/js/user-management.js?v=<%= Date.now() %>"></script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

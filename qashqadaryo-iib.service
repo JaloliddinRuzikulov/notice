@@ -1,0 +1,43 @@
+[Unit]
+Description=Qashqadaryo IIB Xabarnoma Tizimi (Docker)
+Documentation=https://github.com/qashqadaryo-iib/notification
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=docker
+WorkingDirectory=/mnt/hdd128gb/qashqadaryo-iib-notification
+
+# Docker Compose commands
+ExecStartPre=-/usr/bin/docker-compose -f docker-compose.yml down
+ExecStart=/usr/bin/docker-compose -f docker-compose.yml up
+ExecStop=/usr/bin/docker-compose -f docker-compose.yml down
+ExecReload=/usr/bin/docker-compose -f docker-compose.yml restart
+
+# Restart policy
+Restart=always
+RestartSec=10
+TimeoutStartSec=300
+
+# Output
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=qashqadaryo-iib
+
+# Environment
+Environment="COMPOSE_PROJECT_NAME=qashqadaryo-iib"
+Environment="COMPOSE_HTTP_TIMEOUT=300"
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

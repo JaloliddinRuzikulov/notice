@@ -1,0 +1,63 @@
+
+ASTERISK DTMF SOZLAMALARI
+========================
+
+1. SSH orqali Asterisk serverga kiring:
+   ssh admin@10.105.0.3
+
+2. SIP konfiguratsiyani tahrirlang:
+   nano /etc/asterisk/sip.conf
+
+3. [5530] qismida qo'shing:
+   dtmfmode=info
+
+4. Dialplan yangilang:
+   nano /etc/asterisk/extensions_custom.conf
+   
+   ;
+; FIXED Xabarnoma Dialplan - DTMF forwarding to Node.js
+;
+
+[xabarnoma-broadcast-dtmf]
+; Simple dialplan that doesn't capture DTMF internally
+exten => _X.,1,NoOp(Xabarnoma broadcast to ${EXTEN})
+ same => n,Set(CHANNEL(language)=uz)
+ same => n,Answer()
+ same => n,Wait(1)
+ ; Play audio but DON'T use Background() - it captures DTMF
+ same => n,Playback(${AUDIO_FILE})
+ same => n,Wait(2)
+ same => n,Playback(${AUDIO_FILE})
+ same => n,Wait(10)  ; Give time for DTMF
+ same => n,Hangup()
+
+[xabarnoma-broadcast-simple]
+; Even simpler version
+exten => _X.,1,NoOp(Simple broadcast to ${EXTEN})
+ same => n,Answer()
+ same => n,MusicOnHold(default,120)  ; Play audio for 2 minutes
+ same => n,Hangup()
+
+[xabarnoma-sip-dtmf]
+; Force SIP INFO DTMF mode
+exten => _X.,1,NoOp(SIP INFO DTMF test to ${EXTEN})
+ same => n,Set(_SIP_DTMF_MODE=info)
+ same => n,Answer()
+ same => n,Playback(${AUDIO_FILE})
+ same => n,Read(DTMF_DIGIT,,1,,,10)  ; Read 1 digit, 10 sec timeout
+ same => n,NoOp(Got DTMF: ${DTMF_DIGIT})
+ same => n,GotoIf($[${DTMF_DIGIT} = 1]?confirmed)
+ same => n,Hangup()
+ same => n(confirmed),System(curl -X POST http://localhost:8444/api/internal/dtmf-confirm -d "phone=${EXTEN}&digit=1")
+ same => n,Playback(beep)
+ same => n,Hangup()
+
+5. Asterisk qayta yuklang:
+   asterisk -rx "sip reload"
+   asterisk -rx "dialplan reload"
+
+6. AGI script nusxalang:
+   scp /home/user/asterisk/xabarnoma-confirm.agi admin@10.105.0.3:/var/lib/asterisk/agi-bin/
+
+7. Test qiling:
+   asterisk -rx "originate SIP/990823112@5530 extension 999@xabarnoma-test"

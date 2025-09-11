@@ -1,0 +1,56 @@
+{
+  "name": "qashqadaryo-iib-xabarnoma",
+  "version": "1.0.0",
+  "description": "Qashqadaryo IIB Xabarnoma tizimi - SIP asosida",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "security:audit": "npm audit --audit-level=moderate",
+    "security:fix": "npm audit fix",
+    "security:check": "npm run security:audit && npm run lint:security",
+    "lint:security": "eslint . --ext .js --config .eslintrc.security.js",
+    "migrate:sip-passwords": "node scripts/encrypt-sip-passwords.js",
+    "ssl:setup": "sudo bash scripts/setup-letsencrypt.sh",
+    "test": "jest",
+    "test:security": "jest --testPathPattern=security"
+  },
+  "keywords": [
+    "notification",
+    "sip",
+    "police",
+    "uzbekistan"
+  ],
+  "author": "Qashqadaryo IIB",
+  "license": "ISC",
+  "dependencies": {
+    "asterisk-manager": "^0.1.16",
+    "axios": "^1.10.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "jssip": "^3.10.1",
+    "memorystore": "^1.6.7",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "sdp-transform": "^2.15.0",
+    "sip": "^0.0.6",
+    "sip.js": "^0.21.2",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.7",
+    "uuid": "^9.0.0",
+    "ws": "^8.18.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "form-data": "^4.0.3",
+    "nodemon": "^2.0.22"
+  }
+}

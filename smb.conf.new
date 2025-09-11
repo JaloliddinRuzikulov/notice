@@ -1,0 +1,94 @@
+[global]
+   workgroup = WORKGROUP
+   server string = Qashqadaryo IIB Server
+   netbios name = QASHQADARYO
+   security = user
+   map to guest = bad user
+   dns proxy = no
+   # Windows 10 compatibility
+   min protocol = SMB2
+   max protocol = SMB3
+   # Performance tuning
+   socket options = TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=131072 SO_SNDBUF=131072
+   # Disable printing
+   load printers = no
+   printing = bsd
+   printcap name = /dev/null
+   disable spoolss = yes
+
+[UserHome]
+   comment = User Home Directory - Full Access
+   path = /home/user
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user
+   # Hide some directories
+   veto files = /.ssh/.cache/.npm/.config/
+   hide files = /.*/
+
+[Project]
+   comment = Qashqadaryo IIB Notification System
+   path = /home/user
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user
+   # Show all files
+   hide dot files = no
+   
+[Data]
+   comment = Project Data Files
+   path = /home/user/data
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user
+
+[Public]
+   comment = Public Web Files
+   path = /home/user/public
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user
+
+[Views]
+   comment = View Templates
+   path = /home/user/views
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user
+
+[Routes]
+   comment = Server Routes
+   path = /home/user/routes
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user

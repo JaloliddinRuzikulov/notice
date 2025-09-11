@@ -1,0 +1,249 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" 
+      xmlns:x="urn:schemas-microsoft-com:office:excel" 
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <xml>
+        <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+                <x:ExcelWorksheet>
+                    <x:Name>Xodimlar</x:Name>
+                    <x:WorksheetOptions>
+                        <x:DisplayGridlines/>
+                    </x:WorksheetOptions>
+                </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+        </x:ExcelWorkbook>
+    </xml>
+    <style>
+        table { border-collapse: collapse; }
+        th { 
+            background-color: #4CAF50; 
+            color: white; 
+            font-weight: bold; 
+            border: 1px solid #000; 
+            padding: 10px;
+            text-align: center;
+            font-size: 12pt;
+        }
+        td { 
+            border: 1px solid #000; 
+            padding: 8px; 
+            font-size: 11pt;
+        }
+        .sample { background-color: #f0f0f0; }
+        .instruction { 
+            background-color: #ffffcc; 
+            font-weight: bold;
+            color: #d00;
+            border: 2px solid #ff0000;
+        }
+        .districts {
+            background-color: #e6f3ff;
+            font-size: 10pt;
+            color: #000080;
+        }
+        .required { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr class="instruction">
+                <td colspan="7" style="text-align: center; font-size: 14pt; padding: 15px;">
+                    ⚠️ MUHIM QO'LLANMA - AVVAL O'QING! ⚠️
+                </td>
+            </tr>
+            <tr class="instruction">
+                <td colspan="7">1. F.I.O va Telefon maydonlari MAJBURIY (*)</td>
+            </tr>
+            <tr class="instruction">
+                <td colspan="7">2. Telefon raqamlar: 991234567 yoki 0991234567 formatida (9 yoki 10 raqam)</td>
+            </tr>
+            <tr class="instruction">
+                <td colspan="7">3. Tuman nomlarini AYNAN quyidagilardan nusxalab yozing (xato yozilsa qabul qilinmaydi!):</td>
+            </tr>
+            <tr class="districts">
+                <td colspan="7" style="padding: 10px;">
+                    <strong>SHAHAR/TUMANLAR:</strong><br/>
+                    • Qarshi shahri<br/>
+                    • Shahrisabz shahri<br/>
+                    • Dehqonobod tumani<br/>
+                    • Kasbi tumani<br/>
+                    • Kitob tumani<br/>
+                    • Koson tumani<br/>
+                    • Ko'kdala tumani<br/>
+                    • Mirishkor tumani<br/>
+                    • Muborak tumani<br/>
+                    • Nishon tumani<br/>
+                    • Qamashi tumani<br/>
+                    • Yakkabog' tumani<br/>
+                    • G'uzor tumani<br/>
+                    • Shahrisabz tumani<br/>
+                    • Chiroqchi tumani<br/>
+                    • Viloyat IIB<br/>
+                    • Patrul Post Xizmati<br/>
+                    • Yo'l Harakati Xavfsizlgi Boshqarmasi
+                </td>
+            </tr>
+            <tr class="instruction">
+                <td colspan="7">4. Ko'p qator qo'shish mumkin - 100 ta va undan ko'p xodim kiritishingiz mumkin</td>
+            </tr>
+            <tr class="instruction">
+                <td colspan="7">5. Tayyor bo'lgach faylni CSV formatda saqlang: File → Save As → CSV (Comma delimited)</td>
+            </tr>
+            <tr>
+                <td colspan="7" style="background-color: #fff; height: 20px;"></td>
+            </tr>
+            <tr>
+                <th width="200">F.I.O <span class="required">*</span></th>
+                <th width="150">Lavozimi</th>
+                <th width="120">Unvoni</th>
+                <th width="180">Bo'limi</th>
+                <th width="120">Telefon <span class="required">*</span></th>
+                <th width="120">Xizmat Telefoni</th>
+                <th width="150">Tumani</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="sample">
+                <td>Aliyev Vali Salimovich</td>
+                <td>Bosh inspektor</td>
+                <td>Mayor</td>
+                <td>Jamoat xavfsizligi</td>
+                <td>991234567</td>
+                <td>752001122</td>
+                <td>Qarshi shahri</td>
+            </tr>
+            <tr class="sample">
+                <td>Karimov Jasur Bahodirovich</td>
+                <td>Inspektor</td>
+                <td>Kapitan</td>
+                <td>YPX</td>
+                <td>901234567</td>
+                <td>752003344</td>
+                <td>Shahrisabz tumani</td>
+            </tr>
+            <tr class="sample">
+                <td>Rahimova Gulnora Xolmatovna</td>
+                <td>Katta inspektor</td>
+                <td>Podpolkovnik</td>
+                <td>Tergov</td>
+                <td>931234567</td>
+                <td></td>
+                <td>Kitob tumani</td>
+            </tr>
+            <tr class="sample">
+                <td>Toshmatov Sardor</td>
+                <td>Inspektor</td>
+                <td>Leytenant</td>
+                <td>Profilaktika</td>
+                <td>971234567</td>
+                <td>752005566</td>
+                <td>Dehqonobod tumani</td>
+            </tr>
+            <!-- Bo'sh qatorlar - foydalanuvchilar to'ldirishi uchun -->
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        </tbody>
+    </table>
+</body>
+</html>

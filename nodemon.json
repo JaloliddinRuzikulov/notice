@@ -1,0 +1,25 @@
+{
+  "watch": [
+    "server.js",
+    "lib/",
+    "routes/",
+    "middleware/",
+    "views/",
+    "public/js/",
+    "public/css/"
+  ],
+  "ext": "js,json,ejs,css,html",
+  "ignore": [
+    "node_modules/",
+    "logs/",
+    "data/",
+    "public/audio/uploads/",
+    "temp/",
+    "*.log"
+  ],
+  "delay": "1000",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "verbose": true
+}

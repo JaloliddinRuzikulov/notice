@@ -1,0 +1,32 @@
+[
+  {
+    "content": "5 talik navbat rejimida qo'ng'iroqlar sonini tahlil qilish",
+    "status": "completed",
+    "priority": "high",
+    "id": "1"
+  },
+  {
+    "content": "Batch tizimini to'g'irlash - haqiqiy 5 talik batch",
+    "status": "completed",
+    "priority": "high",
+    "id": "2"
+  },
+  {
+    "content": "Ovoz muammosini tekshirish - RTP port va codec",
+    "status": "completed",
+    "priority": "high",
+    "id": "3"
+  },
+  {
+    "content": "Broadcast jarayonini to'liq kuzatish",
+    "status": "completed",
+    "priority": "high",
+    "id": "4"
+  },
+  {
+    "content": "Retry tizimini asosiy ro'yxat tugagandan keyin ishlaydigan qilish",
+    "status": "completed",
+    "priority": "high",
+    "id": "5"
+  }
+]

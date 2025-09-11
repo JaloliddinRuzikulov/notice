@@ -1,0 +1,72 @@
+[
+  {
+    "id": "1",
+    "name": "Tezkor guruh",
+    "description": "Favqulodda holatlarga tezkor javob berish guruhi",
+    "members": [],
+    "updatedAt": "2025-08-08T12:39:02.232Z"
+  },
+  {
+    "id": "35990864-7b9c-48a8-934d-f01238cd0e30",
+    "name": "Yig'ma Otryad",
+    "description": "Maxsus vazifalar uchun yig'ma otryad",
+    "members": [],
+    "createdAt": "2025-07-07T19:31:08.964Z"
+  },
+  {
+    "id": "4630dd43-145e-477f-b512-f11a2267d316",
+    "name": "Raxbariyat",
+    "description": "",
+    "members": [],
+    "createdAt": "2025-08-08T13:04:20.138Z"
+  },
+  {
+    "id": "b090710b-7b69-435d-b77f-fcc37551f4eb",
+    "name": "01 Йиғилишига таклиф этиш",
+    "description": "",
+    "members": [],
+    "createdAt": "2025-08-13T18:05:38.304Z"
+  },
+  {
+    "id": "988681ab-bec2-4259-9b9b-55eda5bac9aa",
+    "name": "Китоб туман ТТГ ва Кабинетда ишловчи ходимлар",
+    "description": "ттг",
+    "members": [],
+    "createdAt": "2025-08-13T20:42:39.650Z"
+  },
+  {
+    "id": "fb7d7e4b-8d7f-42d3-9236-56ff6a955b71",
+    "name": "Бошлиқ ўринбосарлари ва соха хизмат рахбарлари.",
+    "description": "соха хизматлар",
+    "members": [],
+    "createdAt": "2025-08-13T20:48:17.029Z"
+  },
+  {
+    "id": "142ff84a-a4f4-4b19-8ade-a56ce26b222f",
+    "name": "Тунги хизмат",
+    "description": "Текширув гуруҳлари",
+    "members": [],
+    "createdAt": "2025-08-14T13:16:04.105Z"
+  },
+  {
+    "id": "38846422-188f-41a4-95ff-7da6342995be",
+    "name": "01чини Йиғилишига ДОИМИЙ",
+    "description": "",
+    "members": [],
+    "createdAt": "2025-08-14T13:16:47.755Z"
+  },
+  {
+    "id": "ec91a108-5252-42a1-a9c1-2deb05b54a20",
+    "name": "Тунги гурух. Ж.Мухаммадиев ",
+    "description": "Ж.Мухаммадиев ноч",
+    "members": [],
+    "createdAt": "2025-08-19T15:36:55.958Z"
+  },
+  {
+    "id": "3c2861b3-ab1e-4c1f-8365-c8dab7d169e7",
+    "name": "Huquqbuzarliklar Profilaktikasi uchun",
+    "description": "Profilaktika inspektorlarini yig'ilishga yoki ogohlantirish uchun",
+    "members": [],
+    "createdAt": "2025-08-20T12:19:48.711Z"
+  }
+]

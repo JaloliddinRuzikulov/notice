@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1",
+    "name": "Tezkor guruh",
+    "description": "Favqulodda holatlarga tezkor javob berish guruhi",
+    "members": []
+  },
+  {
+    "id": "35990864-7b9c-48a8-934d-f01238cd0e30",
+    "name": "Yig'ma Otryad",
+    "description": "Maxsus vazifalar uchun yig'ma otryad",
+    "members": [],
+    "createdAt": "2025-07-07T19:31:08.964Z"
+  },
+  {
+    "id": "cb22f2db-a44e-4154-aeb4-a39da4ba12be",
+    "name": "Рахбариятлар",
+    "description": "",
+    "members": [],
+    "createdAt": "2025-08-07T07:32:26.955Z"
+  }
+]

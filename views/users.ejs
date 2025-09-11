@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('navigation.users') : 'Foydalanuvchilar' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <%- include('partials/navigation') %>
+        
+        <!-- App Content -->
+        <div class="md-app-content">
+            <!-- Main Content -->
+            <main class="md-main-content">
+                <div class="md-container">
+            <!-- Page Header -->
+            <header style="margin-bottom: var(--md-sys-spacing-8);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--md-sys-spacing-4);">
+                    <div>
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            <%= typeof t !== 'undefined' ? t('users.description') : 'Tizim foydalanuvchilarini boshqarish va ruxsatlarni sozlash' %>
+                        </p>
+                    </div>
+                    
+                    <button class="md-button md-button-filled" onclick="showAddUserModal()">
+                        <span class="material-symbols-outlined">person_add</span>
+                        <%= typeof t !== 'undefined' ? t('users.newUser') : 'Yangi foydalanuvchi' %>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Users Grid -->
+            <section>
+                <div id="usersGrid" style="display: grid; gap: var(--md-sys-spacing-4);">
+                    <!-- Loading State -->
+                    <div class="md-card md-card-outlined" style="text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                admin_panel_settings
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                <%= typeof t !== 'undefined' ? t('common.loading') : 'Ma\'lumotlar yuklanmoqda...' %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- User Modal -->
+    <div class="md-dialog" id="userModal">
+        <div class="md-dialog-container" style="max-width: 700px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title" id="modalTitle"><%= typeof t !== 'undefined' ? t('users.newUser') : 'Yangi foydalanuvchi' %></h2>
+                <button class="md-icon-button" onclick="closeUserModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="md-dialog-content">
+                <form id="userForm" onsubmit="saveUser(event); return false;">
+                    <input type="hidden" id="userId">
+                    
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="userName"><%= typeof t !== 'undefined' ? t('users.fullName') : 'To\'liq ism' %> *</label>
+                        <input 
+                            type="text" 
+                            id="userName" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('users.enterFullName') : 'To\'liq ismni kiriting' %>"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="userUsername"><%= typeof t !== 'undefined' ? t('users.username') : 'Foydalanuvchi nomi' %> *</label>
+                        <input 
+                            type="text" 
+                            id="userUsername" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('users.enterUsername') : 'Foydalanuvchi nomini kiriting' %>"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="userPassword"><%= typeof t !== 'undefined' ? t('users.password') : 'Parol' %></label>
+                        <input 
+                            type="password" 
+                            id="userPassword" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('users.enterPassword') : 'Parolni kiriting' %>"
+                        >
+                        <div class="form-text"><%= typeof t !== 'undefined' ? t('users.passwordHint') : 'Tahrirlashda bo\'sh qoldiring o\'zgartirmaslik uchun' %></div>
+                    </div>
+                    
+                    <!-- Role -->
+                    <div class="form-group">
+                        <label for="userRole"><%= typeof t !== 'undefined' ? t('users.role') : 'Rol' %> *</label>
+                        <select 
+                            id="userRole" 
+                            class="form-control"
+                            required
+                        >
+                            <option value=""><%= typeof t !== 'undefined' ? t('common.select') : 'Tanlang' %></option>
+                            <option value="admin">Administrator</option>
+                            <option value="manager">Menejer</option>
+                            <option value="operator">Operator</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Allowed Districts -->
+                    <div class="form-group">
+                        <label for="userDistricts"><%= typeof t !== 'undefined' ? t('users.allowedDistricts') : 'Ruxsat berilgan tumanlar' %></label>
+                        <select 
+                            id="userDistricts" 
+                            class="form-control"
+                            multiple
+                            style="min-height: 120px;"
+                        >
+                            <option value="all"><%= typeof t !== 'undefined' ? t('phonebook.allDistricts') : 'Barcha tumanlar' %></option>
+                            <!-- Districts will be loaded here -->
+                        </select>
+                        <div class="form-text"><%= typeof t !== 'undefined' ? t('users.multiSelectHint') : 'Bir nechta tumanni tanlash uchun Ctrl (yoki Cmd) tugmasini bosib turing' %></div>
+                    </div>
+                    
+                    <!-- Permissions -->
+                    <div style="margin-bottom: var(--md-sys-spacing-4);">
+                        <label class="md-typescale-body-large" style="display: block; margin-bottom: var(--md-sys-spacing-3); color: var(--md-sys-color-on-surface);">
+                            <%= typeof t !== 'undefined' ? t('users.permissions') : 'Ruxsatlar' %>
+                        </label>
+                        <div id="permissionsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--md-sys-spacing-3); padding: var(--md-sys-spacing-4); border: 1px solid var(--md-sys-color-outline); border-radius: var(--md-sys-shape-corner-small); background: var(--md-sys-color-surface-container-lowest); max-height: 300px; overflow-y: auto;">
+                            <!-- Permissions will be loaded here -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeUserModal()">
+                    <%= typeof t !== 'undefined' ? t('common.cancel') : 'Bekor qilish' %>
+                </button>
+                <button type="submit" form="userForm" class="md-button md-button-filled">
+                    <span class="material-symbols-outlined">save</span>
+                    <%= typeof t !== 'undefined' ? t('common.save') : 'Saqlash' %>
+                </button>
+            </div>
+        </div>
+    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        let users = [];
+        let permissions = {};
+        let districts = [];
+        let currentUserId = null;
+        
+        // Load data
+        async function loadData() {
+            try {
+                const [usersResponse, permResponse, distResponse] = await Promise.all([
+                    fetch('/api/users'),
+                    fetch('/api/users/permissions'),
+                    fetch('/api/districts')
+                ]);
+                
+                users = await usersResponse.json();
+                permissions = await permResponse.json();
+                districts = await distResponse.json();
+                
+                // Populate districts dropdown
+                populateDistrictsDropdown();
+                
+                renderUsers();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        // Populate districts dropdown
+        function populateDistrictsDropdown() {
+            const select = document.getElementById('userDistricts');
+            if (select && districts) {
+                // Keep the "all" option and add districts
+                select.innerHTML = '<option value="all">Barcha tumanlar</option>';
+                districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.id;
+                    option.textContent = district.name;
+                    select.appendChild(option);
+                });
+            }
+        }
+        
+        // Render users
+        function renderUsers() {
+            const container = document.getElementById('usersGrid');
+            
+            if (users.length === 0) {
+                container.innerHTML = `
+                    <div class="md-card md-card-outlined" style="text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                admin_panel_settings
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                Foydalanuvchilar mavjud emas
+                            </p>
+                            <button class="md-button md-button-tonal" onclick="showAddUserModal()">
+                                <span class="material-symbols-outlined">person_add</span>
+                                Birinchi foydalanuvchini qo'shing
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = users.map(user => {
+                const roleName = permissions.roles?.find(r => r.id === user.role)?.name || user.role;
+                const roleColors = {
+                    admin: { bg: 'var(--md-sys-color-error-container)', text: 'var(--md-sys-color-on-error-container)' },
+                    manager: { bg: 'var(--md-sys-color-primary-container)', text: 'var(--md-sys-color-on-primary-container)' },
+                    operator: { bg: 'var(--md-sys-color-secondary-container)', text: 'var(--md-sys-color-on-secondary-container)' }
+                };
+                const roleColor = roleColors[user.role] || roleColors.operator;
+                
+                return `
+                    <div class="md-card md-card-elevated" style="padding: var(--md-sys-spacing-6); transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                        <div style="display: grid; grid-template-columns: auto 1fr auto; gap: var(--md-sys-spacing-4); align-items: center;">
+                            <!-- User Avatar -->
+                            <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-full); display: flex; align-items: center; justify-content: center; font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-primary-container); font-weight: 600;">
+                                ${user.name.charAt(0).toUpperCase()}
+                            </div>
+                            
+                            <!-- User Info -->
+                            <div style="flex: 1;">
+                                <h3 class="md-typescale-title-large" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                    ${user.name}
+                                </h3>
+                                <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: var(--md-sys-spacing-1) 0;">
+                                    @${user.username}
+                                </p>
+                                
+                                <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3); margin: var(--md-sys-spacing-2) 0;">
+                                    <!-- Status -->
+                                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                                        <div style="width: 8px; height: 8px; border-radius: 50%; background: ${user.active ? 'var(--md-sys-color-success)' : 'var(--md-sys-color-error)'};"></div>
+                                        <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                            ${user.active ? 'Faol' : 'Faol emas'}
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Role Badge -->
+                                    <div style="padding: var(--md-sys-spacing-1) var(--md-sys-spacing-3); background: ${roleColor.bg}; color: ${roleColor.text}; border-radius: var(--md-sys-shape-corner-full); font-size: var(--md-sys-typescale-label-small-size); font-weight: 500;">
+                                        ${roleName}
+                                    </div>
+                                </div>
+                                
+                                <!-- Districts Info -->
+                                ${user.allowedDistricts && user.allowedDistricts.length > 0 ? `
+                                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-2); margin-top: var(--md-sys-spacing-2);">
+                                        <span class="material-symbols-outlined" style="font-size: 16px; color: var(--md-sys-color-on-surface-variant);">location_on</span>
+                                        <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                            ${user.allowedDistricts.includes('all') ? 'Barcha tumanlar' : 
+                                              user.allowedDistricts.map(distId => {
+                                                  const dist = districts.find(d => d.id === distId);
+                                                  return dist ? dist.name : distId;
+                                              }).join(', ')}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div style="display: flex; gap: var(--md-sys-spacing-1);">
+                                <button class="md-icon-button" onclick="editUser('${user.id}')" title="Tahrirlash">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="md-icon-button" onclick="deleteUser('${user.id}')" title="O'chirish" style="color: var(--md-sys-color-error);">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Show add user modal
+        function showAddUserModal() {
+            currentUserId = null;
+            document.getElementById('modalTitle').textContent = 'Yangi foydalanuvchi';
+            document.getElementById('userForm').reset();
+            document.getElementById('userPassword').required = true;
+            
+            // Clear district selections
+            const districtSelect = document.getElementById('userDistricts');
+            if (districtSelect) {
+                Array.from(districtSelect.options).forEach(option => option.selected = false);
+            }
+            
+            renderPermissions({});
+            document.getElementById('userModal').classList.add('open');
+        }
+        
+        // Edit user
+        function editUser(userId) {
+            currentUserId = userId;
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            document.getElementById('modalTitle').textContent = 'Foydalanuvchini tahrirlash';
+            document.getElementById('userId').value = user.id;
+            document.getElementById('userName').value = user.name;
+            document.getElementById('userUsername').value = user.username;
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userPassword').required = false;
+            document.getElementById('userRole').value = user.role;
+            
+            // Set allowed districts
+            const districtSelect = document.getElementById('userDistricts');
+            if (districtSelect && user.allowedDistricts) {
+                Array.from(districtSelect.options).forEach(option => {
+                    option.selected = user.allowedDistricts.includes(option.value);
+                });
+            }
+            
+            renderPermissions(user.permissions || {});
+            document.getElementById('userModal').classList.add('open');
+        }
+        
+        // Render permissions
+        function renderPermissions(userPermissions) {
+            const container = document.getElementById('permissionsGrid');
+            
+            if (!permissions.modules) {
+                container.innerHTML = '<p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant);">Ruxsatlar yuklanmoqda...</p>';
+                return;
+            }
+            
+            container.innerHTML = permissions.modules.map(module => {
+                const isChecked = userPermissions[module.id];
+                return `
+                    <label style="display: flex; align-items: center; gap: var(--md-sys-spacing-3); padding: var(--md-sys-spacing-3); background: ${isChecked ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-surface-container-highest)'}; color: ${isChecked ? 'var(--md-sys-color-on-primary-container)' : 'var(--md-sys-color-on-surface)'}; border-radius: var(--md-sys-shape-corner-small); cursor: pointer; transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard); border: 1px solid ${isChecked ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline-variant)'};" 
+                           onmouseover="if (!this.querySelector('input').checked) { this.style.background='var(--md-sys-color-surface-container)'; }" 
+                           onmouseout="if (!this.querySelector('input').checked) { this.style.background='var(--md-sys-color-surface-container-highest)'; }">
+                        <input type="checkbox" 
+                               name="permission" 
+                               value="${module.id}"
+                               ${isChecked ? 'checked' : ''}
+                               onchange="togglePermission(this)"
+                               style="width: 18px; height: 18px; accent-color: var(--md-sys-color-primary);">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">
+                            ${getModuleIcon(module.id)}
+                        </span>
+                        <span class="md-typescale-body-medium" style="font-weight: 500;">
+                            ${module.name}
+                        </span>
+                    </label>
+                `;
+            }).join('');
+        }
+        
+        // Get module icon
+        function getModuleIcon(moduleId) {
+            const icons = {
+                dashboard: 'dashboard',
+                employees: 'people',
+                broadcast: 'campaign',
+                reports: 'analytics',
+                phonebook: 'contacts',
+                departments: 'business',
+                groups: 'group_work',
+                districts: 'location_on',
+                sipPhone: 'phone',
+                sipAccounts: 'dialpad',
+                users: 'admin_panel_settings'
+            };
+            return icons[moduleId] || 'settings';
+        }
+        
+        // Toggle permission style
+        function togglePermission(checkbox) {
+            const label = checkbox.closest('label');
+            if (checkbox.checked) {
+                label.style.background = 'var(--md-sys-color-primary-container)';
+                label.style.color = 'var(--md-sys-color-on-primary-container)';
+                label.style.borderColor = 'var(--md-sys-color-primary)';
+            } else {
+                label.style.background = 'var(--md-sys-color-surface-container-highest)';
+                label.style.color = 'var(--md-sys-color-on-surface)';
+                label.style.borderColor = 'var(--md-sys-color-outline-variant)';
+            }
+        }
+        
+        // Close modal
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('open');
+        }
+        
+        // Delete user
+        async function deleteUser(userId) {
+            if (!confirm('Foydalanuvchini o\'chirishni xohlaysizmi?')) return;
+            
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadData();
+                    showSnackbar('Foydalanuvchi muvaffaqiyatli o\'chirildi');
+                } else {
+                    const error = await response.json();
+                    showSnackbar('Xatolik: ' + (error.error || 'Xatolik yuz berdi'), 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showSnackbar('Xatolik yuz berdi', 'error');
+            }
+        }
+        
+        // Save user
+        async function saveUser(event) {
+            event.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('userName').value,
+                username: document.getElementById('userUsername').value,
+                role: document.getElementById('userRole').value
+            };
+            
+            const password = document.getElementById('userPassword').value;
+            if (password || !currentUserId) {
+                formData.password = password;
+            }
+            
+            // Get selected permissions
+            const selectedPermissions = {};
+            document.querySelectorAll('input[name="permission"]:checked').forEach(cb => {
+                selectedPermissions[cb.value] = true;
+            });
+            formData.permissions = selectedPermissions;
+            
+            // Get selected districts
+            const districtSelect = document.getElementById('userDistricts');
+            const selectedDistricts = Array.from(districtSelect.selectedOptions).map(option => option.value);
+            formData.allowedDistricts = selectedDistricts.length > 0 ? selectedDistricts : ['all'];
+            
+            try {
+                const url = currentUserId ? `/api/users/${currentUserId}` : '/api/users';
+                const method = currentUserId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    closeUserModal();
+                    loadData();
+                    showSnackbar(currentUserId ? 'Foydalanuvchi muvaffaqiyatli yangilandi' : 'Foydalanuvchi muvaffaqiyatli qo\'shildi');
+                } else {
+                    const error = await response.json();
+                    showSnackbar('Xatolik: ' + (error.error || 'Xatolik yuz berdi'), 'error');
+                }
+            } catch (error) {
+                console.error('Error saving user:', error);
+                showSnackbar('Xatolik yuz berdi', 'error');
+            }
+        }
+        
+        // Simple snackbar function
+        function showSnackbar(message, type = 'success') {
+            const snackbar = document.createElement('div');
+            snackbar.className = 'md-snackbar show';
+            snackbar.innerHTML = `
+                <span class="md-snackbar-text">${message}</span>
+            `;
+            
+            if (type === 'error') {
+                snackbar.style.background = 'var(--md-sys-color-error-container)';
+                snackbar.style.color = 'var(--md-sys-color-on-error-container)';
+            }
+            
+            document.body.appendChild(snackbar);
+            
+            setTimeout(() => {
+                snackbar.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(snackbar);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Handle role change
+        document.getElementById('userRole').addEventListener('change', (e) => {
+            if (e.target.value === 'admin') {
+                // Check all permissions for admin
+                document.querySelectorAll('input[name="permission"]').forEach(cb => {
+                    cb.checked = true;
+                    togglePermission(cb);
+                });
+            } else {
+                // Set default permissions for other roles
+                document.querySelectorAll('input[name="permission"]').forEach(cb => {
+                    if (e.target.value === 'manager') {
+                        // Default permissions for manager
+                        const managerPermissions = ['dashboard', 'employees', 'broadcast', 'reports', 'phonebook', 'departments', 'groups', 'districts'];
+                        cb.checked = managerPermissions.includes(cb.value);
+                    } else if (e.target.value === 'operator') {
+                        // Default permissions for operator
+                        const operatorPermissions = ['dashboard', 'broadcast', 'phonebook'];
+                        cb.checked = operatorPermissions.includes(cb.value);
+                    } else {
+                        cb.checked = false;
+                    }
+                    
+                    togglePermission(cb);
+                });
+            }
+        });
+        
+        // Load data on page load
+        loadData();
+    </script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

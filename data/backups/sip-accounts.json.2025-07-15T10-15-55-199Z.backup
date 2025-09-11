@@ -1,0 +1,14 @@
+[
+  {
+    "id": "huawei-1",
+    "extension": "752305530",
+    "password": "",
+    "name": "Uztelecom Huawei ATS",
+    "server": "172.26.0.10",
+    "active": true,
+    "channels": 5,
+    "skipRegistration": false,
+    "createdAt": "2025-07-15T10:00:00.000Z",
+    "updatedAt": "2025-07-15T10:07:38.403Z"
+  }
+]

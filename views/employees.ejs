@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('employees.title') : 'Xodimlar' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="employees-page">
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <!-- Include MD3 Navigation -->
+        <%- include('partials/navigation') %>
+        
+        <!-- Main App Content -->
+        <div class="md-app-content">
+            <!-- Main Content Area -->
+            <main class="md-main-content">
+                <div class="md-container">
+                    <!-- Page Header with Actions -->
+                    <header style="margin-bottom: var(--md-sys-spacing-8);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--md-sys-spacing-4);">
+                            <div>
+                                <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                    <%= typeof t !== 'undefined' ? t('employees.description') : "Tashkilot xodimlarini boshqarish va ma'lumotlarini yangilash" %>
+                                </p>
+                            </div>
+                            
+                            <div style="display: flex; gap: var(--md-sys-spacing-2); flex-wrap: wrap;">
+                                <button class="md-button md-button-outlined" onclick="downloadExcelTemplate()">
+                                    <span class="material-symbols-outlined">description</span>
+                                    Excel Shablon
+                                </button>
+                                <button class="md-button md-button-outlined" onclick="exportEmployees()">
+                                    <span class="material-symbols-outlined">file_download</span>
+                                    <%= typeof t !== 'undefined' ? t('buttons.export') : 'Eksport' %>
+                                </button>
+                                <button class="md-button md-button-tonal" onclick="importEmployees()">
+                                    <span class="material-symbols-outlined">file_upload</span>
+                                    <%= typeof t !== 'undefined' ? t('buttons.import') : 'Import' %>
+                                </button>
+                                <button class="md-button md-button-filled" onclick="showAddModal()">
+                                    <span class="material-symbols-outlined">person_add</span>
+                                    <%= typeof t !== 'undefined' ? t('employees.add_new') : 'Yangi xodim qo\'shish' %>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- Search and Filter Section -->
+                    <section style="margin-bottom: var(--md-sys-spacing-8);">
+                        <div class="md-card md-card-outlined">
+                            <div style="padding: var(--md-sys-spacing-6);">
+                                <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin-bottom: var(--md-sys-spacing-4);">
+                                    <%= typeof t !== 'undefined' ? t('buttons.search') : 'Qidirish' %> <%= typeof t !== 'undefined' ? t('common.and') : 'va' %> <%= typeof t !== 'undefined' ? t('buttons.filter') : 'Filtrlash' %>
+                                </h3>
+                                
+                                <div class="md-grid md-grid-cols-3">
+                                    <!-- Search Field -->
+                                    <div class="form-group">
+                                        <label for="searchInput"><%= typeof t !== 'undefined' ? t('employees.search_placeholder') : 'Qidirish...' %></label>
+                                        <input 
+                                            type="text" 
+                                            id="searchInput" 
+                                            onkeyup="searchEmployees(this.value)"
+                                            style="padding-left: var(--md-sys-spacing-12);"
+                                        >
+                                        <div style="position: absolute; left: var(--md-sys-spacing-4); top: 50%; transform: translateY(-50%); pointer-events: none;">
+                                            <span class="material-symbols-outlined" style="font-size: 20px; color: var(--md-sys-color-on-surface-variant);">
+                                                search
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Department Filter -->
+                                    <div class="form-group">
+                                        <label for="departmentFilter"><%= typeof t !== 'undefined' ? t('departments.title') : "Bo'limlar" %></label>
+                                        <select 
+                                            id="departmentFilter" 
+                                            onchange="filterByDepartment(this.value)"
+                                            style="padding-left: var(--md-sys-spacing-12);"
+                                        >
+                                            <option value=""><%= typeof t !== 'undefined' ? t('common.all') : 'Barcha' %> <%= typeof t !== 'undefined' ? t('departments.title').toLowerCase() : "bo'limlar" %></option>
+                                            <option value="Rahbariyat">Rahbariyat</option>
+                                            <option value="YPX">YPX</option>
+                                            <option value="TTB">TTB</option>
+                                            <option value="IIB">IIB</option>
+                                            <option value="IT">IT bo'limi</option>
+                                        </select>
+                                        <div style="position: absolute; left: var(--md-sys-spacing-4); top: 50%; transform: translateY(-50%); pointer-events: none;">
+                                            <span class="material-symbols-outlined" style="font-size: 20px; color: var(--md-sys-color-on-surface-variant);">
+                                                business
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- District Filter -->
+                                    <div class="form-group">
+                                        <label for="districtFilter"><%= typeof t !== 'undefined' ? t('districts.title') : 'Tumanlar' %></label>
+                                        <select 
+                                            id="districtFilter" 
+                                            onchange="filterByDistrict(this.value)"
+                                            style="padding-left: var(--md-sys-spacing-12);"
+                                        >
+                                            <option value="">Barcha tumanlar</option>
+                                        </select>
+                                        <div style="position: absolute; left: var(--md-sys-spacing-4); top: 50%; transform: translateY(-50%); pointer-events: none;">
+                                            <span class="material-symbols-outlined" style="font-size: 20px; color: var(--md-sys-color-on-surface-variant);">
+                                                location_on
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Employees Table -->
+                    <section>
+                        <div class="md-card md-card-outlined">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid var(--md-sys-color-outline-variant); background: var(--md-sys-color-surface-container);">
+                                            <th class="md-typescale-title-small hide-on-mobile" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                ID
+                                            </th>
+                                            <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                F.I.O
+                                            </th>
+                                            <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                Lavozimi
+                                            </th>
+                                            <th class="md-typescale-title-small hide-on-mobile" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                Unvoni
+                                            </th>
+                                            <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                Bo'lim
+                                            </th>
+                                            <th class="md-typescale-title-small hide-on-mobile" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                Tuman
+                                            </th>
+                                            <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                Telefon
+                                            </th>
+                                            <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                                                Amallar
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="employeesTableBody">
+                                        <tr>
+                                            <td colspan="8" class="md-typescale-body-medium" style="text-align: center; padding: var(--md-sys-spacing-8); color: var(--md-sys-color-on-surface-variant);">
+                                                <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                                                    <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">
+                                                        people
+                                                    </span>
+                                                    Ma'lumotlar yuklanmoqda...
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Pagination -->
+                            <div style="padding: var(--md-sys-spacing-4); border-top: 1px solid var(--md-sys-color-outline-variant); display: flex; justify-content: center;">
+                                <div id="pagination" class="md-typescale-body-medium">
+                                    <!-- Pagination will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Employee Modal -->
+    <div class="md-dialog" id="employeeModal">
+        <div class="md-dialog-container" style="max-width: 600px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title" id="modalTitle">Yangi xodim qo'shish</h2>
+                <button class="md-icon-button" onclick="closeModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="md-dialog-content">
+                <form id="employeeForm" onsubmit="saveEmployee(event); return false;">
+                    <input type="hidden" id="employeeId">
+                    
+                    <!-- Name Field -->
+                    <div class="form-group">
+                        <label for="employeeName">F.I.O *</label>
+                        <input 
+                            type="text" 
+                            id="employeeName" 
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Position Field -->
+                    <div class="form-group">
+                        <label for="employeePosition">Lavozimi</label>
+                        <input 
+                            type="text" 
+                            id="employeePosition" 
+                        >
+                    </div>
+                    
+                    <!-- Rank Field -->
+                    <div class="form-group">
+                        <label for="employeeRank">Unvoni</label>
+                        <input 
+                            type="text" 
+                            id="employeeRank" 
+                            placeholder="Masalan: Mayor, Kapitan"
+                        >
+                    </div>
+                    
+                    <!-- Department Field -->
+                    <div class="form-group">
+                        <label for="employeeDepartment">Bo'lim</label>
+                        <select 
+                            id="employeeDepartment" 
+                        >
+                            <option value="">Tanlang</option>
+                            <option value="Rahbariyat">Rahbariyat</option>
+                            <option value="YPX">YPX</option>
+                            <option value="TTB">TTB</option>
+                            <option value="IIB">IIB</option>
+                            <option value="IT">IT bo'limi</option>
+                            <option value="Moliya">Moliya bo'limi</option>
+                            <option value="Kadrlar">Kadrlar bo'limi</option>
+                            <option value="Xavfsizlik">Xavfsizlik xizmati</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Phone Field -->
+                    <div class="form-group">
+                        <label for="employeePhone">Telefon raqami *</label>
+                        <input 
+                            type="text" 
+                            id="employeePhone" 
+                            required
+                        >
+                        <div class="md-text-field-supporting">Masalan: 0990823112 yoki +998901234567</div>
+                    </div>
+                    
+                    <!-- Service Phone Field -->
+                    <div class="form-group">
+                        <label for="employeeServicePhone">Xizmat telefoni</label>
+                        <input 
+                            type="text" 
+                            id="employeeServicePhone" 
+                        >
+                        <div class="md-text-field-supporting">Ixtiyoriy maydon. Masalan: 71-123-45-67</div>
+                    </div>
+                    
+                    <!-- District Field -->
+                    <div class="form-group">
+                        <label for="employeeDistrict">Tuman</label>
+                        <select 
+                            id="employeeDistrict" 
+                        >
+                            <option value="">Tanlang</option>
+                        </select>
+                    </div>
+                    
+                </form>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeModal()">
+                    Bekor qilish
+                </button>
+                <button type="submit" form="employeeForm" class="md-button md-button-filled">
+                    <span class="material-symbols-outlined">save</span>
+                    Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="md-dialog" id="deleteModal">
+        <div class="md-dialog-container" style="max-width: 400px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title">Xodimni o'chirish</h2>
+            </div>
+            
+            <div class="md-dialog-content">
+                <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface);">
+                    Haqiqatan ham <strong id="deleteEmployeeName"></strong> xodimini o'chirmoqchimisiz?
+                </p>
+                <div style="background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); padding: var(--md-sys-spacing-3); border-radius: var(--md-sys-shape-corner-small); margin-top: var(--md-sys-spacing-4); display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                    <span class="material-symbols-outlined">warning</span>
+                    <span class="md-typescale-body-small">Bu amalni qaytarib bo'lmaydi!</span>
+                </div>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeDeleteModal()">
+                    Bekor qilish
+                </button>
+                <button type="button" class="md-button md-button-filled" onclick="confirmDelete()" style="background: var(--md-sys-color-error); color: var(--md-sys-color-on-error);">
+                    <span class="material-symbols-outlined">delete</span>
+                    O'chirish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pass user data to JavaScript
+        window.currentUser = {
+            role: '<%= user.role %>',
+            allowedDistricts: <%- JSON.stringify(user.allowedDistricts || []) %>
+        };
+    </script>
+    <script src="/js/download-template.js"></script>
+    <script src="/js/xlsx-import.js"></script>
+    <script src="/js/employees.js?v=<%= Date.now() %>"></script>
+    <script src="/js/employees-debug.js?v=<%= Date.now() %>"></script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+    <script src="/js/employees-translations.js"></script>
+</body>
+</html>

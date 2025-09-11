@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('navigation.departments') : 'Bo\'limlar' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <%- include('partials/navigation') %>
+        
+        <!-- App Content -->
+        <div class="md-app-content">
+            <!-- Main Content -->
+            <main class="md-main-content">
+                <div class="md-container">
+            <!-- Page Header -->
+            <header style="margin-bottom: var(--md-sys-spacing-8);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--md-sys-spacing-4);">
+                    <div>
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            <%= typeof t !== 'undefined' ? t('departments.description') : 'Tashkilot bo\'limlarini boshqarish va xodimlarni guruhlar bo\'yicha tashkil etish' %>
+                        </p>
+                    </div>
+                    
+                    <button class="md-button md-button-filled" onclick="showAddDepartmentModal()">
+                        <span class="material-symbols-outlined">add</span>
+                        <%= typeof t !== 'undefined' ? t('departments.newDepartment') : 'Yangi bo\'lim' %>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Departments Grid -->
+            <section>
+                <div class="md-grid md-grid-cols-3" id="departmentsGrid">
+                    <!-- Loading State -->
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                business
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                <%= typeof t !== 'undefined' ? t('common.loading') : 'Ma\'lumotlar yuklanmoqda...' %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- Department Modal -->
+    <div class="md-dialog" id="departmentModal">
+        <div class="md-dialog-container" style="max-width: 500px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title" id="modalTitle"><%= typeof t !== 'undefined' ? t('departments.newDepartment') : 'Yangi bo\'lim' %></h2>
+                <button class="md-icon-button" onclick="closeDepartmentModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="md-dialog-content">
+                <form id="departmentForm" onsubmit="saveDepartment(event); return false;">
+                    <input type="hidden" id="departmentId">
+                    
+                    <!-- Department Name -->
+                    <div class="form-group">
+                        <label for="departmentName"><%= typeof t !== 'undefined' ? t('departments.departmentName') : 'Bo\'lim nomi' %> *</label>
+                        <input 
+                            type="text" 
+                            id="departmentName" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('departments.enterDepartmentName') : 'Bo\'lim nomini kiriting' %>"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Department Description -->
+                    <div class="form-group">
+                        <label for="departmentDescription"><%= typeof t !== 'undefined' ? t('departments.description') : 'Tavsif' %></label>
+                        <textarea 
+                            id="departmentDescription" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('departments.enterDescription') : 'Bo\'lim tavsifini kiriting' %>"
+                            rows="3"
+                            style="resize: vertical; min-height: 80px;"
+                        ></textarea>
+                    </div>
+                    
+                    <!-- Department Head -->
+                    <div class="form-group">
+                        <label for="departmentHead"><%= typeof t !== 'undefined' ? t('departments.head') : 'Rahbar' %></label>
+                        <input 
+                            type="text" 
+                            id="departmentHead" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('departments.enterHeadName') : 'Rahbar ismini kiriting' %>"
+                        >
+                    </div>
+                    
+                    <!-- District Selection -->
+                    <div class="form-group">
+                        <label for="departmentDistrict"><%= typeof t !== 'undefined' ? t('phonebook.district') : 'Tuman' %></label>
+                        <select 
+                            id="departmentDistrict" 
+                            class="form-control"
+                        >
+                            <option value="all"><%= typeof t !== 'undefined' ? t('phonebook.allDistricts') : 'Barcha tumanlar' %></option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeDepartmentModal()">
+                    <%= typeof t !== 'undefined' ? t('common.cancel') : 'Bekor qilish' %>
+                </button>
+                <button type="submit" form="departmentForm" class="md-button md-button-filled">
+                    <span class="material-symbols-outlined">save</span>
+                    <%= typeof t !== 'undefined' ? t('common.save') : 'Saqlash' %>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="md-dialog" id="deleteModal">
+        <div class="md-dialog-container" style="max-width: 400px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title"><%= typeof t !== 'undefined' ? t('common.confirmDelete') : 'O\'chirishni tasdiqlang' %></h2>
+            </div>
+            
+            <div class="md-dialog-content">
+                <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface); margin-bottom: var(--md-sys-spacing-4);">
+                    Haqiqatan ham <strong id="deleteDeptName"></strong> bo'limini o'chirmoqchimisiz?
+                </p>
+                <div style="background: var(--md-sys-color-warning-container); color: var(--md-sys-color-on-warning-container); padding: var(--md-sys-spacing-3); border-radius: var(--md-sys-shape-corner-small); display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                    <span class="material-symbols-outlined">warning</span>
+                    <span class="md-typescale-body-small"><%= typeof t !== 'undefined' ? t('departments.deleteWarning') : 'Bu bo\'limga biriktirilgan barcha xodimlar bo\'limsiz qoladi!' %></span>
+                </div>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeDeleteModal()">
+                    <%= typeof t !== 'undefined' ? t('common.cancel') : 'Bekor qilish' %>
+                </button>
+                <button type="button" class="md-button md-button-filled" onclick="confirmDeleteDepartment()" style="background: var(--md-sys-color-error); color: var(--md-sys-color-on-error);">
+                    <span class="material-symbols-outlined">delete</span>
+                    <%= typeof t !== 'undefined' ? t('common.delete') : 'O\'chirish' %>
+                </button>
+            </div>
+        </div>
+    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        let departments = [];
+        let employees = [];
+        let districts = [];
+        
+        // Load data
+        async function loadData() {
+            try {
+                console.log('Loading departments data...');
+                const [deptResponse, empResponse, distResponse] = await Promise.all([
+                    fetch('/api/departments'),
+                    fetch('/api/employees'),
+                    fetch('/api/districts-list')
+                ]);
+                
+                console.log('Response status:', deptResponse.status, empResponse.status);
+                
+                if (!deptResponse.ok || !empResponse.ok) {
+                    // Handle permission errors
+                    if (deptResponse.status === 403 || empResponse.status === 403) {
+                        throw new Error('Ruxsat etilmagan. Admindan kerakli huquqlarni so\'rang.');
+                    }
+                    if (deptResponse.status === 401 || empResponse.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error('Ma\'lumotlarni yuklashda xatolik yuz berdi');
+                }
+                
+                departments = await deptResponse.json();
+                const empData = await empResponse.json();
+                districts = await distResponse.json();
+                
+                // Handle employees response format
+                if (empData && empData.success && Array.isArray(empData.employees)) {
+                    employees = empData.employees;
+                } else if (Array.isArray(empData)) {
+                    employees = empData;
+                } else {
+                    console.error('Invalid employee response format:', empData);
+                    employees = [];
+                }
+                
+                // Validate data types
+                if (!Array.isArray(departments)) {
+                    console.error('Invalid departments data:', departments);
+                    departments = [];
+                }
+                // Employees is already handled above
+                if (!Array.isArray(districts)) {
+                    console.error('Invalid districts data:', districts);
+                    districts = [];
+                }
+                
+                console.log('Loaded departments:', departments.length);
+                console.log('Loaded employees:', employees?.length || 'undefined');
+                console.log('Loaded districts:', districts.length);
+                
+                // Populate district dropdown
+                populateDistrictDropdown();
+                
+                // Filter only active employees (ensure it's array)
+                if (Array.isArray(employees)) {
+                    employees = employees.filter(emp => !emp.deleted);
+                } else {
+                    employees = [];
+                }
+                console.log('Active employees:', employees.length);
+                
+                renderDepartments();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('departmentsGrid').innerHTML = `
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-error);">
+                                error
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-error);">
+                                Ma'lumotlarni yuklashda xatolik: ${error.message}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Render departments
+        function renderDepartments() {
+            console.log('=== RENDER DEPARTMENTS DEBUG ===');
+            console.log('Total departments:', departments.length);
+            console.log('Total employees:', employees.length);
+            console.log('First 3 employees:', employees.slice(0, 3));
+            console.log('First 3 departments:', departments.slice(0, 3));
+            
+            const container = document.getElementById('departmentsGrid');
+            
+            if (departments.length === 0) {
+                container.innerHTML = `
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                business
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                Bo'limlar mavjud emas
+                            </p>
+                            <button class="md-button md-button-tonal" onclick="showAddDepartmentModal()">
+                                <span class="material-symbols-outlined">add</span>
+                                Birinchi bo'limni qo'shing
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = departments.map(dept => {
+                // Filter employees by department ID or name (for backward compatibility)
+                const deptEmployees = Array.isArray(employees) ? employees.filter(emp => {
+                    const match = emp.department === dept.id || emp.department === dept.name;
+                    if (dept.id === '17519859513723hf36qmbq' && match) {
+                        console.log(`Employee ${emp.name} matches department ${dept.name}`);
+                    }
+                    return match;
+                }) : [];
+                
+                if (deptEmployees.length > 0) {
+                    console.log(`Department "${dept.name}" (${dept.id}) has ${deptEmployees.length} employees`);
+                }
+                const showLimit = 3;
+                const hasMore = deptEmployees.length > showLimit;
+                
+                return `
+                    <div class="md-card md-card-elevated" style="transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                        <div style="padding: var(--md-sys-spacing-6);">
+                            <!-- Department Header -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--md-sys-spacing-4);">
+                                <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3);">
+                                    <div style="width: var(--md-sys-spacing-12); height: var(--md-sys-spacing-12); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-primary-container);">
+                                            business
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 class="md-typescale-title-large" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                            ${dept.name}
+                                        </h3>
+                                        ${dept.description ? `
+                                            <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: var(--md-sys-spacing-1) 0 0 0;">
+                                                ${dept.description}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: var(--md-sys-spacing-1);">
+                                    <button class="md-icon-button" onclick="editDepartment('${dept.id}')" title="Tahrirlash">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="md-icon-button" onclick="deleteDepartment('${dept.id}')" title="O'chirish" style="color: var(--md-sys-color-error);">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Department Stats -->
+                            <div class="md-grid md-grid-cols-2" style="margin-bottom: var(--md-sys-spacing-4);">
+                                <div style="background: var(--md-sys-color-surface-container-highest); padding: var(--md-sys-spacing-4); border-radius: var(--md-sys-shape-corner-small); text-align: center;">
+                                    <p class="md-typescale-display-small" style="color: var(--md-sys-color-primary); margin: 0; font-weight: 600;">
+                                        ${deptEmployees.length}
+                                    </p>
+                                    <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Xodimlar
+                                    </p>
+                                </div>
+                                <div style="background: var(--md-sys-color-surface-container-highest); padding: var(--md-sys-spacing-4); border-radius: var(--md-sys-shape-corner-small); text-align: center;">
+                                    <p class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0; font-weight: 500;">
+                                        ${dept.head || '-'}
+                                    </p>
+                                    <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Rahbar
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Employee List -->
+                            ${deptEmployees.length > 0 ? `
+                                <div style="margin-top: var(--md-sys-spacing-4);">
+                                    <h4 class="md-typescale-title-small" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-3) 0;">
+                                        Xodimlar
+                                    </h4>
+                                    <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-2);">
+                                        ${deptEmployees.slice(0, showLimit).map(emp => `
+                                            <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3); padding: var(--md-sys-spacing-2); background: var(--md-sys-color-surface-container-highest); border-radius: var(--md-sys-shape-corner-small);">
+                                                <div style="width: var(--md-sys-spacing-8); height: var(--md-sys-spacing-8); background: var(--md-sys-color-secondary-container); border-radius: var(--md-sys-shape-corner-full); display: flex; align-items: center; justify-content: center; color: var(--md-sys-color-on-secondary-container); font-weight: 600; font-size: var(--md-sys-typescale-label-small-size);">
+                                                    ${emp.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                                        ${emp.name}
+                                                    </p>
+                                                    <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                                        ${emp.position}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    ${hasMore ? `
+                                        <button class="md-button md-button-text" onclick="showDepartmentEmployees('${dept.id}', '${dept.name}')" style="width: 100%; margin-top: var(--md-sys-spacing-3);">
+                                            <span class="material-symbols-outlined">visibility</span>
+                                            Barcha xodimlarni ko'rish (${deptEmployees.length})
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Show all employees in department
+        function showDepartmentEmployees(deptId, deptName) {
+            window.location.href = `/employees?department=${deptId}`;
+        }
+        
+        // Load data on page load
+        loadData();
+        
+        // Department management functions
+        let deleteDeptId = null;
+        
+        function showAddDepartmentModal() {
+            document.getElementById('modalTitle').textContent = 'Yangi bo\'lim';
+            document.getElementById('departmentForm').reset();
+            document.getElementById('departmentId').value = '';
+            document.getElementById('departmentModal').classList.add('open');
+        }
+        
+        function editDepartment(id) {
+            const dept = departments.find(d => d.id === id);
+            if (!dept) {
+                console.error('Department not found:', id);
+                return;
+            }
+            
+            document.getElementById('modalTitle').textContent = 'Bo\'limni tahrirlash';
+            document.getElementById('departmentId').value = dept.id;
+            document.getElementById('departmentName').value = dept.name;
+            document.getElementById('departmentDescription').value = dept.description || '';
+            document.getElementById('departmentHead').value = dept.head || '';
+            document.getElementById('departmentDistrict').value = dept.district || 'all';
+            
+            document.getElementById('departmentModal').classList.add('open');
+        }
+        
+        function closeDepartmentModal() {
+            document.getElementById('departmentModal').classList.remove('open');
+            document.getElementById('departmentForm').reset();
+        }
+        
+        async function saveDepartment(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('departmentId').value;
+            const data = {
+                name: document.getElementById('departmentName').value,
+                description: document.getElementById('departmentDescription').value,
+                head: document.getElementById('departmentHead').value,
+                district: document.getElementById('departmentDistrict').value
+            };
+            
+            try {
+                const url = id ? `/api/departments/${id}` : '/api/departments';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeDepartmentModal();
+                    loadData();
+                    // Show success message
+                    showSnackbar(id ? 'Bo\'lim muvaffaqiyatli yangilandi' : 'Bo\'lim muvaffaqiyatli qo\'shildi');
+                } else {
+                    const error = await response.json();
+                    showSnackbar('Xatolik: ' + error.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error saving department:', error);
+                showSnackbar('Bo\'limni saqlashda xatolik', 'error');
+            }
+        }
+        
+        function deleteDepartment(id) {
+            const dept = departments.find(d => d.id === id);
+            if (!dept) {
+                console.error('Department not found:', id);
+                return;
+            }
+            
+            deleteDeptId = id;
+            document.getElementById('deleteDeptName').textContent = dept.name;
+            document.getElementById('deleteModal').classList.add('open');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('open');
+            deleteDeptId = null;
+        }
+        
+        async function confirmDeleteDepartment() {
+            if (!deleteDeptId) return;
+            
+            try {
+                const response = await fetch(`/api/departments/${deleteDeptId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    closeDeleteModal();
+                    loadData();
+                    showSnackbar('Bo\'lim muvaffaqiyatli o\'chirildi');
+                } else {
+                    const error = await response.json();
+                    showSnackbar('Xatolik: ' + error.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting department:', error);
+                showSnackbar('Bo\'limni o\'chirishda xatolik', 'error');
+            }
+        }
+        
+        // Populate district dropdown
+        function populateDistrictDropdown() {
+            const select = document.getElementById('departmentDistrict');
+            if (select && districts) {
+                select.innerHTML = '<option value="all">Barcha tumanlar</option>';
+                districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.name;
+                    option.textContent = district.name;
+                    select.appendChild(option);
+                });
+            }
+        }
+        
+        // Simple snackbar function
+        function showSnackbar(message, type = 'success') {
+            const snackbar = document.createElement('div');
+            snackbar.className = 'md-snackbar show';
+            snackbar.innerHTML = `
+                <span class="md-snackbar-text">${message}</span>
+            `;
+            
+            if (type === 'error') {
+                snackbar.style.background = 'var(--md-sys-color-error-container)';
+                snackbar.style.color = 'var(--md-sys-color-on-error-container)';
+            }
+            
+            document.body.appendChild(snackbar);
+            
+            setTimeout(() => {
+                snackbar.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(snackbar);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

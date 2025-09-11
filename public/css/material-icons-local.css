@@ -1,0 +1,124 @@
+/* Material Symbols Outlined - Local Version for Offline Use */
+
+/* Fallback to text when icons not available */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Icon mappings using Unicode symbols that work offline */
+.material-symbols-outlined:before {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+}
+
+/* Common icons with Unicode fallbacks */
+.material-symbols-outlined:contains("edit"):before,
+.material-symbols-outlined[data-icon="edit"]:before { content: "✏"; }
+
+.material-symbols-outlined:contains("delete"):before,
+.material-symbols-outlined[data-icon="delete"]:before { content: "🗑"; }
+
+.material-symbols-outlined:contains("add"):before,
+.material-symbols-outlined[data-icon="add"]:before { content: "+"; font-size: 28px; font-weight: bold; }
+
+.material-symbols-outlined:contains("search"):before,
+.material-symbols-outlined[data-icon="search"]:before { content: "🔍"; }
+
+.material-symbols-outlined:contains("phone"):before,
+.material-symbols-outlined[data-icon="phone"]:before { content: "📞"; }
+
+.material-symbols-outlined:contains("group"):before,
+.material-symbols-outlined[data-icon="group"]:before { content: "👥"; }
+
+.material-symbols-outlined:contains("person"):before,
+.material-symbols-outlined[data-icon="person"]:before { content: "👤"; }
+
+.material-symbols-outlined:contains("home"):before,
+.material-symbols-outlined[data-icon="home"]:before { content: "🏠"; }
+
+.material-symbols-outlined:contains("settings"):before,
+.material-symbols-outlined[data-icon="settings"]:before { content: "⚙"; }
+
+.material-symbols-outlined:contains("logout"):before,
+.material-symbols-outlined[data-icon="logout"]:before { content: "↪"; }
+
+.material-symbols-outlined:contains("dashboard"):before,
+.material-symbols-outlined[data-icon="dashboard"]:before { content: "📊"; }
+
+.material-symbols-outlined:contains("broadcast"):before,
+.material-symbols-outlined[data-icon="broadcast"]:before { content: "📢"; }
+
+.material-symbols-outlined:contains("report"):before,
+.material-symbols-outlined[data-icon="report"]:before { content: "📋"; }
+
+.material-symbols-outlined:contains("file_upload"):before,
+.material-symbols-outlined[data-icon="file_upload"]:before { content: "📤"; }
+
+.material-symbols-outlined:contains("file_download"):before,
+.material-symbols-outlined[data-icon="file_download"]:before { content: "📥"; }
+
+.material-symbols-outlined:contains("description"):before,
+.material-symbols-outlined[data-icon="description"]:before { content: "📄"; }
+
+.material-symbols-outlined:contains("check"):before,
+.material-symbols-outlined[data-icon="check"]:before { content: "✓"; font-size: 20px; font-weight: bold; }
+
+.material-symbols-outlined:contains("close"):before,
+.material-symbols-outlined[data-icon="close"]:before { content: "✕"; font-size: 20px; }
+
+.material-symbols-outlined:contains("arrow_back"):before,
+.material-symbols-outlined[data-icon="arrow_back"]:before { content: "←"; font-size: 24px; }
+
+.material-symbols-outlined:contains("arrow_forward"):before,
+.material-symbols-outlined[data-icon="arrow_forward"]:before { content: "→"; font-size: 24px; }
+
+.material-symbols-outlined:contains("expand_more"):before,
+.material-symbols-outlined[data-icon="expand_more"]:before { content: "▼"; font-size: 16px; }
+
+.material-symbols-outlined:contains("expand_less"):before,
+.material-symbols-outlined[data-icon="expand_less"]:before { content: "▲"; font-size: 16px; }
+
+.material-symbols-outlined:contains("menu"):before,
+.material-symbols-outlined[data-icon="menu"]:before { content: "☰"; font-size: 24px; }
+
+.material-symbols-outlined:contains("more_vert"):before,
+.material-symbols-outlined[data-icon="more_vert"]:before { content: "⋮"; font-size: 24px; }
+
+.material-symbols-outlined:contains("filter_list"):before,
+.material-symbols-outlined[data-icon="filter_list"]:before { content: "▤"; font-size: 20px; }
+
+.material-symbols-outlined:contains("group_off"):before,
+.material-symbols-outlined[data-icon="group_off"]:before { content: "👥"; opacity: 0.3; }
+
+/* Button icon styles */
+.btn-icon .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* Unicode icon font as base */
+@font-face {
+  font-family: 'LocalIcons';
+  src: local('Arial Unicode MS'), local('Segoe UI Symbol'), local('Noto Color Emoji');
+}
+
+/* Use local icon font */
+.material-symbols-outlined {
+  font-family: 'LocalIcons', 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif !important;
+}

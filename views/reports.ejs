@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('navigation.reports') : 'Hisobotlar' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/reports.css">
+</head>
+<body>
+    <%- include('partials/navigation') %>
+
+    <div class="md-app-content">
+        <main class="md-main-content reports-page">
+
+        <!-- Date Range Filter -->
+        <div class="date-filter">
+            <div class="date-input">
+                <label>Boshlanish sanasi:</label>
+                <input type="date" id="startDate" onchange="updateReports()">
+            </div>
+            <div class="date-input">
+                <label>Tugash sanasi:</label>
+                <input type="date" id="endDate" onchange="updateReports()">
+            </div>
+            <button class="btn btn-primary" onclick="updateReports()">
+                <i class="fas fa-sync"></i> Yangilash
+            </button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Jami xabarlar</h3>
+                    <p class="stat-number" id="totalBroadcasts">0</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Tasdiqlangan</h3>
+                    <p class="stat-number" id="totalConfirmed">0</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Jami qo'ng'iroqlar</h3>
+                    <p class="stat-number" id="totalCalls">0</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Tasdiqlash foizi</h3>
+                    <p class="stat-number" id="confirmationRate">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Stats - Only for admins -->
+        <% if (user.role === 'admin') { %>
+        <div class="system-stats">
+            <h3><i class="fas fa-server"></i> Server holati</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-memory">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Xotira (RAM)</h3>
+                        <p class="stat-number" id="memoryUsage">-</p>
+                        <small class="stat-details" id="memoryDetails">-</small>
+                        <div class="progress-bar">
+                            <div id="memoryBar" class="progress-bar-fill progress-bar-memory"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-disk">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Disk xotirasi</h3>
+                        <p class="stat-number" id="diskUsage">-</p>
+                        <small class="stat-details" id="diskDetails">-</small>
+                        <div class="progress-bar">
+                            <div id="diskBar" class="progress-bar-fill progress-bar-disk"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-cpu">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Protsessor</h3>
+                        <p class="stat-number" id="cpuInfo">-</p>
+                        <small class="stat-details" id="cpuDetails">-</small>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-uptime">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Ishlash vaqti</h3>
+                        <p class="stat-number" id="uptime">-</p>
+                        <small class="stat-details" id="loadAverage">-</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Daily Broadcasts Chart -->
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-line"></i> Kunlik xabarlar</h3>
+                <canvas id="dailyBroadcastsChart"></canvas>
+            </div>
+
+            <!-- Department Statistics -->
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> Bo'limlar bo'yicha statistika</h3>
+                <canvas id="departmentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Detailed Report Table -->
+        <div class="report-table">
+            <h3><i class="fas fa-table"></i> Batafsil hisobot</h3>
+            
+            <div class="table-actions">
+                <button class="btn btn-secondary" onclick="exportReport('pdf')">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button class="btn btn-secondary" onclick="exportReport('excel')">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button class="btn btn-secondary" onclick="printReport()">
+                    <i class="fas fa-print"></i> Chop etish
+                </button>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sana</th>
+                        <th>Vaqt</th>
+                        <% if (user && user.role === 'admin') { %>
+                        <th>Yaratuvchi</th>
+                        <% } %>
+                        <th>Mavzu</th>
+                        <th>Xabar turi</th>
+                        <th>Qabul qiluvchilar</th>
+                        <th>Qo'ng'iroqlar</th>
+                        <th>Tasdiqlandi</th>
+                        <th>Foiz</th>
+                        <th>Status</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <tr>
+                        <td colspan="9" class="text-center">Ma'lumot yuklanmoqda...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        </main>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="/js/libs/chart.min.js"></script>
+    <!-- SheetJS Pro for Excel export with styling -->
+    <script src="/js/libs/xlsx.full.min.js"></script>
+    <script>
+        // Pass user data to JavaScript
+        window.currentUser = {
+            id: '<%= user.id %>',
+            role: '<%= user.role %>',
+            name: '<%= user.name %>'
+        };
+    </script>
+    <script src="/js/reports-detail.js?v=<%= Date.now() %>"></script>
+    <script src="/js/reports-export.js?v=<%= Date.now() %>"></script>
+    <script src="/js/reports.js?v=<%= Date.now() %>"></script>
+    <script src="/js/reports-fix.js?v=<%= Date.now() %>"></script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

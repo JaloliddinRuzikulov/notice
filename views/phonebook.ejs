@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('navigation.phonebook') : 'Telefon kitobi' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <%- include('partials/navigation') %>
+        
+        <!-- App Content -->
+        <div class="md-app-content">
+            <!-- Main Content -->
+            <main class="md-main-content">
+                <div class="md-container">
+                    <!-- Page Header -->
+                    <header style="margin-bottom: var(--md-sys-spacing-8);">
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            <%= typeof t !== 'undefined' ? t('phonebook.description') : 'Tashkilot xodimlarining telefon raqamlari va aloqa ma\'lumotlari' %>
+                        </p>
+                    </header>
+                    
+                    <!-- Search and Filter Section -->
+                    <section style="margin-bottom: var(--md-sys-spacing-8);">
+                        <div class="md-card md-card-outlined">
+                            <div style="padding: var(--md-sys-spacing-6);">
+                                <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin-bottom: var(--md-sys-spacing-4);">
+                                    <%= typeof t !== 'undefined' ? t('phonebook.searchAndFilter') : 'Qidiruv va filter' %>
+                                </h3>
+                                
+                                <div class="md-grid md-grid-cols-2">
+                                    <!-- Search Field -->
+                                    <div class="form-group">
+                                        <label for="searchInput"><%= typeof t !== 'undefined' ? t('phonebook.searchPlaceholder') : 'Ism, telefon yoki bo\'lim bo\'yicha qidiring' %></label>
+                                        <div style="position: relative;">
+                                            <input 
+                                                type="text" 
+                                                id="searchInput" 
+                                                class="form-control" 
+                                                placeholder="<%= typeof t !== 'undefined' ? t('common.search') : 'Qidiruv...' %>"
+                                                onkeyup="searchPhonebook()"
+                                                style="padding-left: var(--md-sys-spacing-12);"
+                                            >
+                                            <div style="position: absolute; left: var(--md-sys-spacing-4); top: 50%; transform: translateY(-50%); pointer-events: none;">
+                                                <span class="material-symbols-outlined" style="font-size: 20px; color: var(--md-sys-color-on-surface-variant);">
+                                                    search
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- District Filter -->
+                                    <div class="form-group">
+                                        <label for="districtFilter"><%= typeof t !== 'undefined' ? t('phonebook.district') : 'Tuman' %></label>
+                                        <div style="position: relative;">
+                                            <select 
+                                                id="districtFilter" 
+                                                class="form-control"
+                                                onchange="filterByDistrict()"
+                                                style="padding-left: var(--md-sys-spacing-12);"
+                                            >
+                                                <option value=""><%= typeof t !== 'undefined' ? t('phonebook.allDistricts') : 'Barcha tumanlar' %></option>
+                                            </select>
+                                            <div style="position: absolute; left: var(--md-sys-spacing-4); top: 50%; transform: translateY(-50%); pointer-events: none;">
+                                                <span class="material-symbols-outlined" style="font-size: 20px; color: var(--md-sys-color-on-surface-variant);">
+                                                    location_on
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Statistics -->
+                    <section style="margin-bottom: var(--md-sys-spacing-8);">
+                        <div class="md-card md-card-outlined">
+                            <div style="padding: var(--md-sys-spacing-6);">
+                                <div class="md-grid md-grid-cols-3">
+                                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3);">
+                                        <div style="width: var(--md-sys-spacing-10); height: var(--md-sys-spacing-10); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                            <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-5); color: var(--md-sys-color-on-primary-container);">
+                                                business
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="md-typescale-title-large" style="color: var(--md-sys-color-primary); margin: 0; font-weight: 600;" id="totalDepartments">
+                                                0
+                                            </p>
+                                            <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                                <%= typeof t !== 'undefined' ? t('phonebook.totalDepartments') : 'Jami bo\'limlar' %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3);">
+                                        <div style="width: var(--md-sys-spacing-10); height: var(--md-sys-spacing-10); background: var(--md-sys-color-secondary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                            <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-5); color: var(--md-sys-color-on-secondary-container);">
+                                                people
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="md-typescale-title-large" style="color: var(--md-sys-color-secondary); margin: 0; font-weight: 600;" id="totalEmployees">
+                                                0
+                                            </p>
+                                            <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                                <%= typeof t !== 'undefined' ? t('phonebook.totalEmployees') : 'Jami xodimlar' %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3);">
+                                        <div style="width: var(--md-sys-spacing-10); height: var(--md-sys-spacing-10); background: var(--md-sys-color-tertiary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                            <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-5); color: var(--md-sys-color-on-tertiary-container);">
+                                                expand_more
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="md-typescale-title-large" style="color: var(--md-sys-color-tertiary); margin: 0; font-weight: 600;" id="expandedDepartments">
+                                                0
+                                            </p>
+                                            <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                                <%= typeof t !== 'undefined' ? t('phonebook.expandedDepartments') : 'Ochiq bo\'limlar' %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Departments List -->
+                    <section>
+                        <div id="departmentsList" style="display: grid; gap: var(--md-sys-spacing-3);">
+                            <!-- Departments will be loaded here -->
+                        </div>
+                        
+                        <div class="md-card md-card-outlined" id="noResults" style="display: none; text-align: center; padding: var(--md-sys-spacing-16);">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                                <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                    search_off
+                                </span>
+                                <div>
+                                    <h3 class="md-typescale-title-large" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        <%= typeof t !== 'undefined' ? t('phonebook.nothingFound') : 'Hech narsa topilmadi' %>
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        <%= typeof t !== 'undefined' ? t('phonebook.tryAnotherSearch') : 'Boshqa so\'z bilan qidirib ko\'ring' %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let employees = [];
+        let departments = [];
+        let districts = [];
+        let employeesByDepartment = {};
+        let expandedDepts = new Set();
+        let currentDistrictFilter = '';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+        
+        // Load data
+        async function loadData() {
+            try {
+                // Load all data from phonebook API (no district filtering)
+                const response = await fetch('/api/phonebook/data', { credentials: 'same-origin' });
+                const data = await response.json();
+                
+                employees = data.employees || [];
+                departments = data.departments || [];
+                districts = data.districts || [];
+                
+                // Removed console.log for performance
+                
+                // Populate district filter
+                populateDistrictFilter();
+                
+                // Group employees by department
+                groupEmployeesByDepartment();
+                
+                // Removed console.log for performance
+                
+                // Display departments
+                displayDepartments();
+                
+                // Update stats
+                updateStats();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        // Group employees by department
+        function groupEmployeesByDepartment() {
+            employeesByDepartment = {};
+            
+            const filteredEmps = getFilteredEmployees();
+            
+            // Removed console.log for performance
+            
+            filteredEmps.forEach(emp => {
+                let deptId = 'other';
+                
+                // Try to find department by matching either ID or name
+                const dept = departments.find(d => 
+                    d.name === emp.department || 
+                    d.id === emp.department
+                );
+                
+                if (dept) {
+                    deptId = dept.id;
+                } else if (emp.department) {
+                    // If no matching department found but employee has department value
+                    // Create a temporary department entry
+                    const tempDeptId = 'dept_' + emp.department.replace(/\s+/g, '_');
+                    deptId = tempDeptId;
+                    
+                    // Check if we need to add this as a temporary department
+                    if (!departments.find(d => d.id === tempDeptId)) {
+                        departments.push({
+                            id: tempDeptId,
+                            name: emp.department,
+                            description: 'Avtomatik yaratilgan bo\'lim'
+                        });
+                    }
+                }
+                
+                if (!employeesByDepartment[deptId]) {
+                    employeesByDepartment[deptId] = [];
+                }
+                employeesByDepartment[deptId].push(emp);
+            });
+            
+            // Removed console.log for performance
+        }
+        
+        // Display departments
+        function displayDepartments(filteredDepts = null) {
+            const container = document.getElementById('departmentsList');
+            const deptList = filteredDepts || departments;
+            
+            // Removed console.log for performance
+            
+            if (deptList.length === 0) {
+                document.getElementById('noResults').style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+            
+            document.getElementById('noResults').style.display = 'none';
+            
+            // Sort departments by name
+            const sortedDepts = [...deptList].sort((a, b) => a.name.localeCompare(b.name));
+            
+            // Add departments for employees that don't match existing departments
+            Object.keys(employeesByDepartment).forEach(deptId => {
+                if (!sortedDepts.find(d => d.id === deptId)) {
+                    if (deptId === 'other') {
+                        sortedDepts.push({
+                            id: 'other',
+                            name: 'Bo\'limi ko\'rsatilmagan',
+                            description: 'Bo\'limi belgilanmagan xodimlar'
+                        });
+                    }
+                    // Temporary departments created in groupEmployeesByDepartment are already in departments array
+                }
+            });
+            
+            container.innerHTML = sortedDepts.map(dept => {
+                const empCount = employeesByDepartment[dept.id]?.length || 0;
+                const isExpanded = expandedDepts.has(dept.id);
+                
+                // Removed console.log for performance
+                
+                return `
+                    <div class="md-card md-card-outlined ${isExpanded ? 'expanded' : ''}" data-dept-id="${dept.id}" style="overflow: hidden;">
+                        <div style="padding: var(--md-sys-spacing-6); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);" onclick="toggleDepartment('${dept.id}')" onmouseover="this.style.background='var(--md-sys-color-surface-container)'" onmouseout="this.style.background='transparent'">
+                            <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-4);">
+                                <div style="width: var(--md-sys-spacing-12); height: var(--md-sys-spacing-12); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-primary-container);">
+                                        ${getDepartmentIcon(dept.name)}
+                                    </span>
+                                </div>
+                                <div>
+                                    <h3 class="md-typescale-title-large" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                        ${dept.name}
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        ${empCount} ta xodim
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-surface-variant); transform: ${isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};">
+                                expand_more
+                            </span>
+                        </div>
+                        <div style="max-height: ${isExpanded ? 'none' : '0'}; overflow: ${isExpanded ? 'visible' : 'hidden'}; background: var(--md-sys-color-surface-container-lowest); border-top: ${isExpanded ? '1px solid var(--md-sys-color-outline-variant)' : 'none'}; transition: max-height var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);">
+                            <div style="padding: var(--md-sys-spacing-6); display: grid; gap: var(--md-sys-spacing-3);" id="employees-${dept.id}">
+                                ${isExpanded ? displayEmployeesForDepartment(dept.id) : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Display employees for a department
+        function displayEmployeesForDepartment(deptId) {
+            const deptEmployees = employeesByDepartment[deptId] || [];
+            
+            if (deptEmployees.length === 0) {
+                return `
+                    <div style="text-align: center; padding: var(--md-sys-spacing-8); color: var(--md-sys-color-on-surface-variant);">
+                        <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5; margin-bottom: var(--md-sys-spacing-2);">
+                            people_outline
+                        </span>
+                        <p class="md-typescale-body-medium" style="margin: 0;">
+                            Bu bo'limda xodimlar yo'q
+                        </p>
+                    </div>
+                `;
+            }
+            
+            // Sort employees by name
+            const sortedEmps = [...deptEmployees].sort((a, b) => a.name.localeCompare(b.name));
+            
+            return sortedEmps.map(emp => `
+                <div class="md-card md-card-filled" style="padding: var(--md-sys-spacing-4); transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);" onmouseover="this.style.transform='translateX(2px)'; this.style.boxShadow='var(--md-sys-elevation-level2)'" onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='var(--md-sys-elevation-level1)'">
+                    <!-- Desktop Layout -->
+                    <div class="md-hide-on-compact" style="display: grid; grid-template-columns: 1fr auto auto auto auto; gap: var(--md-sys-spacing-4); align-items: center;">
+                        <div>
+                            <h4 class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface); margin: 0; font-weight: 600;">
+                                ${emp.name}
+                            </h4>
+                            ${emp.position ? `
+                                <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: var(--md-sys-spacing-1) 0 0 0;">
+                                    ${emp.position}
+                                </p>
+                            ` : ''}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                            <span class="material-symbols-outlined" style="font-size: 16px; color: var(--md-sys-color-primary);">
+                                phone
+                            </span>
+                            <span class="md-typescale-body-medium" style="color: var(--md-sys-color-primary); font-family: 'Courier New', monospace; font-weight: 500;">
+                                ${formatPhoneNumber(emp.phoneNumber)}
+                            </span>
+                        </div>
+                        <div>
+                            ${emp.servicePhone ? `
+                                <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; color: var(--md-sys-color-secondary);">
+                                        business
+                                    </span>
+                                    <span class="md-typescale-body-medium" style="color: var(--md-sys-color-secondary); font-family: 'Courier New', monospace; font-weight: 500;">
+                                        ${formatPhoneNumber(emp.servicePhone)}
+                                    </span>
+                                </div>
+                            ` : `
+                                <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                    -
+                                </span>
+                            `}
+                        </div>
+                        <div>
+                            ${emp.district ? `
+                                <div style="padding: var(--md-sys-spacing-1) var(--md-sys-spacing-3); background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); border-radius: var(--md-sys-shape-corner-full); font-size: var(--md-sys-typescale-label-small-size); font-weight: 500;">
+                                    ${emp.district}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div>
+                            <button class="md-button md-button-filled" onclick="callEmployee('${emp.phoneNumber}')" style="min-width: auto;">
+                                <span class="material-symbols-outlined">phone</span>
+                                Qo'ng'iroq
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Layout -->
+                    <div class="md-show-on-compact" style="display: none; flex-direction: column; gap: var(--md-sys-spacing-3);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <h4 class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface); margin: 0; font-weight: 600;">
+                                    ${emp.name}
+                                </h4>
+                                ${emp.position ? `
+                                    <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: var(--md-sys-spacing-1) 0 0 0;">
+                                        ${emp.position}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            ${emp.district ? `
+                                <div style="padding: var(--md-sys-spacing-1) var(--md-sys-spacing-3); background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); border-radius: var(--md-sys-shape-corner-full); font-size: var(--md-sys-typescale-label-small-size); font-weight: 500;">
+                                    ${emp.district}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="display: flex; flex-wrap: wrap; gap: var(--md-sys-spacing-2);">
+                            <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                                <span class="material-symbols-outlined" style="font-size: 16px; color: var(--md-sys-color-primary);">
+                                    phone
+                                </span>
+                                <span class="md-typescale-body-medium" style="color: var(--md-sys-color-primary); font-family: 'Courier New', monospace; font-weight: 500;">
+                                    ${formatPhoneNumber(emp.phoneNumber)}
+                                </span>
+                            </div>
+                            ${emp.servicePhone ? `
+                                <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; color: var(--md-sys-color-secondary);">
+                                        business
+                                    </span>
+                                    <span class="md-typescale-body-medium" style="color: var(--md-sys-color-secondary); font-family: 'Courier New', monospace; font-weight: 500;">
+                                        ${formatPhoneNumber(emp.servicePhone)}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button class="md-button md-button-filled" onclick="callEmployee('${emp.phoneNumber}')" style="min-width: auto;">
+                                <span class="material-symbols-outlined">phone</span>
+                                Qo'ng'iroq
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Toggle department expansion
+        function toggleDepartment(deptId) {
+            // Removed console.log for performance
+            const card = document.querySelector(`[data-dept-id="${deptId}"]`);
+            if (!card) {
+                // console.error('Card not found for department:', deptId);
+                return;
+            }
+            
+            // Get all direct child divs
+            const childDivs = card.querySelectorAll(':scope > div');
+            if (childDivs.length < 2) {
+                // console.error('Not enough child divs found');
+                return;
+            }
+            
+            // Second div is the container with employees
+            const container = childDivs[1];
+            // Find expand icon in the first div
+            const expandIcon = childDivs[0].querySelector('.material-symbols-outlined:last-of-type');
+            
+            if (!container || !expandIcon) {
+                // console.error('Could not find container or expand icon for department:', deptId);
+                return;
+            }
+            
+            if (expandedDepts.has(deptId)) {
+                // Collapsing department
+                expandedDepts.delete(deptId);
+                card.classList.remove('expanded');
+                container.style.maxHeight = '0';
+                container.style.overflow = 'hidden';
+                container.style.borderTop = 'none';
+                expandIcon.style.transform = 'rotate(0deg)';
+            } else {
+                // Expanding department
+                expandedDepts.add(deptId);
+                card.classList.add('expanded');
+                
+                // Load employees if not already loaded
+                const employeesContainer = document.getElementById(`employees-${deptId}`);
+                if (employeesContainer && employeesContainer.innerHTML.trim() === '') {
+                    employeesContainer.innerHTML = displayEmployeesForDepartment(deptId);
+                }
+                
+                // First set to auto to get the actual height
+                container.style.maxHeight = 'none';
+                container.style.overflow = 'visible';
+                container.style.borderTop = '1px solid var(--md-sys-color-outline-variant)';
+                expandIcon.style.transform = 'rotate(180deg)';
+            }
+            
+            updateStats();
+        }
+        
+        // Search functionality
+        function searchPhonebook() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayDepartments();
+                return;
+            }
+            
+            // Filter departments that have matching employees
+            const matchingDepts = departments.filter(dept => {
+                // Check if department name matches
+                if (dept.name.toLowerCase().includes(searchTerm)) {
+                    return true;
+                }
+                
+                // Check if any employee in this department matches
+                const deptEmployees = employeesByDepartment[dept.id] || [];
+                return deptEmployees.some(emp => 
+                    emp.name.toLowerCase().includes(searchTerm) ||
+                    emp.phoneNumber.includes(searchTerm) ||
+                    (emp.servicePhone && emp.servicePhone.includes(searchTerm)) ||
+                    (emp.position && emp.position.toLowerCase().includes(searchTerm)) ||
+                    (emp.district && emp.district.toLowerCase().includes(searchTerm))
+                );
+            });
+            
+            // Also search in employees without department
+            const otherEmployees = employeesByDepartment['other'] || [];
+            const hasMatchingOther = otherEmployees.some(emp => 
+                emp.name.toLowerCase().includes(searchTerm) ||
+                emp.phoneNumber.includes(searchTerm) ||
+                (emp.servicePhone && emp.servicePhone.includes(searchTerm))
+            );
+            
+            displayDepartments(matchingDepts);
+            
+            // Only expand if we have a few matching departments (for performance)
+            if (matchingDepts.length <= 5) {
+                // Automatically expand departments with matching employees
+                expandedDepts.clear();
+                matchingDepts.forEach(dept => expandedDepts.add(dept.id));
+                if (hasMatchingOther) expandedDepts.add('other');
+                
+                // Re-display to show expanded state
+                displayDepartments(matchingDepts);
+            }
+        }
+        
+        // Format phone number
+        function formatPhoneNumber(phone) {
+            if (!phone) return '';
+            // Format as: 90 123 45 67
+            return phone.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4');
+        }
+        
+        // Get department icon
+        function getDepartmentIcon(deptName) {
+            const name = deptName.toLowerCase();
+            if (name.includes('rahbar')) return 'trophy';
+            if (name.includes('it') || name.includes('axborot')) return 'computer';
+            if (name.includes('moliya')) return 'monetization_on';
+            if (name.includes('kadr')) return 'person_pin';
+            if (name.includes('xavfsizlik')) return 'security';
+            if (name.includes('transport')) return 'directions_car';
+            if (name.includes('ypx')) return 'traffic';
+            if (name.includes('ttb')) return 'people';
+            if (name.includes('iib')) return 'balance';
+            return 'business';
+        }
+        
+        // Call employee (placeholder)
+        function callEmployee(phoneNumber) {
+            alert(`Qo'ng'iroq qilish: ${phoneNumber}`);
+            // Here you can integrate with your SIP system
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const filteredEmps = getFilteredEmployees();
+            document.getElementById('totalDepartments').textContent = departments.length;
+            document.getElementById('totalEmployees').textContent = filteredEmps.length;
+            document.getElementById('expandedDepartments').textContent = expandedDepts.size;
+        }
+        
+        // Get filtered employees based on district
+        function getFilteredEmployees() {
+            if (!currentDistrictFilter) {
+                return employees;
+            }
+            return Array.isArray(employees) ? employees.filter(emp => emp.district === currentDistrictFilter) : [];
+        }
+        
+        // Populate district filter dropdown
+        function populateDistrictFilter() {
+            const filterSelect = document.getElementById('districtFilter');
+            if (filterSelect && districts) {
+                filterSelect.innerHTML = '<option value="">Barcha tumanlar</option>';
+                districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.name;
+                    option.textContent = district.name;
+                    filterSelect.appendChild(option);
+                });
+            }
+        }
+        
+        // Filter by district
+        function filterByDistrict() {
+            const filterValue = document.getElementById('districtFilter').value;
+            currentDistrictFilter = filterValue;
+            
+            // Re-group employees and display
+            groupEmployeesByDepartment();
+            displayDepartments();
+            updateStats();
+        }
+    </script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

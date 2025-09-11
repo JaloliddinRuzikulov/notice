@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('broadcast.title') : 'Xabar yuborish' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css?v=1.0">
+    <link rel="stylesheet" href="/css/broadcast.css?v=1.0">
+    <script>
+        // Pass user data to JavaScript
+        window.currentUser = {
+            username: '<%= user.username %>',
+            role: '<%= user.role %>',
+            allowedDistricts: <%= JSON.stringify(user.allowedDistricts || ['all']) %>
+        };
+    </script>
+</head>
+<body>
+    <%- include('partials/navigation') %>
+
+    <div class="md-app-content">
+        <main class="md-main-content">
+            <div class="content-wrapper">
+                <div class="broadcast-container">
+            
+            <!-- Removed forced visibility -->
+            
+            <!-- Step 1: Choose Type -->
+            <div class="broadcast-step active" id="step1">
+                <h2><span class="material-symbols-outlined">info</span> 1. Xabar turini tanlang</h2>
+                <div class="broadcast-types">
+                    <label class="type-card">
+                        <input type="radio" name="broadcastType" value="audio" checked>
+                        <div class="type-content">
+                            <span class="material-symbols-outlined" style="font-size: 48px;">mic</span>
+                            <h3>Audio xabar</h3>
+                            <p>Mikrofondan yozib olish yoki audio fayl yuklash</p>
+                        </div>
+                    </label>
+                    <label class="type-card">
+                        <input type="radio" name="broadcastType" value="text">
+                        <div class="type-content">
+                            <span class="material-symbols-outlined" style="font-size: 48px;">chat</span>
+                            <h3>Matnli xabar</h3>
+                            <p>Matnni TTS orqali audio xabarga aylantirish</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 2: Record/Upload Audio -->
+            <div class="broadcast-step" id="step2">
+                <h2><span class="material-symbols-outlined">mic</span> 2. Audio xabar tayyorlash</h2>
+                
+                <!-- Audio Recording -->
+                <div class="audio-section" id="audioSection">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="audioSubject" style="font-weight: bold; display: block; margin-bottom: 5px;">Xabar mavzusi:</label>
+                        <input type="text" id="audioSubject" class="form-control" 
+                               placeholder="Xabar mavzusini kiriting..." required>
+                    </div>
+                    <div class="recording-controls">
+                        <button class="btn btn-record" id="recordBtn">
+                            <span class="material-symbols-outlined">mic</span> Yozishni boshlash
+                        </button>
+                        <div class="recording-timer" id="recordingTimer" style="display: none;">
+                            <span class="recording-dot"></span>
+                            <span id="recordingTime">00:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="audio-preview" id="audioPreview" style="display: none;">
+                        <audio id="audioPlayer" controls></audio>
+                        <button class="btn btn-danger btn-sm btn-delete">
+                            <span class="material-symbols-outlined">delete</span> O'chirish
+                        </button>
+                    </div>
+                    
+                    <div class="upload-section">
+                        <p>yoki</p>
+                        <label for="audioFile" class="btn btn-secondary">
+                            <span class="material-symbols-outlined">upload</span> Audio fayl yuklash
+                        </label>
+                        <input type="file" id="audioFile" accept="audio/*" style="display: none;">
+                    </div>
+                    
+                    <!-- SMS Message for Audio broadcasts -->
+                    <div class="sms-section" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                        <h4><span class="material-symbols-outlined">sms</span> SMS xabar (5 marta javob bermaganlar uchun)</h4>
+                        <div class="form-group">
+                            <label for="audioSmsMessage"><strong>SMS matni:</strong> <span class="text-danger">*</span></label>
+                            <textarea id="audioSmsMessage" class="form-control" rows="3" 
+                                      placeholder="Qo'ng'iroqqa javob bermagan xodimlar uchun SMS xabar matni..." 
+                                      maxlength="160" required></textarea>
+                            <small class="text-muted">
+                                <span id="audioSmsCharCount">0</span>/160 belgi. 
+                                5 marta qo'ng'iroq qilinganda javob bermagan xodimlarga bu SMS yuboriladi.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text to Speech -->
+                <div class="text-section" id="textSection" style="display: none;">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="messageSubject" style="font-weight: bold; display: block; margin-bottom: 5px;">Xabar mavzusi:</label>
+                        <input type="text" id="messageSubject" class="form-control" 
+                               placeholder="Xabar mavzusini kiriting..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="messageText" style="font-weight: bold; display: block; margin-bottom: 5px;">Xabar matni:</label>
+                        <textarea id="messageText" class="form-control" rows="5" 
+                                  placeholder="Xabar matnini kiriting..." required></textarea>
+                    </div>
+                    
+                    <!-- TTS Settings -->
+                    <div class="tts-settings" style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                        <h5 style="margin-bottom: 15px;">TTS Sozlamalari</h5>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label for="ttsLanguage" style="font-weight: bold; display: block; margin-bottom: 5px;">Til:</label>
+                                <select id="ttsLanguage" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="uz">O'zbek</option>
+                                    <option value="ru" selected>Rus</option>
+                                    <option value="en">Ingliz</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="ttsSpeed" style="font-weight: bold; display: block; margin-bottom: 5px;">Tezlik: <span id="speedValue">140</span> so'z/daqiqa</label>
+                                <input type="range" id="ttsSpeed" 
+                                       min="80" max="200" value="140" step="10" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label for="ttsVoice" style="font-weight: bold; display: block; margin-bottom: 5px;">Ovoz:</label>
+                                <select id="ttsVoice" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="male">Erkak</option>
+                                    <option value="female" selected>Ayol</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tts-actions" style="margin-top: 20px;">
+                        <button type="button" class="btn btn-primary" id="generateTTSBtn">
+                            <span class="material-symbols-outlined">volume_up</span> Audio yaratish
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="previewBtn" style="display: none;">
+                            <span class="material-symbols-outlined">play_arrow</span> Tinglash
+                        </button>
+                        <button type="button" class="btn btn-success" id="acceptBtn" style="display: none;">
+                            <span class="material-symbols-outlined">check</span> Ma'qul
+                        </button>
+                        <button type="button" class="btn btn-warning" id="resetBtn" style="display: none;">
+                            <span class="material-symbols-outlined">refresh</span> Qayta yaratish
+                        </button>
+                    </div>
+                    
+                    <!-- TTS Audio Preview -->
+                    <div class="tts-preview" id="ttsPreview" style="display: none; margin-top: 20px;">
+                        <audio id="ttsAudioPlayer" controls style="width: 100%;"></audio>
+                        <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 12px; border-radius: 4px; margin-top: 10px;">
+                            <strong>Audio tayyor!</strong> Tinglang va ma'qul bo'lsa tasdiqlang.
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <span class="material-symbols-outlined">info</span>
+                        <strong>Eslatma:</strong> Matnli xabar tanlanganda, yuqoridagi matn ham audio xabar, ham SMS sifatida yuboriladi.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Select Recipients -->
+            <div class="broadcast-step" id="step3">
+                <h2><span class="material-symbols-outlined">groups</span> 3. Qabul qiluvchilarni tanlang</h2>
+                
+                <div class="recipient-options">
+                    <label class="option-card">
+                        <input type="radio" name="recipientType" value="all" checked>
+                        <div class="option-content">
+                            <span class="material-symbols-outlined">groups</span>
+                            <span>Barcha xodimlar</span>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="recipientType" value="department">
+                        <div class="option-content">
+                            <span class="material-symbols-outlined">business</span>
+                            <span>Bo'lim bo'yicha</span>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="recipientType" value="district">
+                        <div class="option-content">
+                            <span class="material-symbols-outlined">location_on</span>
+                            <span>Tuman bo'yicha</span>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="recipientType" value="group">
+                        <div class="option-content">
+                            <span class="material-symbols-outlined">layers</span>
+                            <span>Guruh bo'yicha</span>
+                        </div>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="recipientType" value="selected">
+                        <div class="option-content">
+                            <span class="material-symbols-outlined">person_check</span>
+                            <span>Tanlangan xodimlar</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Department Selection -->
+                <div class="department-selection" id="departmentSelection" style="display: none;">
+                    <select class="form-control" id="departmentSelect" multiple>
+                        <option value="Rahbariyat">Rahbariyat</option>
+                        <option value="YPX">YPX</option>
+                        <option value="TTB">TTB</option>
+                        <option value="IIB">IIB</option>
+                        <option value="IT">IT bo'limi</option>
+                    </select>
+                </div>
+
+                <!-- District Selection -->
+                <div class="district-selection" id="districtSelection" style="display: none;">
+                    <select class="form-control" id="districtSelect" multiple>
+                        <!-- Districts will be loaded dynamically -->
+                    </select>
+                </div>
+
+                <!-- Group Selection -->
+                <div class="group-selection" id="groupSelection" style="display: none;">
+                    <select class="form-control" id="groupSelect" multiple>
+                        <!-- Groups will be loaded dynamically -->
+                    </select>
+                </div>
+
+                <!-- Employee Selection -->
+                <div class="employee-selection" id="employeeSelection" style="display: none;">
+                    <input type="text" class="form-control" placeholder="Xodim qidirish..." 
+                           id="employeeSearchInput">
+                    <div class="employee-list" id="employeeList">
+                        <!-- Employees will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="selected-count">
+                    <span class="material-symbols-outlined">info</span>
+                    <span>Tanlangan: <strong id="selectedCount">0</strong> xodim</span>
+                </div>
+            </div>
+
+            <!-- Step 4: SIP Line Selection -->
+            <div class="broadcast-step" id="step4">
+                <h2><span class="material-symbols-outlined">phone_in_talk</span> 4. SIP liniyalarni tanlang</h2>
+                
+                <div class="sip-selection">
+                    <p>Xabar yuborish uchun qaysi SIP raqamlardan foydalanilsin?</p>
+                    <div id="sipAccountsList" class="sip-accounts-list">
+                        <!-- SIP accounts will be loaded here -->
+                    </div>
+                    
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <span class="material-symbols-outlined">info</span>
+                        Ko'p SIP raqam tanlasangiz, qo'ng'iroqlar ular orasida taqsimlanadi.
+                    </div>
+                    
+                    <!-- WebRTC Option -->
+                    <div class="form-check" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                        <input class="form-check-input" type="checkbox" id="useWebRTC" style="margin-right: 10px;">
+                        <label class="form-check-label" for="useWebRTC">
+                            <strong>WebRTC orqali audio yuborish</strong>
+                            <br>
+                            <small class="text-muted">Audio ovozini to'g'ridan-to'g'ri yuborish uchun WebRTC-dan foydalanish (test rejimi)</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 5: Confirm and Send -->
+            <div class="broadcast-step" id="step5">
+                <h2><span class="material-symbols-outlined">send</span> 5. Tasdiqlash va yuborish</h2>
+                
+                <div class="broadcast-summary">
+                    <h3>Xabar ma'lumotlari:</h3>
+                    <ul>
+                        <li><strong>Mavzu:</strong> <span id="summarySubject">-</span></li>
+                        <li><strong>Xabar turi:</strong> <span id="summaryType">Audio</span></li>
+                        <li><strong>Qabul qiluvchilar:</strong> <span id="summaryRecipients">0</span> xodim</li>
+                        <li><strong>SIP liniyalar:</strong> <span id="summarySipLines">0</span> ta</li>
+                        <li><strong>Tasdiq usuli:</strong> DTMF 1 tugmasi</li>
+                        <li><strong>Qayta urinishlar:</strong> 5 marta (har 1 daqiqada)</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <span class="material-symbols-outlined">info</span>
+                        Xabar 3 marta takrorlanadi. Xodimlar tasdiqlash uchun 1 tugmasini bosishlari kerak.
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="prevBtnStep5">
+                        <span class="material-symbols-outlined">arrow_back</span> Orqaga
+                    </button>
+                    <button class="btn btn-primary" id="sendBroadcastBtn">
+                        <span class="material-symbols-outlined">send</span> Xabarni yuborish
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="progress-indicator">
+                <div class="progress-step active" data-step="1">1</div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="2">2</div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="3">3</div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="4">4</div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="5">5</div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="step-navigation">
+                <button class="btn btn-secondary" id="prevBtn" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Orqaga
+                </button>
+                <button class="btn btn-primary" id="nextBtn">
+                    Keyingi <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Active Broadcast Status -->
+        <div class="broadcast-status" id="broadcastStatus" style="display: none;">
+            <h2>Aktiv xabar holati</h2>
+            <div class="status-info">
+                <div class="status-item">
+                    <span>Jami:</span>
+                    <strong id="totalCount">0</strong>
+                </div>
+                <div class="status-item">
+                    <span>Yuborildi:</span>
+                    <strong id="sentCount">0</strong>
+                </div>
+                <div class="status-item">
+                    <span>Tasdiqlandi:</span>
+                    <strong id="confirmedCount">0</strong>
+                </div>
+            </div>
+            <div class="channel-status" style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+                <h4 style="margin-bottom: 10px; font-size: 16px;">Kanal holati</h4>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div class="status-item" style="background-color: #fff; padding: 10px; border-radius: 5px; text-align: center;">
+                        <span style="font-size: 14px;">Faol kanallar:</span>
+                        <strong id="activeChannels" style="font-size: 20px; color: #28a745;">0</strong>
+                        <span style="font-size: 12px; color: #6c757d;">/ <span id="maxChannels">-</span></span>
+                    </div>
+                    <div class="status-item" style="background-color: #fff; padding: 10px; border-radius: 5px; text-align: center;">
+                        <span style="font-size: 14px;">Navbatda:</span>
+                        <strong id="queuedCalls" style="font-size: 20px; color: #ffc107;">0</strong>
+                    </div>
+                    <div class="status-item" style="background-color: #fff; padding: 10px; border-radius: 5px; text-align: center;">
+                        <span style="font-size: 14px;">Tugallandi:</span>
+                        <strong id="completedCalls" style="font-size: 20px; color: #17a2b8;">0</strong>
+                    </div>
+                </div>
+                <div class="alert alert-info" style="margin-top: 10px; margin-bottom: 0;">
+                    <span class="material-symbols-outlined">info</span>
+                    Tizim bir vaqtning o'zida <span id="channelInfo">-</span> ta qo'ng'iroq qilishi mumkin. Ko'p xodimlar tanlangan bo'lsa, qolganlar navbatda kutadi.
+                    <br><strong>Muhim:</strong> Qo'ng'iroq xabarni eshitgandan keyin "1" raqamini bosmaguncha uzilmaydi (maksimal 3 daqiqa).
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Pass user district access to frontend
+        window.userDistrictAccess = {
+            canAccessAllDistricts: <%= user.role === 'admin' || (user.allowedDistricts && user.allowedDistricts.includes('all')) %>,
+            allowedDistricts: <%- JSON.stringify(user.allowedDistricts || []) %>
+        };
+    </script>
+    <!-- Removed non-existent sip-client.js -->
+    <script src="/js/webrtc-broadcast.js?v=<%= Date.now() %>"></script>
+    <script src="/js/broadcast.js?v=<%= Date.now() %>"></script>
+    <script src="/js/broadcast-district-filter.js?v=<%= Date.now() %>"></script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

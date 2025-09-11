@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= (typeof t !== 'undefined' ? t('login.title') : 'Kirish') %> - <%= (typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi') %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-page">
+    <!-- Language switcher for login page -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 100;">
+        <div class="md-language-switcher">
+            <button class="md-button-text" onclick="toggleLanguageMenu()" style="color: var(--md-sys-color-on-surface);">
+                <span class="material-symbols-outlined">language</span>
+                <span><%= (typeof locale !== 'undefined' && locale === 'uz-latin') ? 'O\'zb' : 'Ўзб' %></span>
+            </button>
+            <div class="md-menu language-menu" id="languageMenu">
+                <a href="?locale=uz-latin" class="md-menu-item <%= (typeof locale !== 'undefined' && locale === 'uz-latin') ? 'active' : '' %>">
+                    O'zbek (lotin)
+                </a>
+                <a href="?locale=uz-cyrillic" class="md-menu-item <%= (typeof locale !== 'undefined' && locale === 'uz-cyrillic') ? 'active' : '' %>">
+                    Ўзбек (кирилл)
+                </a>
+                <a href="?locale=ru" class="md-menu-item <%= (typeof locale !== 'undefined' && locale === 'ru') ? 'active' : '' %>">
+                    Русский
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <img src="/img/logo.svg" alt="Logo" class="logo">
+                <h1><%= (typeof locale !== 'undefined' && locale === 'uz-cyrillic') ? 'Қашқадарё ИИБ' : 'Qashqadaryo IIB' %></h1>
+                <h2><%= (typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi') %></h2>
+            </div>
+            
+            <% if (locals.error) { %>
+                <div class="error-message"><%= error %></div>
+            <% } %>
+            
+            <form method="POST" action="/login" class="login-form">
+                <div class="form-group">
+                    <label for="username"><%= (typeof t !== 'undefined' ? t('login.username') : 'Login') %></label>
+                    <input type="text" id="username" name="username" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password"><%= (typeof t !== 'undefined' ? t('login.password') : 'Parol') %></label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="material-symbols-outlined">login</span>
+                    <%= (typeof t !== 'undefined' ? t('login.submit') : 'Kirish') %>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+<script>
+// Language menu toggle
+function toggleLanguageMenu() {
+    const menu = document.getElementById('languageMenu');
+    if (menu) {
+        menu.classList.toggle('show');
+    }
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('languageMenu');
+    if (menu) {
+        const button = e.target.closest('.md-language-switcher button');
+        if (!button && !menu.contains(e.target)) {
+            menu.classList.remove('show');
+        }
+    }
+});
+</script>
+<script src="/js/offline-icons.js"></script>
+<script src="/js/material-icons-fix.js"></script>
+<script src="/js/language-manager.js"></script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xodimlar - Simple</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f0f0; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; font-size: 16px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: bold; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 50px auto; padding: 20px; width: 500px; border-radius: 8px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .status { text-align: center; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Xodimlar Ro'yxati</h1>
+        
+        <div id="status"></div>
+        
+        <button class="btn btn-primary" onclick="testAPI()">API Test</button>
+        <button class="btn btn-success" onclick="showAddModal()">Yangi Xodim Qo'shish</button>
+        
+        <table id="employeesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ism</th>
+                    <th>Telefon</th>
+                    <th>Lavozim</th>
+                    <th>Bo'lim</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="6" style="text-align: center;">Yuklanmoqda...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Xodim Qo'shish</h2>
+            <form id="employeeForm" onsubmit="saveEmployee(event)">
+                <input type="hidden" id="employeeId">
+                
+                <div class="form-group">
+                    <label>Ism:</label>
+                    <input type="text" id="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Telefon:</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Lavozim:</label>
+                    <input type="text" id="position" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Bo'lim:</label>
+                    <select id="department" required>
+                        <option value="">Bo'limni tanlang</option>
+                        <option value="Rahbariyat">Rahbariyat</option>
+                        <option value="Tergov">Tergov</option>
+                        <option value="Profilaktika">Profilaktika</option>
+                        <option value="Kadrlar">Kadrlar</option>
+                        <option value="IT">IT</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Saqlash</button>
+                <button type="button" class="btn btn-danger" onclick="hideModal()">Bekor qilish</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // No need for getCookie - session auth is automatic
+
+        // Show status message
+        function showStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.className = 'status ' + (isError ? 'error' : 'success');
+            status.textContent = message;
+            status.style.display = 'block';
+            setTimeout(() => { status.style.display = 'none'; }, 3000);
+        }
+
+        // Test API
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/employees', {
+                    credentials: 'same-origin'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('API ishlayapti! ' + data.length + ' ta xodim topildi');
+                } else {
+                    showStatus('API xatosi: ' + response.status, true);
+                }
+            } catch (error) {
+                showStatus('API test xatosi: ' + error.message, true);
+            }
+        }
+
+        // Load employees
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees', {
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch employees');
+                }
+                
+                const employees = await response.json();
+                const tbody = document.getElementById('tableBody');
+                
+                if (employees.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Xodimlar topilmadi</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = employees.map(emp => `
+                    <tr>
+                        <td>${emp.id}</td>
+                        <td>${emp.name}</td>
+                        <td>${emp.phone}</td>
+                        <td>${emp.position}</td>
+                        <td>${emp.department}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="editEmployee(${emp.id}, '${emp.name}', '${emp.phone}', '${emp.position}', '${emp.department}')">Tahrirlash</button>
+                            <button class="btn btn-danger" onclick="deleteEmployee(${emp.id})">O'chirish</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Xatolik: ' + error.message + '</td></tr>';
+            }
+        }
+
+        // Show add modal
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Yangi Xodim Qo\'shish';
+            document.getElementById('employeeForm').reset();
+            document.getElementById('employeeId').value = '';
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        // Edit employee
+        function editEmployee(id, name, phone, position, department) {
+            document.getElementById('modalTitle').textContent = 'Xodimni Tahrirlash';
+            document.getElementById('employeeId').value = id;
+            document.getElementById('name').value = name;
+            document.getElementById('phone').value = phone;
+            document.getElementById('position').value = position;
+            document.getElementById('department').value = department;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        // Hide modal
+        function hideModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Save employee
+        async function saveEmployee(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('employeeId').value;
+            const data = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                position: document.getElementById('position').value,
+                department: document.getElementById('department').value
+            };
+            
+            try {
+                const url = id ? `/api/employees/${id}` : '/api/employees';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save employee');
+                }
+                
+                showStatus(id ? 'Xodim tahrirlandi!' : 'Xodim qo\'shildi!');
+                hideModal();
+                loadEmployees();
+                
+            } catch (error) {
+                showStatus('Xatolik: ' + error.message, true);
+            }
+        }
+
+        // Delete employee
+        async function deleteEmployee(id) {
+            if (!confirm('Rostdan ham bu xodimni o\'chirmoqchimisiz?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/employees/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete employee');
+                }
+                
+                showStatus('Xodim o\'chirildi!');
+                loadEmployees();
+                
+            } catch (error) {
+                showStatus('Xatolik: ' + error.message, true);
+            }
+        }
+
+        // Load employees on page load
+        loadEmployees();
+    </script>
+</body>
+</html>

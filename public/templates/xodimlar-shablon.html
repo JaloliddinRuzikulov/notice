@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xodimlar Import Shabloni</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .info {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .required {
+            color: red;
+            font-weight: bold;
+        }
+        .example {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        .button-group {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.secondary {
+            background: #2196F3;
+        }
+        button.secondary:hover {
+            background: #1976D2;
+        }
+        #jsonOutput {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗂️ Xodimlar Import Shabloni</h1>
+        
+        <div class="info">
+            <h3>📋 Qo'llanma:</h3>
+            <ol>
+                <li>Quyidagi jadvalni to'ldiring yoki Excel'ga ko'chiring</li>
+                <li>Ma'lumotlarni tekshiring</li>
+                <li>"Excel'ga Export" tugmasini bosing yoki JSON formatda oling</li>
+                <li>Faylni xodimlar sahifasida import qiling</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ Muhim:</h3>
+            <ul>
+                <li><span class="required">*</span> belgilangan maydonlar majburiy</li>
+                <li>Telefon raqamlar: 991234567 yoki 0991234567 formatida</li>
+                <li>Tuman nomlari to'g'ri yozilishi kerak</li>
+                <li>Bo'sh maydonlarni qoldirish mumkin (majburiy bo'lmaganlar)</li>
+            </ul>
+        </div>
+
+        <div class="button-group">
+            <button onclick="exportToExcel()">📊 Excel'ga Export</button>
+            <button onclick="generateJSON()" class="secondary">📄 JSON Yaratish</button>
+            <button onclick="addRow()" class="secondary">➕ Qator Qo'shish</button>
+            <button onclick="loadSampleData()" class="secondary">📝 Namuna Yuklash</button>
+        </div>
+
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>F.I.O <span class="required">*</span></th>
+                    <th>Lavozimi</th>
+                    <th>Unvoni</th>
+                    <th>Bo'limi</th>
+                    <th>Telefon <span class="required">*</span></th>
+                    <th>Xizmat Telefoni</th>
+                    <th>Tumani</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td>1</td>
+                    <td contenteditable="true" class="example">Aliyev Vali Salimovich</td>
+                    <td contenteditable="true" class="example">Bosh inspektor</td>
+                    <td contenteditable="true" class="example">Mayor</td>
+                    <td contenteditable="true" class="example">Jamoat xavfsizligi</td>
+                    <td contenteditable="true" class="example">991234567</td>
+                    <td contenteditable="true" class="example">752001122</td>
+                    <td contenteditable="true" class="example">Qarshi shahri</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="jsonOutput"></div>
+    </div>
+
+    <script>
+        let rowCount = 1;
+
+        function addRow() {
+            rowCount++;
+            const tbody = document.getElementById('tableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        function loadSampleData() {
+            const sampleData = [
+                ['Aliyev Vali Salimovich', 'Bosh inspektor', 'Mayor', 'Jamoat xavfsizligi', '991234567', '752001122', 'Qarshi shahri'],
+                ['Karimov Jasur Bahodirovich', 'Inspektor', 'Kapitan', 'YPX', '901234567', '752003344', 'Shahrisabz tumani'],
+                ['Rahimova Gulnora Xolmatovna', 'Katta inspektor', 'Podpolkovnik', 'Tergov', '931234567', '', 'Kitob tumani'],
+                ['Toshmatov Sardor', 'Inspektor', 'Leytenant', 'Profilaktika', '971234567', '752005566', 'Dehqonobod tumani'],
+                ['Xoliqov Botir Rustamovich', 'Boshliq', 'Polkovnik', 'Kadrlar bo\'limi', '901112233', '752007788', 'Qarshi shahri']
+            ];
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            rowCount = 0;
+
+            sampleData.forEach((data, index) => {
+                rowCount++;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${rowCount}</td>
+                    <td contenteditable="true">${data[0]}</td>
+                    <td contenteditable="true">${data[1]}</td>
+                    <td contenteditable="true">${data[2]}</td>
+                    <td contenteditable="true">${data[3]}</td>
+                    <td contenteditable="true">${data[4]}</td>
+                    <td contenteditable="true">${data[5]}</td>
+                    <td contenteditable="true">${data[6]}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getTableData() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            const employees = [];
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const name = cells[1].textContent.trim();
+                const phone = cells[5].textContent.trim();
+
+                // Skip empty rows
+                if (!name && !phone) return;
+
+                employees.push({
+                    name: name,
+                    position: cells[2].textContent.trim(),
+                    rank: cells[3].textContent.trim(),
+                    department: cells[4].textContent.trim(),
+                    phoneNumber: phone,
+                    servicePhone: cells[6].textContent.trim(),
+                    district: cells[7].textContent.trim()
+                });
+            });
+
+            return employees;
+        }
+
+        function generateJSON() {
+            const employees = getTableData();
+            const jsonOutput = document.getElementById('jsonOutput');
+            
+            if (employees.length === 0) {
+                alert('Jadvalda ma\'lumot yo\'q!');
+                return;
+            }
+
+            const jsonData = {
+                employees: employees
+            };
+
+            jsonOutput.style.display = 'block';
+            jsonOutput.textContent = JSON.stringify(jsonData, null, 2);
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(JSON.stringify(jsonData)).then(() => {
+                alert('JSON ma\'lumotlar clipboard\'ga nusxalandi! Endi xodimlar sahifasida import qiling.');
+            });
+        }
+
+        function exportToExcel() {
+            const employees = getTableData();
+            
+            if (employees.length === 0) {
+                alert('Jadvalda ma\'lumot yo\'q!');
+                return;
+            }
+
+            // Create CSV content
+            let csv = '\uFEFF'; // UTF-8 BOM for Excel
+            csv += 'F.I.O,Lavozimi,Unvoni,Bo\'limi,Telefon,Xizmat Telefoni,Tumani\n';
+            
+            employees.forEach(emp => {
+                csv += `"${emp.name}","${emp.position}","${emp.rank}","${emp.department}","${emp.phoneNumber}","${emp.servicePhone}","${emp.district}"\n`;
+            });
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'xodimlar_import_' + new Date().toISOString().split('T')[0] + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Add more rows on Tab key at last cell
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                const activeElement = document.activeElement;
+                const rows = document.querySelectorAll('#tableBody tr');
+                const lastRow = rows[rows.length - 1];
+                const lastCell = lastRow.querySelectorAll('td')[7];
+                
+                if (activeElement === lastCell && !e.shiftKey) {
+                    e.preventDefault();
+                    addRow();
+                    const newLastRow = document.querySelectorAll('#tableBody tr')[rows.length];
+                    newLastRow.querySelectorAll('td')[1].focus();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

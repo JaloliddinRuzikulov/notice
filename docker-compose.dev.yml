@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  xabarnoma-dev:
+    build: .
+    container_name: qashqadaryo-iib-notification-dev
+    restart: unless-stopped
+    volumes:
+      # Persistent data volumes
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./public/audio/uploads:/app/public/audio/uploads
+      - ./public/audio/presets:/app/public/audio/presets
+      - ./config:/app/config
+      - ./temp:/app/temp
+      # Development hot-reload volumes
+      - ./views:/app/views
+      - ./public:/app/public
+      - ./lib:/app/lib
+      - ./routes:/app/routes
+      - ./middleware:/app/middleware
+      - ./server.js:/app/server.js
+      - ./package.json:/app/package.json
+      - ./nodemon.json:/app/nodemon.json
+    environment:
+      - NODE_ENV=development
+      - PORT=8444
+      - SESSION_SECRET=qashqadaryo-iib-secret-2024-development
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - USE_DATABASE=true
+      # SIP Configuration
+      - SIP_SERVER=10.105.0.3
+      - SIP_EXTENSION_1=5530
+      - SIP_PASSWORD=5530
+      - SIP_EXTENSION_2=5531
+      - SIP_EXTENSION_3=5532
+      - SIP_WEBSOCKET_PORT=8089
+      # AMI Configuration
+      - AMI_HOST=10.105.0.3
+      - AMI_PORT=5038
+      - AMI_USERNAME=admin
+      - AMI_PASSWORD=mysecret
+    network_mode: host
+    command: ["npm", "run", "dev"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('https').get('https://localhost:8444/api/test-auth/test-session', {rejectUnauthorized: false}, (res) => {process.exit(res.statusCode === 200 ? 0 : 1);}).on('error', () => {process.exit(1);})"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"

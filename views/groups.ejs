@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('navigation.groups') : 'Guruhlar' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <%- include('partials/navigation') %>
+        
+        <!-- App Content -->
+        <div class="md-app-content">
+            <!-- Main Content -->
+            <main class="md-main-content">
+                <div class="md-container">
+            <!-- Page Header -->
+            <header style="margin-bottom: var(--md-sys-spacing-8);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--md-sys-spacing-4);">
+                    <div>
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            <%= typeof t !== 'undefined' ? t('groups.description') : 'Xodimlarni guruhlar bo\'yicha tashkil etish va boshqarish' %>
+                        </p>
+                    </div>
+                    
+                    <button class="md-button md-button-filled" onclick="showAddGroupModal()">
+                        <span class="material-symbols-outlined">add</span>
+                        <%= typeof t !== 'undefined' ? t('groups.newGroup') : 'Yangi guruh' %>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Groups Grid -->
+            <section>
+                <div class="md-grid md-grid-cols-3" id="groupsGrid">
+                    <!-- Loading State -->
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                group_work
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                <%= typeof t !== 'undefined' ? t('common.loading') : 'Ma\'lumotlar yuklanmoqda...' %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- Group Modal -->
+    <div class="md-dialog" id="groupModal">
+        <div class="md-dialog-container" style="max-width: 500px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title" id="modalTitle"><%= typeof t !== 'undefined' ? t('groups.newGroup') : 'Yangi guruh' %></h2>
+                <button class="md-icon-button" onclick="closeGroupModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="md-dialog-content">
+                <form id="groupForm" onsubmit="saveGroup(event); return false;">
+                    <input type="hidden" id="groupId">
+                    
+                    <!-- Group Name -->
+                    <div class="form-group">
+                        <label for="groupName"><%= typeof t !== 'undefined' ? t('groups.groupName') : 'Guruh nomi' %> *</label>
+                        <input 
+                            type="text" 
+                            id="groupName" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('groups.enterGroupName') : 'Guruh nomini kiriting' %>"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Group Description -->
+                    <div class="form-group">
+                        <label for="groupDescription"><%= typeof t !== 'undefined' ? t('groups.descriptionOptional') : 'Tavsifi (ixtiyoriy)' %></label>
+                        <textarea 
+                            id="groupDescription" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('groups.enterDescription') : 'Guruh tavsifini kiriting' %>"
+                            rows="3"
+                            style="resize: vertical; min-height: 80px;"
+                        ></textarea>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeGroupModal()">
+                    <%= typeof t !== 'undefined' ? t('common.cancel') : 'Bekor qilish' %>
+                </button>
+                <button type="submit" form="groupForm" class="md-button md-button-filled">
+                    <span class="material-symbols-outlined">save</span>
+                    <%= typeof t !== 'undefined' ? t('common.save') : 'Saqlash' %>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Members Modal -->
+    <div class="md-dialog" id="membersModal">
+        <div class="md-dialog-container" style="max-width: 600px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title" id="membersModalTitle"><%= typeof t !== 'undefined' ? t('groups.groupMembers') : 'Guruh a\'zolari' %></h2>
+                <button class="md-icon-button" onclick="closeMembersModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="md-dialog-content">
+                <div style="margin-bottom: var(--md-sys-spacing-4);">
+                    <label class="md-typescale-body-large" style="display: block; margin-bottom: var(--md-sys-spacing-3); color: var(--md-sys-color-on-surface);">
+                        <%= typeof t !== 'undefined' ? t('groups.selectEmployees') : 'Xodimlarni tanlang:' %>
+                    </label>
+                    <div id="membersList" style="display: grid; gap: var(--md-sys-spacing-2); max-height: 400px; overflow-y: auto; padding: var(--md-sys-spacing-3); border: 1px solid var(--md-sys-color-outline); border-radius: var(--md-sys-shape-corner-small); background: var(--md-sys-color-surface-container-lowest);">
+                        <!-- Members will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeMembersModal()">
+                    <%= typeof t !== 'undefined' ? t('common.cancel') : 'Bekor qilish' %>
+                </button>
+                <button type="button" class="md-button md-button-filled" onclick="saveMembers()">
+                    <span class="material-symbols-outlined">save</span>
+                    <%= typeof t !== 'undefined' ? t('common.save') : 'Saqlash' %>
+                </button>
+            </div>
+        </div>
+    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        let groups = [];
+        let employees = [];
+        let currentGroupId = null;
+        let currentGroupMembers = [];
+        
+        // Load data
+        async function loadData() {
+            try {
+                const timestamp = new Date().getTime();
+                const [groupResponse, empResponse] = await Promise.all([
+                    fetch(`/api/groups?t=${timestamp}`, {
+                        cache: 'no-cache',
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        }
+                    }),
+                    fetch(`/api/employees?t=${timestamp}`, {
+                        cache: 'no-cache',
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        }
+                    })
+                ]);
+                
+                // Check for errors
+                if (!groupResponse.ok || !empResponse.ok) {
+                    if (groupResponse.status === 403 || empResponse.status === 403) {
+                        throw new Error('Ruxsat etilmagan. Admindan kerakli huquqlarni so\'rang.');
+                    }
+                    if (groupResponse.status === 401 || empResponse.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error('Ma\'lumotlarni yuklashda xatolik yuz berdi');
+                }
+                
+                groups = await groupResponse.json();
+                const empData = await empResponse.json();
+                
+                // Handle employees response format
+                if (empData && empData.success && Array.isArray(empData.employees)) {
+                    employees = empData.employees;
+                } else if (Array.isArray(empData)) {
+                    employees = empData;
+                } else {
+                    console.error('Invalid employee response format:', empData);
+                    employees = [];
+                }
+                
+                // Validate data types
+                if (!Array.isArray(groups)) {
+                    console.error('Invalid groups data:', groups);
+                    groups = [];
+                }
+                if (!Array.isArray(employees)) {
+                    console.error('Invalid employees data:', employees);
+                    employees = [];
+                }
+                
+                // Filter only active employees (ensure it's array)
+                if (Array.isArray(employees)) {
+                    employees = employees.filter(emp => !emp.deleted);
+                } else {
+                    employees = [];
+                }
+                
+                renderGroups();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        // Render groups
+        function renderGroups() {
+            const container = document.getElementById('groupsGrid');
+            
+            if (groups.length === 0) {
+                container.innerHTML = `
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                group_work
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                Guruhlar mavjud emas
+                            </p>
+                            <button class="md-button md-button-tonal" onclick="showAddGroupModal()">
+                                <span class="material-symbols-outlined">add</span>
+                                Birinchi guruhni qo'shing
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = groups.map(group => {
+                const memberCount = Array.isArray(employees) ? employees.filter(emp => 
+                    emp.groups && emp.groups.includes(group.id)
+                ).length : 0;
+                
+                return `
+                    <div class="md-card md-card-elevated" style="transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                        <div style="padding: var(--md-sys-spacing-6);">
+                            <!-- Group Header -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--md-sys-spacing-4);">
+                                <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3);">
+                                    <div style="width: var(--md-sys-spacing-12); height: var(--md-sys-spacing-12); background: var(--md-sys-color-secondary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-secondary-container);">
+                                            group_work
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 class="md-typescale-title-large" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                            ${group.name}
+                                        </h3>
+                                        ${group.description ? `
+                                            <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: var(--md-sys-spacing-1) 0 0 0;">
+                                                ${group.description}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Member Count -->
+                            <div style="background: var(--md-sys-color-surface-container-highest); padding: var(--md-sys-spacing-4); border-radius: var(--md-sys-shape-corner-small); margin-bottom: var(--md-sys-spacing-4);">
+                                <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-2);">
+                                    <span class="material-symbols-outlined" style="font-size: 20px; color: var(--md-sys-color-secondary);">
+                                        people
+                                    </span>
+                                    <span class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface);">
+                                        ${memberCount} ta a'zo
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div style="display: flex; gap: var(--md-sys-spacing-2); flex-wrap: wrap;">
+                                <button class="md-button md-button-outlined" onclick="showMembers('${group.id}')" style="flex: 1;">
+                                    <span class="material-symbols-outlined">people</span>
+                                    A'zolar
+                                </button>
+                                <button class="md-icon-button" onclick="editGroup('${group.id}')" title="Tahrirlash">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="md-icon-button" onclick="deleteGroup('${group.id}')" title="O'chirish" style="color: var(--md-sys-color-error);">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Show add group modal
+        function showAddGroupModal() {
+            currentGroupId = null;
+            document.getElementById('modalTitle').textContent = 'Yangi guruh';
+            document.getElementById('groupForm').reset();
+            document.getElementById('groupModal').classList.add('open');
+        }
+        
+        // Edit group
+        function editGroup(groupId) {
+            currentGroupId = groupId;
+            const group = groups.find(g => g.id === groupId);
+            if (!group) return;
+            
+            document.getElementById('modalTitle').textContent = 'Guruhni tahrirlash';
+            document.getElementById('groupId').value = group.id;
+            document.getElementById('groupName').value = group.name;
+            document.getElementById('groupDescription').value = group.description || '';
+            document.getElementById('groupModal').classList.add('open');
+        }
+        
+        // Close group modal
+        function closeGroupModal() {
+            document.getElementById('groupModal').classList.remove('open');
+        }
+        
+        // Show members
+        function showMembers(groupId) {
+            currentGroupId = groupId;
+            const group = groups.find(g => g.id === groupId);
+            if (!group) return;
+            
+            document.getElementById('membersModalTitle').textContent = `${group.name} - A'zolar`;
+            
+            // Get current members
+            currentGroupMembers = Array.isArray(employees) ? employees.filter(emp => 
+                emp.groups && emp.groups.includes(groupId)
+            ).map(emp => emp.id) : [];
+            
+            // Render members list with MD3 styling
+            const container = document.getElementById('membersList');
+            container.innerHTML = employees.map(emp => `
+                <label style="display: flex; align-items: center; gap: var(--md-sys-spacing-3); padding: var(--md-sys-spacing-3); background: var(--md-sys-color-surface-container-highest); border-radius: var(--md-sys-shape-corner-small); cursor: pointer; transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);" 
+                       onmouseover="this.style.background='var(--md-sys-color-secondary-container)'" 
+                       onmouseout="this.style.background='var(--md-sys-color-surface-container-highest)'">
+                    <input type="checkbox" 
+                           value="${emp.id}" 
+                           ${currentGroupMembers.includes(emp.id) ? 'checked' : ''}
+                           style="width: 18px; height: 18px; accent-color: var(--md-sys-color-primary);">
+                    <div style="flex: 1;">
+                        <div class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                            ${emp.name}
+                        </div>
+                        <div class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                            ${emp.position}
+                        </div>
+                    </div>
+                </label>
+            `).join('');
+            
+            document.getElementById('membersModal').classList.add('open');
+        }
+        
+        // Close members modal
+        function closeMembersModal() {
+            document.getElementById('membersModal').classList.remove('open');
+        }
+        
+        // Save members
+        async function saveMembers() {
+            const checkboxes = document.querySelectorAll('#membersList input[type="checkbox"]');
+            const selectedIds = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            
+            console.log('Saving members:', { currentGroupId, selectedIds });
+            
+            try {
+                const response = await fetch(`/api/groups/${currentGroupId}/members`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ memberIds: selectedIds })
+                });
+                
+                if (response.ok) {
+                    closeMembersModal();
+                    loadData();
+                    showSnackbar('A\'zolar muvaffaqiyatli yangilandi');
+                } else {
+                    const error = await response.json();
+                    showSnackbar(error.message || 'Xatolik yuz berdi', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving members:', error);
+                showSnackbar('Xatolik yuz berdi', 'error');
+            }
+        }
+        
+        // Delete group
+        async function deleteGroup(groupId) {
+            if (!confirm('Guruhni o\'chirishni xohlaysizmi?')) return;
+            
+            try {
+                const response = await fetch(`/api/groups/${groupId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadData();
+                    showSnackbar('Guruh muvaffaqiyatli o\'chirildi');
+                } else {
+                    showSnackbar('Xatolik yuz berdi', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting group:', error);
+                showSnackbar('Xatolik yuz berdi', 'error');
+            }
+        }
+        
+        // Save group
+        async function saveGroup(event) {
+            event.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('groupName').value,
+                description: document.getElementById('groupDescription').value
+            };
+            
+            try {
+                const url = currentGroupId ? `/api/groups/${currentGroupId}` : '/api/groups';
+                const method = currentGroupId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    closeGroupModal();
+                    loadData();
+                    showSnackbar(currentGroupId ? 'Guruh muvaffaqiyatli yangilandi' : 'Guruh muvaffaqiyatli qo\'shildi');
+                } else {
+                    showSnackbar('Xatolik yuz berdi', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving group:', error);
+                showSnackbar('Xatolik yuz berdi', 'error');
+            }
+        }
+        
+        // Simple snackbar function
+        function showSnackbar(message, type = 'success') {
+            const snackbar = document.createElement('div');
+            snackbar.className = 'md-snackbar show';
+            snackbar.innerHTML = `
+                <span class="md-snackbar-text">${message}</span>
+            `;
+            
+            if (type === 'error') {
+                snackbar.style.background = 'var(--md-sys-color-error-container)';
+                snackbar.style.color = 'var(--md-sys-color-on-error-container)';
+            }
+            
+            document.body.appendChild(snackbar);
+            
+            setTimeout(() => {
+                snackbar.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(snackbar);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Load data on page load
+        loadData();
+        
+        // Refresh data every 30 seconds
+        setInterval(loadData, 30000);
+    </script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

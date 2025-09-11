@@ -1,0 +1,32 @@
+[
+  {
+    "content": "Identify root cause of 'parseSDP is not a function' error",
+    "status": "completed",
+    "priority": "high",
+    "id": "1"
+  },
+  {
+    "content": "Check why the broadcast is not actually making calls",
+    "status": "completed",
+    "priority": "high",
+    "id": "2"
+  },
+  {
+    "content": "Check if broadcast is being stored in memory correctly",
+    "status": "completed",
+    "priority": "high",
+    "id": "3"
+  },
+  {
+    "content": "Fix broadcast loading order issue",
+    "status": "completed",
+    "priority": "high",
+    "id": "4"
+  },
+  {
+    "content": "Check DTMF detection implementation",
+    "status": "pending",
+    "priority": "medium",
+    "id": "5"
+  }
+]

@@ -1,0 +1,307 @@
+[
+  {
+    "id": "1",
+    "username": "admin",
+    "password": "$2b$10$hXPOcr1DONu3F7zsnqQK1euhJ/7t8nz4Snmb0Pf5Bb7DrrNL1DwX.",
+    "name": "Administrator",
+    "role": "admin",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "sipAccounts": true,
+      "sipPhone": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true,
+      "districts": true,
+      "users": true,
+      "settings": true
+    },
+    "active": true,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "lastLogin": "2025-08-13T16:01:22.442Z",
+    "allowedDistricts": [
+      "all"
+    ]
+  },
+  {
+    "id": "1752036918708",
+    "username": "QV_IIB_NQ",
+    "password": "$2b$10$QgbX/jWg8x4YXPx/YsN9FeKn79/A/dr4Nd5JmfVROnEVJ0.OjWngy",
+    "name": "Viloayt IIB Novbatchilik qismi",
+    "role": "user",
+    "permissions": {
+      "dashboard": true,
+      "broadcast": true,
+      "phonebook": true,
+      "sipPhone": true
+    },
+    "active": true,
+    "createdAt": "2025-07-09T04:55:18.708Z",
+    "lastLogin": "2025-07-18T13:27:40.454Z",
+    "allowedDistricts": [
+      "all"
+    ]
+  },
+  {
+    "id": "1752061352887",
+    "username": "AXA_ATB",
+    "password": "$2b$10$Rf1KubDR3nkmWS1P7effQeIjvZQzv0xfbZGAj/9c3ZFdJ9olGdz3C",
+    "name": "Javohir",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "phonebook": true,
+      "sipPhone": true
+    },
+    "active": true,
+    "createdAt": "2025-07-09T11:42:32.887Z",
+    "lastLogin": "2025-07-09T11:42:59.296Z"
+  },
+  {
+    "id": "1752066780101",
+    "username": "qarshi_sh_iib",
+    "password": "$2b$10$I3MaUUw1TIx/4nPFvig9Gu4nZ9Z2NLLymZ.f2FhbjPkdGQ.Cr3ahO",
+    "name": "Qarshi sh IIO FMB Kadr",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "1"
+    ],
+    "active": true,
+    "createdAt": "2025-07-09T13:13:00.101Z",
+    "lastLogin": "2025-08-03T06:36:08.835Z"
+  },
+  {
+    "id": "1754203221755",
+    "username": "shahrisabz_tum_NQ",
+    "password": "$2b$10$scO0onkSPNerm6FHoOO/MOcmPa08ROxsFV3NVBnkwMYEXy1Yusq9C",
+    "name": "Shahrisabz tuman Npvabtchilik qismi",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "11"
+    ],
+    "active": true,
+    "createdAt": "2025-08-03T06:40:21.755Z",
+    "lastLogin": "2025-08-12T12:41:25.982Z"
+  },
+  {
+    "id": "1754304705925",
+    "username": "dehqonobod_tiib",
+    "password": "$2b$10$YIpCLCuO6vc1Ws7XclSyuOa4CGRosIWDsH/qXDRAArKusI9IuN1bG",
+    "name": "Dehqonobod tumani",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "3"
+    ],
+    "active": true,
+    "createdAt": "2025-08-04T10:51:45.925Z",
+    "lastLogin": "2025-08-04T15:20:51.404Z"
+  },
+  {
+    "id": "1754400444225",
+    "username": "guzar_iib",
+    "password": "$2b$10$QTlAzir.QpiEucEYCXAmCOb/ylWb1Q.RBCd/QiVFdaCfOOV/MU3CS",
+    "name": "G'uzor tuman IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "13"
+    ],
+    "active": true,
+    "createdAt": "2025-08-05T13:27:24.225Z",
+    "lastLogin": "2025-08-05T13:41:09.729Z"
+  },
+  {
+    "id": "1754489511117",
+    "username": "qarshi_t_iib",
+    "password": "$2b$10$/nUYmTqvmk3fs2IIDEX2Yern/bfI94KoHLC5mnmIElAhabz3rN9xa",
+    "name": "Qarshi tuman IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "1754489536052"
+    ],
+    "active": true,
+    "createdAt": "2025-08-06T14:11:51.117Z",
+    "lastLogin": "2025-08-06T14:15:58.472Z"
+  },
+  {
+    "id": "1754548737454",
+    "username": "muborak_tiib",
+    "password": "$2b$10$doc.DHHnUdRt/aJpiTaZbeCE4A9Fhd.rfnmvywiAAvPfHSiv3cmzG",
+    "name": "Muborak Tumani IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "8"
+    ],
+    "active": true,
+    "createdAt": "2025-08-07T06:38:57.454Z",
+    "lastLogin": "2025-08-07T12:15:05.442Z"
+  },
+  {
+    "id": "1754652964708",
+    "username": "koson_tiib",
+    "password": "$2b$10$/eE2HAc4d0cw5J4CujpMGONbLlYbhEYvf42BJ8GSA..xpFRNIQZoy",
+    "name": "Koson Tuman IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "6"
+    ],
+    "active": true,
+    "createdAt": "2025-08-08T11:36:04.708Z",
+    "lastLogin": "2025-08-08T14:21:38.828Z"
+  },
+  {
+    "id": "1754734907067",
+    "username": "kasbi_tiib",
+    "password": "$2b$10$cE/a.CUlwaac1ion3hd0xeC6aZCcXjaTlN3Af3ZNzAVYwyishecbC",
+    "name": "Kasbi Tuman IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "4"
+    ],
+    "active": true,
+    "createdAt": "2025-08-09T10:21:47.067Z",
+    "lastLogin": "2025-08-09T14:52:06.752Z"
+  },
+  {
+    "id": "1754924982107",
+    "username": "shahrisabz_sh",
+    "password": "$2b$10$oyt5hgBX07frCrmrb0yp9O1jdByw6.p2V7hrzqNVU7WZqGz9LhNt.",
+    "name": "Shahrisabz Shahar IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "2"
+    ],
+    "active": true,
+    "createdAt": "2025-08-11T15:09:42.107Z",
+    "lastLogin": "2025-08-11T15:11:57.613Z"
+  },
+  {
+    "id": "1755076469302",
+    "username": "kitob_tiib",
+    "password": "$2b$10$B/KIdfzQnUZpnibUhNKIY.GPGkaUPDJ0BPUjj3.SkQiWSPx1h6t.q",
+    "name": "Kitob Tuman IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "5"
+    ],
+    "active": true,
+    "createdAt": "2025-08-13T09:14:29.302Z",
+    "lastLogin": "2025-08-13T15:52:36.508Z"
+  },
+  {
+    "id": "1755098928643",
+    "username": "yakkabog_tiib",
+    "password": "$2b$10$KagcMgDVeRVT/UF5HxA1Fe51LCGmbj1prjnupuRgLwsbfnN4X2f8u",
+    "name": "Yakkabog' tuman IIB",
+    "role": "operator",
+    "permissions": {
+      "dashboard": true,
+      "employees": true,
+      "broadcast": true,
+      "reports": true,
+      "phonebook": true,
+      "departments": true,
+      "groups": true
+    },
+    "allowedDistricts": [
+      "12"
+    ],
+    "active": true,
+    "createdAt": "2025-08-13T15:28:48.643Z",
+    "lastLogin": null
+  }
+]

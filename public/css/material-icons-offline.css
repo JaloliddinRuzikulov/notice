@@ -1,0 +1,210 @@
+/* Material Icons Offline - Pure CSS Icons for Closed Network */
+
+/* Base icon class */
+.material-symbols-outlined {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  vertical-align: middle;
+  font-style: normal;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Material Icons Offline', system-ui, -apple-system, sans-serif;
+}
+
+/* Hide the text content */
+.material-symbols-outlined {
+  color: transparent !important;
+  position: relative;
+}
+
+/* Show icon using ::before pseudo-element */
+.material-symbols-outlined::before {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+  font-size: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Icon mappings */
+.material-symbols-outlined:has-text("edit")::before,
+.material-symbols-outlined[data-icon="edit"]::before { content: "✏"; }
+
+.material-symbols-outlined:has-text("delete")::before,
+.material-symbols-outlined[data-icon="delete"]::before { content: "🗑"; }
+
+.material-symbols-outlined:has-text("add")::before,
+.material-symbols-outlined[data-icon="add"]::before,
+.material-symbols-outlined:has-text("person_add")::before { content: "+"; font-size: 28px; font-weight: bold; }
+
+.material-symbols-outlined:has-text("search")::before,
+.material-symbols-outlined[data-icon="search"]::before { content: "🔍"; }
+
+.material-symbols-outlined:has-text("phone")::before,
+.material-symbols-outlined[data-icon="phone"]::before { content: "📞"; }
+
+.material-symbols-outlined:has-text("group")::before,
+.material-symbols-outlined[data-icon="group"]::before { content: "👥"; }
+
+.material-symbols-outlined:has-text("person")::before,
+.material-symbols-outlined[data-icon="person"]::before { content: "👤"; }
+
+.material-symbols-outlined:has-text("home")::before,
+.material-symbols-outlined[data-icon="home"]::before { content: "🏠"; }
+
+.material-symbols-outlined:has-text("settings")::before,
+.material-symbols-outlined[data-icon="settings"]::before { content: "⚙"; font-size: 22px; }
+
+.material-symbols-outlined:has-text("logout")::before,
+.material-symbols-outlined[data-icon="logout"]::before { content: "↪"; font-size: 22px; }
+
+.material-symbols-outlined:has-text("dashboard")::before,
+.material-symbols-outlined[data-icon="dashboard"]::before { content: "📊"; }
+
+.material-symbols-outlined:has-text("broadcast")::before,
+.material-symbols-outlined[data-icon="broadcast"]::before,
+.material-symbols-outlined:has-text("campaign")::before { content: "📢"; }
+
+.material-symbols-outlined:has-text("report")::before,
+.material-symbols-outlined:has-text("assessment")::before,
+.material-symbols-outlined[data-icon="report"]::before { content: "📋"; }
+
+.material-symbols-outlined:has-text("file_upload")::before,
+.material-symbols-outlined[data-icon="file_upload"]::before { content: "📤"; }
+
+.material-symbols-outlined:has-text("file_download")::before,
+.material-symbols-outlined:has-text("download")::before,
+.material-symbols-outlined[data-icon="file_download"]::before { content: "📥"; }
+
+.material-symbols-outlined:has-text("description")::before,
+.material-symbols-outlined[data-icon="description"]::before { content: "📄"; }
+
+.material-symbols-outlined:has-text("check")::before,
+.material-symbols-outlined:has-text("check_circle")::before,
+.material-symbols-outlined[data-icon="check"]::before { content: "✓"; font-size: 20px; font-weight: bold; }
+
+.material-symbols-outlined:has-text("close")::before,
+.material-symbols-outlined[data-icon="close"]::before { content: "✕"; font-size: 20px; }
+
+.material-symbols-outlined:has-text("arrow_back")::before,
+.material-symbols-outlined[data-icon="arrow_back"]::before { content: "←"; font-size: 24px; }
+
+.material-symbols-outlined:has-text("arrow_forward")::before,
+.material-symbols-outlined[data-icon="arrow_forward"]::before { content: "→"; font-size: 24px; }
+
+.material-symbols-outlined:has-text("expand_more")::before,
+.material-symbols-outlined[data-icon="expand_more"]::before { content: "▼"; font-size: 16px; }
+
+.material-symbols-outlined:has-text("expand_less")::before,
+.material-symbols-outlined[data-icon="expand_less"]::before { content: "▲"; font-size: 16px; }
+
+.material-symbols-outlined:has-text("menu")::before,
+.material-symbols-outlined[data-icon="menu"]::before { content: "☰"; font-size: 24px; }
+
+.material-symbols-outlined:has-text("more_vert")::before,
+.material-symbols-outlined[data-icon="more_vert"]::before { content: "⋮"; font-size: 24px; }
+
+.material-symbols-outlined:has-text("filter_list")::before,
+.material-symbols-outlined[data-icon="filter_list"]::before { content: "▤"; font-size: 20px; }
+
+.material-symbols-outlined:has-text("warning")::before,
+.material-symbols-outlined[data-icon="warning"]::before { content: "⚠"; font-size: 22px; color: var(--md-sys-color-error, #dc2626); }
+
+.material-symbols-outlined:has-text("info")::before,
+.material-symbols-outlined[data-icon="info"]::before { content: "ℹ"; font-size: 22px; }
+
+.material-symbols-outlined:has-text("error")::before,
+.material-symbols-outlined[data-icon="error"]::before { content: "✖"; font-size: 22px; color: var(--md-sys-color-error, #dc2626); }
+
+.material-symbols-outlined:has-text("supervisor_account")::before,
+.material-symbols-outlined[data-icon="supervisor_account"]::before { content: "👥"; }
+
+.material-symbols-outlined:has-text("call")::before,
+.material-symbols-outlined[data-icon="call"]::before { content: "📞"; }
+
+.material-symbols-outlined:has-text("account_tree")::before,
+.material-symbols-outlined[data-icon="account_tree"]::before { content: "🌲"; }
+
+.material-symbols-outlined:has-text("domain")::before,
+.material-symbols-outlined[data-icon="domain"]::before { content: "🏢"; }
+
+.material-symbols-outlined:has-text("location_city")::before,
+.material-symbols-outlined[data-icon="location_city"]::before { content: "🏙"; }
+
+.material-symbols-outlined:has-text("people")::before,
+.material-symbols-outlined[data-icon="people"]::before { content: "👥"; }
+
+.material-symbols-outlined:has-text("business")::before,
+.material-symbols-outlined[data-icon="business"]::before { content: "🏢"; }
+
+.material-symbols-outlined:has-text("save")::before,
+.material-symbols-outlined[data-icon="save"]::before { content: "💾"; }
+
+.material-symbols-outlined:has-text("visibility")::before,
+.material-symbols-outlined[data-icon="visibility"]::before { content: "👁"; }
+
+.material-symbols-outlined:has-text("visibility_off")::before,
+.material-symbols-outlined[data-icon="visibility_off"]::before { content: "👁"; opacity: 0.5; }
+
+/* Fallback for any unmatched icons - show first letter */
+.material-symbols-outlined:not([data-icon])::before {
+  content: attr(data-fallback, "•");
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Button icons adjustment */
+.md-button .material-symbols-outlined,
+.btn .material-symbols-outlined {
+  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+}
+
+.md-button .material-symbols-outlined::before,
+.btn .material-symbols-outlined::before {
+  font-size: 18px;
+}
+
+/* Icon-only buttons */
+.md-icon-button .material-symbols-outlined {
+  margin: 0;
+}
+
+/* Navigation icons */
+.md-navigation-drawer .material-symbols-outlined {
+  margin-right: 12px;
+  opacity: 0.9;
+}
+
+/* Table action icons */
+.actions .material-symbols-outlined {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+.actions .material-symbols-outlined::before {
+  font-size: 18px;
+}
+
+/* Fix for specific icon text content */
+.material-symbols-outlined:empty::after {
+  content: "•";
+  position: absolute;
+  color: var(--md-sys-color-on-surface, #1c1b1f);
+}

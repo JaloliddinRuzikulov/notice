@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof t !== 'undefined' ? t('navigation.districts') : 'Shahar/Tumanlar' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <%- include('partials/navigation') %>
+        
+        <!-- App Content -->
+        <div class="md-app-content">
+            <!-- Main Content -->
+            <main class="md-main-content">
+                <div class="md-container">
+            <!-- Page Header -->
+            <header style="margin-bottom: var(--md-sys-spacing-8);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--md-sys-spacing-4);">
+                    <div>
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            <%= typeof t !== 'undefined' ? t('districts.description') : 'Hudud bo\'yicha boshqaruv va xodimlarni tumanlar bo\'yicha tashkil etish' %>
+                        </p>
+                    </div>
+                    
+                    <button class="md-button md-button-filled" onclick="showAddDistrictModal()">
+                        <span class="material-symbols-outlined">add</span>
+                        <%= typeof t !== 'undefined' ? t('districts.newDistrict') : 'Yangi tuman' %>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistics Summary -->
+            <section style="margin-bottom: var(--md-sys-spacing-8);">
+                <div class="md-card md-card-outlined">
+                    <div style="padding: var(--md-sys-spacing-6);">
+                        <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin-bottom: var(--md-sys-spacing-4);">
+                            <%= typeof t !== 'undefined' ? t('districts.generalStatistics') : 'Umumiy statistika' %>
+                        </h3>
+                        
+                        <div class="md-grid md-grid-cols-2">
+                            <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-4);">
+                                <div style="width: var(--md-sys-spacing-12); height: var(--md-sys-spacing-12); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-primary-container);">
+                                        location_on
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="md-typescale-display-small" style="color: var(--md-sys-color-primary); margin: 0; font-weight: 600;" id="totalDistricts">
+                                        0
+                                    </p>
+                                    <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        <%= typeof t !== 'undefined' ? t('districts.totalDistricts') : 'Jami tumanlar' %>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-4);">
+                                <div style="width: var(--md-sys-spacing-12); height: var(--md-sys-spacing-12); background: var(--md-sys-color-secondary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-secondary-container);">
+                                        people
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="md-typescale-display-small" style="color: var(--md-sys-color-secondary); margin: 0; font-weight: 600;" id="totalEmployees">
+                                        0
+                                    </p>
+                                    <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        <%= typeof t !== 'undefined' ? t('phonebook.totalEmployees') : 'Jami xodimlar' %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Districts Grid -->
+            <section>
+                <div class="md-grid md-grid-cols-3" id="districtsGrid">
+                    <!-- Loading State -->
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                location_on
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                <%= typeof t !== 'undefined' ? t('common.loading') : 'Ma\'lumotlar yuklanmoqda...' %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- District Modal -->
+    <div class="md-dialog" id="districtModal">
+        <div class="md-dialog-container" style="max-width: 500px;">
+            <div class="md-dialog-header">
+                <h2 class="md-dialog-title" id="modalTitle"><%= typeof t !== 'undefined' ? t('districts.newDistrict') : 'Yangi tuman' %></h2>
+                <button class="md-icon-button" onclick="closeDistrictModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="md-dialog-content">
+                <form id="districtForm" onsubmit="saveDistrict(event); return false;">
+                    <input type="hidden" id="districtId">
+                    
+                    <!-- District Name -->
+                    <div class="form-group">
+                        <label for="districtName"><%= typeof t !== 'undefined' ? t('districts.districtName') : 'Tuman nomi' %> *</label>
+                        <input 
+                            type="text" 
+                            id="districtName" 
+                            class="form-control" 
+                            placeholder="<%= typeof t !== 'undefined' ? t('districts.enterDistrictName') : 'Tuman nomini kiriting' %>"
+                            required
+                        >
+                    </div>
+                </form>
+            </div>
+            
+            <div class="md-dialog-actions">
+                <button type="button" class="md-button md-button-text" onclick="closeDistrictModal()">
+                    <%= typeof t !== 'undefined' ? t('common.cancel') : 'Bekor qilish' %>
+                </button>
+                <button type="submit" form="districtForm" class="md-button md-button-filled">
+                    <span class="material-symbols-outlined">save</span>
+                    <%= typeof t !== 'undefined' ? t('common.save') : 'Saqlash' %>
+                </button>
+            </div>
+        </div>
+    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        let districts = [];
+        let employees = [];
+        let currentDistrictId = null;
+        
+        // Load data
+        async function loadData() {
+            try {
+                const [distResponse, empResponse] = await Promise.all([
+                    fetch('/api/districts'),
+                    fetch('/api/employees')
+                ]);
+                
+                // Check for errors
+                if (!distResponse.ok || !empResponse.ok) {
+                    if (distResponse.status === 403 || empResponse.status === 403) {
+                        throw new Error('Ruxsat etilmagan. Admindan kerakli huquqlarni so\'rang.');
+                    }
+                    if (distResponse.status === 401 || empResponse.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error('Ma\'lumotlarni yuklashda xatolik yuz berdi');
+                }
+                
+                districts = await distResponse.json();
+                const empData = await empResponse.json();
+                
+                console.log('Districts API response:', districts);
+                console.log('Employees API response:', empData);
+                
+                // Handle employees response format
+                if (empData && empData.success && Array.isArray(empData.employees)) {
+                    employees = empData.employees;
+                } else if (Array.isArray(empData)) {
+                    employees = empData;
+                } else {
+                    console.error('Invalid employee response format:', empData);
+                    employees = [];
+                }
+                
+                // Validate data types
+                if (!Array.isArray(districts)) {
+                    console.error('Invalid districts data:', districts);
+                    districts = [];
+                }
+                if (!Array.isArray(employees)) {
+                    console.error('Invalid employees data:', employees);
+                    employees = [];
+                }
+                
+                // Filter only active employees (ensure it's array)
+                if (Array.isArray(employees)) {
+                    employees = employees.filter(emp => !emp.deleted);
+                } else {
+                    employees = [];
+                }
+                
+                updateSummary();
+                renderDistricts();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('districtsGrid').innerHTML = `
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-error);">
+                                error
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-error);">
+                                Ma'lumotlarni yuklashda xatolik: ${error.message}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update summary
+        function updateSummary() {
+            document.getElementById('totalDistricts').textContent = districts.length;
+            document.getElementById('totalEmployees').textContent = Array.isArray(employees) ? employees.filter(emp => emp.district).length : 0;
+        }
+        
+        // Render districts
+        function renderDistricts() {
+            console.log('renderDistricts called with:', districts.length, 'districts');
+            const container = document.getElementById('districtsGrid');
+            
+            if (districts.length === 0) {
+                container.innerHTML = `
+                    <div class="md-card md-card-outlined" style="grid-column: 1 / -1; text-align: center; padding: var(--md-sys-spacing-16);">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--md-sys-spacing-4);">
+                            <span class="material-symbols-outlined" style="font-size: 72px; opacity: 0.5; color: var(--md-sys-color-on-surface-variant);">
+                                location_on
+                            </span>
+                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                                Tumanlar mavjud emas
+                            </p>
+                            <button class="md-button md-button-tonal" onclick="showAddDistrictModal()">
+                                <span class="material-symbols-outlined">add</span>
+                                Birinchi tumanni qo'shing
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = districts.map(district => {
+                // Get employees for this district - check both ID and name
+                const districtEmployees = Array.isArray(employees) ? employees.filter(emp => 
+                    emp.district === district.id || emp.district === district.name
+                ) : [];
+                const employeeCount = districtEmployees.length;
+                const showLimit = 3;
+                const hasMore = employeeCount > showLimit;
+                
+                return `
+                    <div class="md-card md-card-elevated" style="transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                        <div style="padding: var(--md-sys-spacing-6);">
+                            <!-- District Header -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--md-sys-spacing-4);">
+                                <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3);">
+                                    <div style="width: var(--md-sys-spacing-12); height: var(--md-sys-spacing-12); background: var(--md-sys-color-tertiary-container); border-radius: var(--md-sys-shape-corner-medium); display: flex; align-items: center; justify-content: center;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-6); color: var(--md-sys-color-on-tertiary-container);">
+                                            location_on
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 class="md-typescale-title-large" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                            ${district.name}
+                                        </h3>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: var(--md-sys-spacing-1);">
+                                    <button class="md-icon-button" onclick="editDistrict('${district.id}')" title="Tahrirlash">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="md-icon-button" onclick="deleteDistrict('${district.id}')" title="O'chirish" style="color: var(--md-sys-color-error);">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- District Stats -->
+                            <div style="background: var(--md-sys-color-surface-container-highest); padding: var(--md-sys-spacing-4); border-radius: var(--md-sys-shape-corner-small); text-align: center;">
+                                <p class="md-typescale-display-small" style="color: var(--md-sys-color-tertiary); margin: 0; font-weight: 600;">
+                                    ${employeeCount}
+                                </p>
+                                <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                    Xodimlar soni
+                                </p>
+                            </div>
+                            
+                            <!-- Employee List -->
+                            ${districtEmployees.length > 0 ? `
+                                <div style="margin-top: var(--md-sys-spacing-4);">
+                                    <h4 class="md-typescale-title-small" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-3) 0;">
+                                        Xodimlar
+                                    </h4>
+                                    <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-2);">
+                                        ${districtEmployees.slice(0, showLimit).map(emp => `
+                                            <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-3); padding: var(--md-sys-spacing-2); background: var(--md-sys-color-surface-container-highest); border-radius: var(--md-sys-shape-corner-small);">
+                                                <div style="width: var(--md-sys-spacing-8); height: var(--md-sys-spacing-8); background: var(--md-sys-color-tertiary-container); border-radius: var(--md-sys-shape-corner-full); display: flex; align-items: center; justify-content: center; color: var(--md-sys-color-on-tertiary-container); font-weight: 600; font-size: var(--md-sys-typescale-label-small-size);">
+                                                    ${emp.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                                        ${emp.name}
+                                                    </p>
+                                                    <p class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                                        ${emp.position || 'Lavozim ko\'rsatilmagan'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    ${hasMore ? `
+                                        <button class="md-button md-button-text" onclick="showDistrictEmployees('${district.id}', '${district.name}')" style="width: 100%; margin-top: var(--md-sys-spacing-3);">
+                                            <span class="material-symbols-outlined">visibility</span>
+                                            Barcha xodimlarni ko'rish (${employeeCount})
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Show add district modal
+        function showAddDistrictModal() {
+            currentDistrictId = null;
+            document.getElementById('modalTitle').textContent = 'Yangi tuman';
+            document.getElementById('districtForm').reset();
+            document.getElementById('districtModal').classList.add('open');
+        }
+        
+        // Edit district
+        function editDistrict(districtId) {
+            currentDistrictId = districtId;
+            const district = districts.find(d => d.id === districtId);
+            if (!district) return;
+            
+            document.getElementById('modalTitle').textContent = 'Tumanni tahrirlash';
+            document.getElementById('districtId').value = district.id;
+            document.getElementById('districtName').value = district.name;
+            document.getElementById('districtModal').classList.add('open');
+        }
+        
+        // Close district modal
+        function closeDistrictModal() {
+            document.getElementById('districtModal').classList.remove('open');
+        }
+        
+        // Delete district
+        async function deleteDistrict(districtId) {
+            const district = districts.find(d => d.id === districtId);
+            // Count employees - check both ID and name
+            const employeeCount = Array.isArray(employees) ? employees.filter(emp => 
+                emp.district === districtId || emp.district === district.name
+            ).length : 0;
+            
+            if (employeeCount > 0) {
+                showSnackbar(`Bu tumanda ${employeeCount} ta xodim mavjud. Avval ularni boshqa tumanga o'tkazing.`, 'error');
+                return;
+            }
+            
+            if (!confirm(`"${district.name}" tumanini o'chirishni xohlaysizmi?`)) return;
+            
+            try {
+                const response = await fetch(`/api/districts/${districtId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadData();
+                    showSnackbar('Tuman muvaffaqiyatli o\'chirildi');
+                } else {
+                    const error = await response.json();
+                    showSnackbar('Xatolik: ' + (error.error || 'Xatolik yuz berdi'), 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting district:', error);
+                showSnackbar('Xatolik yuz berdi', 'error');
+            }
+        }
+        
+        // Save district
+        async function saveDistrict(event) {
+            event.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('districtName').value.trim()
+            };
+            
+            if (!formData.name) {
+                showSnackbar('Tuman nomini kiriting', 'error');
+                return;
+            }
+            
+            try {
+                const url = currentDistrictId ? `/api/districts/${currentDistrictId}` : '/api/districts';
+                const method = currentDistrictId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    closeDistrictModal();
+                    loadData();
+                    showSnackbar(currentDistrictId ? 'Tuman muvaffaqiyatli yangilandi' : 'Tuman muvaffaqiyatli qo\'shildi');
+                } else {
+                    const error = await response.json();
+                    showSnackbar('Xatolik: ' + (error.error || 'Xatolik yuz berdi'), 'error');
+                }
+            } catch (error) {
+                console.error('Error saving district:', error);
+                showSnackbar('Xatolik yuz berdi', 'error');
+            }
+        }
+        
+        // Show district employees modal
+        function showDistrictEmployees(districtId, districtName) {
+            const districtEmployees = Array.isArray(employees) ? employees.filter(emp => 
+                emp.district === districtId || emp.district === districtName
+            ) : [];
+            
+            const modal = document.createElement('div');
+            modal.className = 'md-dialog';
+            modal.innerHTML = `
+                <div class="md-dialog-container" style="width: 90%; max-width: 800px;">
+                    <div class="md-dialog-headline">
+                        <h2>${districtName} - Xodimlar</h2>
+                        <button class="md-icon-button" onclick="this.closest('.md-dialog').remove()">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="md-dialog-content" style="max-height: 70vh; overflow-y: auto;">
+                        ${districtEmployees.length === 0 ? `
+                            <p style="text-align: center; color: var(--md-sys-color-on-surface-variant); padding: var(--md-sys-spacing-8);">
+                                Bu tumanda xodimlar topilmadi
+                            </p>
+                        ` : `
+                            <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-3);">
+                                ${districtEmployees.map(emp => `
+                                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-4); padding: var(--md-sys-spacing-4); background: var(--md-sys-color-surface-container); border-radius: var(--md-sys-shape-corner-medium);">
+                                        <div style="width: var(--md-sys-spacing-10); height: var(--md-sys-spacing-10); background: var(--md-sys-color-tertiary-container); border-radius: var(--md-sys-shape-corner-full); display: flex; align-items: center; justify-content: center; color: var(--md-sys-color-on-tertiary-container); font-weight: 600;">
+                                            ${emp.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-1) 0; font-weight: 500;">
+                                                ${emp.name}
+                                            </p>
+                                            <div style="display: flex; gap: var(--md-sys-spacing-4); flex-wrap: wrap;">
+                                                <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                                    <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: -3px; margin-right: 4px;">work</span>
+                                                    ${emp.position || 'Lavozim ko\'rsatilmagan'}
+                                                </span>
+                                                ${emp.department ? `
+                                                    <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                                        <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: -3px; margin-right: 4px;">corporate_fare</span>
+                                                        ${emp.department}
+                                                    </span>
+                                                ` : ''}
+                                                ${emp.phoneNumber ? `
+                                                    <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                                        <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: -3px; margin-right: 4px;">phone</span>
+                                                        ${emp.phoneNumber}
+                                                    </span>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+                    <div class="md-dialog-actions">
+                        <button class="md-button" onclick="this.closest('.md-dialog').remove()">
+                            Yopish
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.classList.add('open');
+        }
+        
+        // Simple snackbar function
+        function showSnackbar(message, type = 'success') {
+            const snackbar = document.createElement('div');
+            snackbar.className = 'md-snackbar show';
+            snackbar.innerHTML = `
+                <span class="md-snackbar-text">${message}</span>
+            `;
+            
+            if (type === 'error') {
+                snackbar.style.background = 'var(--md-sys-color-error-container)';
+                snackbar.style.color = 'var(--md-sys-color-on-error-container)';
+            }
+            
+            document.body.appendChild(snackbar);
+            
+            setTimeout(() => {
+                snackbar.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(snackbar);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Load data on page load
+        loadData();
+    </script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

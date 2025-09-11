@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fayl Menejeri - Qashqadaryo IIB</title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .file-manager {
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        .file-path {
+            padding: var(--md-sys-spacing-4);
+            background: var(--md-sys-color-surface-container);
+            border-radius: var(--md-sys-shape-corner-medium);
+            display: flex;
+            align-items: center;
+            gap: var(--md-sys-spacing-2);
+            margin-bottom: var(--md-sys-spacing-4);
+        }
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--md-sys-color-surface);
+            border-radius: var(--md-sys-shape-corner-medium);
+            padding: var(--md-sys-spacing-4);
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: var(--md-sys-spacing-3);
+            padding: var(--md-sys-spacing-3);
+            border-radius: var(--md-sys-shape-corner-small);
+            cursor: pointer;
+            transition: background var(--md-sys-motion-duration-short2);
+        }
+        .file-item:hover {
+            background: var(--md-sys-color-surface-container);
+        }
+        .file-icon {
+            font-size: var(--md-sys-spacing-6);
+            color: var(--md-sys-color-primary);
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface);
+        }
+        .file-size {
+            font-size: var(--md-sys-typescale-body-small-size);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+        .file-actions {
+            display: flex;
+            gap: var(--md-sys-spacing-2);
+        }
+        .toolbar {
+            display: flex;
+            gap: var(--md-sys-spacing-3);
+            margin-bottom: var(--md-sys-spacing-4);
+        }
+        .upload-area {
+            border: 2px dashed var(--md-sys-color-outline);
+            border-radius: var(--md-sys-shape-corner-medium);
+            padding: var(--md-sys-spacing-8);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--md-sys-motion-duration-short2);
+        }
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--md-sys-color-primary);
+            background: var(--md-sys-color-primary-container);
+        }
+    </style>
+</head>
+<body>
+    <div class="md-app">
+        <%- include('partials/navigation') %>
+        
+        <div class="md-app-content">
+            <main class="md-main-content">
+                <div class="md-container">
+                    <header style="margin-bottom: var(--md-sys-spacing-6);">
+                        <h1 class="md-typescale-headline-medium">Fayl Menejeri</h1>
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            Web orqali fayllarga kirish va boshqarish
+                        </p>
+                    </header>
+
+                    <div class="file-manager">
+                        <div class="toolbar">
+                            <button class="md-button md-button-filled-tonal" onclick="createFolder()">
+                                <span class="material-symbols-outlined">create_new_folder</span>
+                                Yangi papka
+                            </button>
+                            <button class="md-button md-button-filled-tonal" onclick="document.getElementById('fileUpload').click()">
+                                <span class="material-symbols-outlined">upload_file</span>
+                                Fayl yuklash
+                            </button>
+                            <input type="file" id="fileUpload" style="display: none;" onchange="uploadFile(this.files[0])">
+                            <button class="md-button md-button-text" onclick="refreshFiles()">
+                                <span class="material-symbols-outlined">refresh</span>
+                                Yangilash
+                            </button>
+                        </div>
+
+                        <div class="file-path">
+                            <span class="material-symbols-outlined">folder_open</span>
+                            <span id="currentPath">/home/user</span>
+                        </div>
+
+                        <div id="uploadArea" class="upload-area" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragleave="dragLeaveHandler(event);">
+                            <span class="material-symbols-outlined" style="font-size: 48px; color: var(--md-sys-color-on-surface-variant);">
+                                cloud_upload
+                            </span>
+                            <p class="md-typescale-body-large">Fayllarni bu yerga tashlang yoki bosing</p>
+                        </div>
+
+                        <div class="file-list" id="fileList">
+                            <!-- Files will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let currentPath = '/home/user';
+
+        // Load files on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFiles(currentPath);
+        });
+
+        async function loadFiles(path) {
+            try {
+                const response = await fetch(`/api/file-manager/list?path=${encodeURIComponent(path)}`, {
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+                
+                currentPath = data.path;
+                document.getElementById('currentPath').textContent = currentPath;
+                
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+
+                // Add parent directory link if not at root
+                if (currentPath !== '/home/user') {
+                    fileList.innerHTML += `
+                        <div class="file-item" onclick="loadFiles('${data.parent}')">
+                            <span class="material-symbols-outlined file-icon">folder</span>
+                            <div class="file-info">
+                                <div class="file-name">..</div>
+                                <div class="file-size">Yuqori papka</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Add files and directories
+                data.files.forEach(file => {
+                    const icon = file.isDirectory ? 'folder' : getFileIcon(file.name);
+                    const size = file.isDirectory ? 'Papka' : formatFileSize(file.size);
+                    const date = new Date(file.modified).toLocaleString('uz');
+                    
+                    fileList.innerHTML += `
+                        <div class="file-item" onclick="${file.isDirectory ? `loadFiles('${file.path}')` : `previewFile('${file.path}')`}">
+                            <span class="material-symbols-outlined file-icon">${icon}</span>
+                            <div class="file-info">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${size} • ${date}</div>
+                            </div>
+                            <div class="file-actions">
+                                ${!file.isDirectory ? `
+                                    <button class="md-button-icon" onclick="event.stopPropagation(); downloadFile('${file.path}')" title="Yuklab olish">
+                                        <span class="material-symbols-outlined">download</span>
+                                    </button>
+                                ` : ''}
+                                <button class="md-button-icon" onclick="event.stopPropagation(); deleteFile('${file.path}', ${file.isDirectory})" title="O'chirish">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error loading files:', error);
+                alert('Fayllarni yuklashda xatolik');
+            }
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'js': 'javascript',
+                'json': 'data_object',
+                'html': 'html',
+                'css': 'css',
+                'jpg': 'image',
+                'jpeg': 'image',
+                'png': 'image',
+                'gif': 'image',
+                'pdf': 'picture_as_pdf',
+                'doc': 'description',
+                'docx': 'description',
+                'xls': 'table_chart',
+                'xlsx': 'table_chart',
+                'zip': 'folder_zip',
+                'rar': 'folder_zip',
+                'mp3': 'audio_file',
+                'mp4': 'video_file',
+                'txt': 'text_snippet',
+                'log': 'article',
+                'sh': 'terminal',
+                'env': 'settings'
+            };
+            return iconMap[ext] || 'insert_drive_file';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function downloadFile(path) {
+            window.open(`/api/file-manager/download?path=${encodeURIComponent(path)}`, '_blank');
+        }
+
+        async function deleteFile(path, isDirectory) {
+            const type = isDirectory ? 'papkani' : 'faylni';
+            if (!confirm(`Haqiqatan ham bu ${type} o'chirmoqchimisiz?`)) return;
+
+            try {
+                const response = await fetch('/api/file-manager/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ path }),
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    loadFiles(currentPath);
+                } else {
+                    const error = await response.json();
+                    alert(`Xatolik: ${error.error}`);
+                }
+            } catch (error) {
+                console.error('Error deleting:', error);
+                alert('O\'chirishda xatolik');
+            }
+        }
+
+        async function createFolder() {
+            const name = prompt('Yangi papka nomi:');
+            if (!name) return;
+
+            try {
+                const response = await fetch('/api/file-manager/mkdir', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ path: currentPath, name }),
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    loadFiles(currentPath);
+                } else {
+                    const error = await response.json();
+                    alert(`Xatolik: ${error.error}`);
+                }
+            } catch (error) {
+                console.error('Error creating folder:', error);
+                alert('Papka yaratishda xatolik');
+            }
+        }
+
+        async function uploadFile(file) {
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('path', currentPath);
+
+            try {
+                const response = await fetch('/api/file-manager/upload', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    loadFiles(currentPath);
+                } else {
+                    const error = await response.json();
+                    alert(`Xatolik: ${error.error}`);
+                }
+            } catch (error) {
+                console.error('Error uploading:', error);
+                alert('Yuklashda xatolik');
+            }
+        }
+
+        function refreshFiles() {
+            loadFiles(currentPath);
+        }
+
+        async function previewFile(path) {
+            const ext = path.split('.').pop().toLowerCase();
+            const textExtensions = ['txt', 'js', 'json', 'html', 'css', 'md', 'log', 'env', 'sh', 'yml', 'yaml', 'xml'];
+            
+            if (textExtensions.includes(ext)) {
+                try {
+                    const response = await fetch(`/api/file-manager/read?path=${encodeURIComponent(path)}`, {
+                        credentials: 'same-origin'
+                    });
+                    const data = await response.json();
+                    
+                    // Simple preview (you can improve this with a modal)
+                    alert(data.content.substring(0, 1000) + (data.content.length > 1000 ? '...' : ''));
+                } catch (error) {
+                    downloadFile(path);
+                }
+            } else {
+                downloadFile(path);
+            }
+        }
+
+        // Drag and drop handlers
+        function dragOverHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function dragLeaveHandler(ev) {
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function dropHandler(ev) {
+            ev.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            if (ev.dataTransfer.items) {
+                for (let i = 0; i < ev.dataTransfer.items.length; i++) {
+                    if (ev.dataTransfer.items[i].kind === 'file') {
+                        const file = ev.dataTransfer.items[i].getAsFile();
+                        uploadFile(file);
+                    }
+                }
+            }
+        }
+
+        // Upload area click handler
+        document.getElementById('uploadArea').addEventListener('click', () => {
+            document.getElementById('fileUpload').click();
+        });
+    </script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

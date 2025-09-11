@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title><%= typeof t !== 'undefined' ? t('navigation.sipAccounts') : 'SIP Raqamlar' %> - <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %></title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .sip-accounts-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .accounts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .account-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .account-card.active {
+            border: 2px solid #28a745;
+        }
+        
+        .account-card.inactive {
+            opacity: 0.7;
+            border: 2px solid #dc3545;
+        }
+        
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .account-extension {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+        
+        .account-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-indicator.active {
+            background: #28a745;
+        }
+        
+        .status-indicator.inactive {
+            background: #dc3545;
+        }
+        
+        .account-info {
+            margin-bottom: 15px;
+        }
+        
+        .account-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .account-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .channel-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .channel-info .channel-bar {
+            background: #e9ecef;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .channel-fill {
+            background: #17a2b8;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <%- include('partials/navigation') %>
+        
+        <div class="md-app-content">
+            <main class="md-main-content">
+                <div class="sip-accounts-container">
+                    <div class="accounts-header" style="justify-content: flex-end;">
+                        <button class="btn btn-primary" onclick="showAddModal()">
+                            <i class="fas fa-plus"></i> <%= typeof t !== 'undefined' ? t('sipAccounts.newSipNumber') : 'Yangi SIP raqam qo\'shish' %>
+                        </button>
+                    </div>
+                    
+                    <div class="accounts-grid" id="accountsGrid">
+                        <!-- SIP accounts will be loaded here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle"><%= typeof t !== 'undefined' ? t('sipAccounts.newSipNumber') : 'Yangi SIP raqam qo\'shish' %></h2>
+            <form id="accountForm">
+                <input type="hidden" id="accountId">
+                
+                <div class="form-group">
+                    <label for="extension"><%= typeof t !== 'undefined' ? t('sipAccounts.extension') : 'Extension (SIP raqam)' %></label>
+                    <input type="text" id="extension" required placeholder="<%= typeof t !== 'undefined' ? t('sipAccounts.extensionPlaceholder') : 'Masalan: 4532' %>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password"><%= typeof t !== 'undefined' ? t('users.password') : 'Parol' %></label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name"><%= typeof t !== 'undefined' ? t('sipAccounts.name') : 'Nomi' %></label>
+                    <input type="text" id="name" required placeholder="<%= typeof t !== 'undefined' ? t('sipAccounts.namePlaceholder') : 'Masalan: Zaxira linja 1' %>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="server"><%= typeof t !== 'undefined' ? t('sipAccounts.sipServer') : 'SIP Server' %></label>
+                    <input type="text" id="server" value="10.105.0.3" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="channels"><%= typeof t !== 'undefined' ? t('sipAccounts.channelCount') : 'Kanallar soni' %></label>
+                    <input type="number" id="channels" value="15" min="1" max="30" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="active" checked>
+                        <%= typeof t !== 'undefined' ? t('sipAccounts.activeStatus') : 'Faol holat' %>
+                    </label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> <%= typeof t !== 'undefined' ? t('common.save') : 'Saqlash' %>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> <%= typeof t !== 'undefined' ? t('common.cancel') : 'Bekor qilish' %>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        console.log('SIP Accounts Page Loaded - Version 1.3 - <%= new Date().getTime() %>');
+        let sipAccounts = [];
+        
+        // Load SIP accounts
+        async function loadAccounts() {
+            console.log('=== Loading SIP accounts v2.0 ===');
+            
+            try {
+                const response = await fetch('/api/sip-accounts', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                sipAccounts = Array.isArray(data) ? data : [];
+                console.log('SIP accounts loaded from API:', sipAccounts.length, 'accounts');
+                renderAccounts();
+                
+            } catch (error) {
+                console.error('Error loading SIP accounts from API:', error);
+                console.log('Using fallback local data');
+                
+                // Fallback to local data
+                sipAccounts = [
+                    {
+                        id: '1',
+                        extension: '5530',
+                        password: '5530',
+                        name: 'Asosiy linja 1',
+                        server: '10.105.0.3',
+                        active: true,
+                        channels: 15,
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '2',
+                        extension: '5531',
+                        password: '5531',
+                        name: 'Asosiy linja 2',
+                        server: '10.105.0.3',
+                        active: true,
+                        channels: 15,
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '3',
+                        extension: '5532',
+                        password: '5532',
+                        name: 'Asosiy linja 3',
+                        server: '10.105.0.3',
+                        active: true,
+                        channels: 15,
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                console.log('Fallback SIP accounts loaded:', sipAccounts.length, 'accounts');
+                renderAccounts();
+            }
+        }
+        
+        // Render accounts
+        function renderAccounts() {
+            const grid = document.getElementById('accountsGrid');
+            
+            console.log('Rendering accounts:', sipAccounts); // Debug log
+            
+            if (!Array.isArray(sipAccounts) || sipAccounts.length === 0) {
+                grid.innerHTML = '<p class="text-muted">SIP raqamlar mavjud emas</p>';
+                return;
+            }
+            
+            grid.innerHTML = sipAccounts.map(account => {
+                const statusClass = account.active ? 'active' : 'inactive';
+                const statusText = account.active ? 'Faol' : 'Faol emas';
+                
+                return `
+                    <div class="account-card ${statusClass}">
+                        <div class="account-header">
+                            <div class="account-extension">${account.extension}</div>
+                            <div class="account-status">
+                                <span class="status-indicator ${statusClass}"></span>
+                                <span>${statusText}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="account-info">
+                            <p><strong>Nomi:</strong> ${account.name}</p>
+                            <p><strong>Server:</strong> ${account.server}</p>
+                            <p><strong>Kanallar:</strong> ${account.channels}</p>
+                        </div>
+                        
+                        <div class="channel-info">
+                            <small>Kanal holati (simulyatsiya)</small>
+                            <div class="channel-bar">
+                                <div class="channel-fill" style="width: ${Math.random() * 50 + 10}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="account-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editAccount('${account.id}')">
+                                <i class="fas fa-edit"></i> Tahrirlash
+                            </button>
+                            <button class="btn btn-sm btn-info" onclick="testAccount('${account.id}')">
+                                <i class="fas fa-phone-alt"></i> Test
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="toggleAccount('${account.id}')">
+                                <i class="fas fa-power-off"></i> ${account.active ? 'O\'chirish' : 'Yoqish'}
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAccount('${account.id}')">
+                                <i class="fas fa-trash"></i> O'chirish
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Show add modal
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Yangi SIP raqam qo\'shish';
+            document.getElementById('accountForm').reset();
+            document.getElementById('accountId').value = '';
+            document.getElementById('extension').disabled = false;
+            document.getElementById('accountModal').style.display = 'block';
+        }
+        
+        // Edit account
+        function editAccount(id) {
+            const account = sipAccounts.find(a => a.id === id);
+            if (!account) return;
+            
+            document.getElementById('modalTitle').textContent = 'SIP raqamni tahrirlash';
+            document.getElementById('accountId').value = account.id;
+            document.getElementById('extension').value = account.extension;
+            document.getElementById('extension').disabled = true;
+            document.getElementById('password').value = account.password;
+            document.getElementById('name').value = account.name;
+            document.getElementById('server').value = account.server;
+            document.getElementById('channels').value = account.channels;
+            document.getElementById('active').checked = account.active;
+            
+            document.getElementById('accountModal').style.display = 'block';
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('accountModal').style.display = 'none';
+        }
+        
+        // Handle form submit
+        document.getElementById('accountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const accountId = document.getElementById('accountId').value;
+            const formData = {
+                extension: document.getElementById('extension').value,
+                password: document.getElementById('password').value,
+                name: document.getElementById('name').value,
+                server: document.getElementById('server').value,
+                channels: parseInt(document.getElementById('channels').value),
+                active: document.getElementById('active').checked
+            };
+            
+            try {
+                let response;
+                if (accountId) {
+                    // Update existing
+                    response = await fetch(`/api/sip-accounts/${accountId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                } else {
+                    // Create new
+                    response = await fetch('/api/sip-accounts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                }
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    if (response.status === 403) {
+                        const errorData = await response.json();
+                        alert(`Xato: ${errorData.message || 'Sizda bu amalni bajarish huquqi yo\'q'}`);
+                        return;
+                    }
+                    if (response.status === 404) {
+                        alert('Xato: API endpoint topilmadi');
+                        return;
+                    }
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(accountId ? 'SIP raqam yangilandi!' : 'SIP raqam qo\'shildi!');
+                    closeModal();
+                    // Clear form
+                    document.getElementById('accountForm').reset();
+                    document.getElementById('accountId').value = '';
+                    // Reload accounts from API
+                    await loadAccounts();
+                } else {
+                    alert('Xato: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Saqlashda xato yuz berdi');
+            }
+        });
+        
+        // Test account
+        async function testAccount(id) {
+            try {
+                const response = await fetch(`/api/sip-accounts/test/${id}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Test muvaffaqiyatli!\nExtension: ${data.details.extension}\nServer: ${data.details.server}\nHolat: ${data.details.status}\nKechikish: ${data.details.latency}`);
+                } else {
+                    alert('Test xatosi: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Test error:', error);
+                alert('Test xatosi yuz berdi');
+            }
+        }
+        
+        // Toggle account status
+        async function toggleAccount(id) {
+            const account = sipAccounts.find(a => a.id === id);
+            if (!account) return;
+            
+            try {
+                const response = await fetch(`/api/sip-accounts/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ active: !account.active })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadAccounts();
+                } else {
+                    alert('Xato: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Toggle error:', error);
+                alert('Xato yuz berdi');
+            }
+        }
+        
+        // Delete account
+        async function deleteAccount(id) {
+            if (!confirm('Bu SIP raqamni o\'chirishni xohlaysizmi?')) return;
+            
+            try {
+                const response = await fetch(`/api/sip-accounts/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('SIP raqam o\'chirildi!');
+                    loadAccounts();
+                } else {
+                    alert('Xato: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('O\'chirishda xato yuz berdi');
+            }
+        }
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAccounts();
+        });
+    </script>
+    <script src="/js/offline-icons.js"></script>
+    <script src="/js/material-icons-fix.js"></script>
+    <script src="/js/language-manager.js"></script>
+</body>
+</html>

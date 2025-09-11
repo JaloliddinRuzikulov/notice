@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1",
+    "extension": "5530",
+    "password": "5530",
+    "name": "Asosiy linja 1",
+    "server": "10.105.0.3",
+    "active": true,
+    "channels": 5,
+    "createdAt": "2024-07-10T10:00:00.000Z",
+    "updatedAt": "2025-07-18T12:08:19.338Z"
+  }
+]

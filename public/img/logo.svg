@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="90" fill="#1e3a8a"/>
+  <circle cx="100" cy="100" r="80" fill="#3b82f6"/>
+  <g fill="white">
+    <rect x="70" y="60" width="60" height="50" rx="5"/>
+    <rect x="85" y="50" width="30" height="20" rx="3"/>
+    <circle cx="100" cy="125" r="5"/>
+    <path d="M70 130 Q100 150 130 130" stroke="white" stroke-width="3" fill="none"/>
+    <path d="M60 140 Q100 170 140 140" stroke="white" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M50 150 Q100 190 150 150" stroke="white" stroke-width="2" fill="none" opacity="0.4"/>
+  </g>
+  <text x="100" y="180" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="bold">IIB</text>
+</svg>

@@ -1,0 +1,30 @@
+; Xabarnoma SIP Configuration Example
+; This should be added to /etc/asterisk/sip.conf
+
+[general]
+; Enable INFO method for DTMF
+allowguest=no
+alwaysauthreject=yes
+dtmfmode=auto  ; Try all methods
+
+[5530]
+type=friend
+host=dynamic
+secret=asd8#ksd
+context=from-internal
+username=5530
+; CRITICAL: Set DTMF mode to INFO
+dtmfmode=info  ; <-- THIS IS THE KEY SETTING
+; Alternative: dtmfmode=auto (tries all methods)
+; Alternative: dtmfmode=rfc2833,info (multiple methods)
+disallow=all
+allow=alaw
+allow=ulaw
+canreinvite=no
+directmedia=no
+nat=force_rport,comedia
+qualify=yes
+qualifyfreq=30
+; Force INFO method
+sendrpid=yes
+trustrpid=yes

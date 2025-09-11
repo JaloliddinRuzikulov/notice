@@ -1,0 +1,236 @@
+[
+  {
+    "id": "1752836081636",
+    "name": "Ro'ziqulov Jahongir",
+    "position": "kichik mutaxsis",
+    "rank": "safdor",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "990823112",
+    "servicePhone": "7522444555",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T10:54:41.636Z",
+    "createdBy": "1",
+    "groups": [
+      "1"
+    ]
+  },
+  {
+    "id": "1752836232334",
+    "name": "Alixanov Javohir",
+    "position": "Tumanlar aro raqamlashtirish guruhu katta mutaxasisi",
+    "rank": "Katta leytenant",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "0999447271",
+    "servicePhone": "7522444545",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T10:57:12.334Z",
+    "createdBy": "1",
+    "groups": [
+      "1"
+    ]
+  },
+  {
+    "id": "1752836391685",
+    "name": "Xo'jalov Farxod Ismoilovich",
+    "position": "Bosh mutaxsiis",
+    "rank": "Podpolkovnik",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "773130073",
+    "servicePhone": "7522444554",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T10:59:51.685Z",
+    "createdBy": "1",
+    "groups": [
+      "1"
+    ]
+  },
+  {
+    "id": "1752836656999",
+    "name": "Safarov Boburjon Ural o'g'li",
+    "position": "Tumanlar aro raqamlashtirish guruhu katta mutaxasisi",
+    "rank": "Leytenant",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "908670808",
+    "servicePhone": "7522444545",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:04:16.999Z",
+    "createdBy": "1",
+    "groups": [
+      "1"
+    ]
+  },
+  {
+    "id": "1752836718528",
+    "name": "Yusupov Alisher Bahromvich",
+    "position": "Bosh mutaxsiis",
+    "rank": "Mayor",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "972914004",
+    "servicePhone": "752244242",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:05:18.528Z",
+    "createdBy": "1",
+    "groups": [
+      "1"
+    ]
+  },
+  {
+    "id": "1752836781840",
+    "name": "Shamsiyev Shaxbos Akrom o'g'li",
+    "position": "Bosh mutaxsiis",
+    "rank": "Katta leytenant",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "912224140",
+    "servicePhone": "7522444141",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:06:21.840Z",
+    "createdBy": "1",
+    "groups": [
+      "1"
+    ]
+  },
+  {
+    "id": "1752837323665",
+    "name": "Sheraliyev Nurbek Boltayevich",
+    "position": "kichik mutaxsis",
+    "rank": "Katta serjant",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "886165252",
+    "servicePhone": "752244544",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:15:23.665Z",
+    "createdBy": "1",
+    "groups": []
+  },
+  {
+    "id": "1752837373289",
+    "name": "Sharopov Nurbek",
+    "position": "kichik mutaxsis",
+    "rank": "safdor",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "904410506",
+    "servicePhone": "7522445456",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:16:13.289Z",
+    "createdBy": "1",
+    "groups": []
+  },
+  {
+    "id": "1752837747193",
+    "name": "Bo'riyev Shokir Qo'yliyevich",
+    "position": "kichik mutaxsis",
+    "rank": "safdor",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "934211555",
+    "servicePhone": "7522444545",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:22:27.193Z",
+    "createdBy": "1",
+    "groups": []
+  },
+  {
+    "id": "1752837968421",
+    "name": "Jumanazarov Jahogir",
+    "position": "kichik mutaxsis",
+    "rank": "safdor",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "991043938",
+    "servicePhone": "7522445456",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:26:08.421Z",
+    "createdBy": "1",
+    "groups": []
+  },
+  {
+    "id": "1752838335959",
+    "name": "Eshpo'latov Nurkomil",
+    "position": "Tumanlar aro raqamlashtirish guruhu katta mutaxasisi",
+    "rank": "Mayor",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "978370202",
+    "servicePhone": "7522445456",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:32:15.959Z",
+    "createdBy": "1",
+    "updatedAt": "2025-07-18T11:34:40.809Z",
+    "updatedBy": "1",
+    "groups": []
+  },
+  {
+    "id": "1752838538023",
+    "name": "To'rayev Jasur Erkinovich",
+    "position": "Raqamlashtirish bo'limi boshlig",
+    "rank": "Mayor",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "phoneNumber": "975856646",
+    "servicePhone": "7522444444",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T11:35:38.023Z",
+    "createdBy": "1",
+    "groups": []
+  },
+  {
+    "id": "1752841188347",
+    "name": "Ro'ziqulov Jahongir",
+    "position": "Katta mutaxsis",
+    "rank": "Podpolkovnik",
+    "department": "Xavfsizlik",
+    "phoneNumber": "990823112",
+    "servicePhone": "7522444555",
+    "district": "Qarshi shahri",
+    "deleted": false,
+    "createdAt": "2025-07-18T12:19:48.347Z",
+    "createdBy": "1"
+  },
+  {
+    "id": "1752841588347",
+    "name": "Karimov Bahrom",
+    "position": "Bo'lim boshlig'i",
+    "rank": "Mayor",
+    "department": "Kadrlar bo'limi",
+    "phoneNumber": "991234567",
+    "servicePhone": "7522444123",
+    "district": "Qarshi shahri",
+    "deleted": false,
+    "createdAt": "2025-07-18T12:25:48.347Z",
+    "createdBy": "1"
+  },
+  {
+    "id": "1752841688347",
+    "name": "Narzullayev Shodmon",
+    "position": "Mutaxassis",
+    "rank": "Kapitan",
+    "department": "Profilaktika bo'limi",
+    "phoneNumber": "998765432",
+    "servicePhone": "7522444321",
+    "district": "Qarshi shahri",
+    "deleted": false,
+    "createdAt": "2025-07-18T12:26:48.347Z",
+    "createdBy": "1"
+  },
+  {
+    "id": "1752843299166",
+    "name": "Elmatov Sarvar Yuzboy o'g'li",
+    "position": "Bosh mutaxsiis",
+    "rank": "Leytenant",
+    "department": "Raqamlashtirish va Huquqiy Statistika xizmati Huquqiy Statistika  bo'limi",
+    "phoneNumber": "996650426",
+    "servicePhone": "752244070",
+    "district": "Viloyat IIB",
+    "deleted": false,
+    "createdAt": "2025-07-18T12:54:59.166Z",
+    "createdBy": "1"
+  }
+]

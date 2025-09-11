@@ -1,0 +1,75 @@
+# SAMBA O'RNATISH VA SOZLASH QO'LLANMASI
+
+## 1. SAMBA O'RNATISH
+sudo apt update
+sudo apt install -y samba samba-common-bin
+
+## 2. SAMBA KONFIGURATSIYA FAYLI
+# /etc/samba/smb.conf fayliga qo'shish kerak:
+
+[global]
+   workgroup = WORKGROUP
+   server string = Qashqadaryo IIB Server
+   netbios name = QASHQADARYO
+   security = user
+   map to guest = bad user
+   dns proxy = no
+   # Windows 10 uchun
+   min protocol = SMB2
+   max protocol = SMB3
+
+[UserHome]
+   comment = User Home Directory - Full Access
+   path = /home/user
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user
+
+[QashqadaryoProject]
+   comment = Qashqadaryo IIB Project Files
+   path = /home/user
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   create mask = 0644
+   directory mask = 0755
+   force user = user
+   force group = user
+
+## 3. SAMBA FOYDALANUVCHI QO'SHISH
+sudo smbpasswd -a user
+# Parol kiriting (2 marta)
+
+## 4. SAMBA XIZMATINI QAYTA ISHGA TUSHIRISH
+sudo systemctl restart smbd
+sudo systemctl restart nmbd
+sudo systemctl enable smbd
+sudo systemctl enable nmbd
+
+## 5. FIREWALL SOZLASH (agar yoqilgan bo'lsa)
+sudo ufw allow samba
+
+## 6. IP MANZILNI TEKSHIRISH
+ip addr show | grep inet
+
+## 7. WINDOWS DAN ULANISH
+# Windows Explorer da quyidagini yozing:
+# \\IP_MANZIL\UserHome
+# Yoki
+# \\IP_MANZIL\QashqadaryoProject
+
+# Masalan:
+# \\172.27.64.10\UserHome
+
+## 8. XAVFSIZLIK ESLATMASI
+# Bu konfiguratsiya to'liq ochiq kirish beradi.
+# Xavfsizlik uchun keyinchalik:
+# - guest ok = no qilish
+# - valid users = user qo'shish
+# - Parol bilan himoyalash

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Employee API</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        button { padding: 10px 20px; margin: 10px 0; }
+        pre { background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Debug Employee API - District 11</h1>
+    
+    <button onclick="loadEmployees()">Load Employees</button>
+    <button onclick="checkSession()">Check Session</button>
+    
+    <div id="sessionInfo"></div>
+    <div id="result"></div>
+    
+    <script>
+    async function checkSession() {
+        const div = document.getElementById('sessionInfo');
+        try {
+            const response = await fetch('/api/employees/debug/all', {
+                credentials: 'same-origin'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                div.innerHTML = `
+                    <h3>Session Info:</h3>
+                    <p>User: ${data.user || 'Not logged in'}</p>
+                    <p>Allowed Districts: ${JSON.stringify(data.allowedDistricts)}</p>
+                    <p>Total employees: ${data.total}</p>
+                `;
+            } else {
+                div.innerHTML = '<p class="error">Not authenticated</p>';
+            }
+        } catch (error) {
+            div.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+        }
+    }
+    
+    async function loadEmployees() {
+        const result = document.getElementById('result');
+        result.innerHTML = '<p class="info">Loading...</p>';
+        
+        try {
+            const response = await fetch('/api/employees', {
+                credentials: 'same-origin'
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (response.status === 302 || response.redirected) {
+                result.innerHTML = '<p class="error">Not logged in - redirected to login</p>';
+                return;
+            }
+            
+            if (!response.ok) {
+                result.innerHTML = '<p class="error">Error: ' + response.status + '</p>';
+                return;
+            }
+            
+            const data = await response.json();
+            console.log('API Response:', data);
+            
+            if (data.success && data.employees) {
+                const employees = data.employees;
+                const district11 = employees.filter(e => e.district === '11');
+                const districtCounts = {};
+                
+                employees.forEach(e => {
+                    const d = e.district || 'empty';
+                    districtCounts[d] = (districtCounts[d] || 0) + 1;
+                });
+                
+                let html = `
+                    <h2 class="success">✓ Loaded ${employees.length} employees</h2>
+                    <p><strong>District 11 employees: ${district11.length}</strong></p>
+                    
+                    <h3>District Distribution:</h3>
+                    <ul>
+                `;
+                
+                Object.entries(districtCounts).forEach(([district, count]) => {
+                    html += `<li>${district}: ${count} employees</li>`;
+                });
+                
+                html += '</ul>';
+                
+                if (employees.length > 0) {
+                    html += `
+                        <h3>Employee List:</h3>
+                        <table>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>District</th>
+                                <th>Department</th>
+                            </tr>
+                    `;
+                    
+                    employees.forEach((emp, i) => {
+                        const highlight = emp.district === '11' ? 'style="background-color: #ffff99;"' : '';
+                        html += `
+                            <tr ${highlight}>
+                                <td>${i + 1}</td>
+                                <td>${emp.name}</td>
+                                <td>${emp.position || '-'}</td>
+                                <td><strong>${emp.district || 'empty'}</strong></td>
+                                <td>${emp.department || '-'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += '</table>';
+                }
+                
+                result.innerHTML = html;
+            } else {
+                result.innerHTML = '<p class="error">Invalid response format</p>';
+                console.error('Invalid response:', data);
+            }
+        } catch (error) {
+            result.innerHTML = '<p class="error">Error: ' + error.message + '</p>';
+            console.error('Error:', error);
+        }
+    }
+    
+    // Auto-check session on load
+    window.onload = checkSession;
+    </script>
+</body>
+</html>

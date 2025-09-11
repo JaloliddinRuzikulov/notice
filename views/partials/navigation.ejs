@@ -1,0 +1,379 @@
+<!-- MD3 Top App Bar -->
+<div class="md-top-app-bar">
+    <div class="md-top-app-bar-start">
+        <!-- Menu button for mobile -->
+        <button class="md-menu-button md-hide-on-expanded" onclick="toggleNavigationDrawer()">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+        
+        <!-- Logo/Title for mobile and tablet -->
+        <div class="md-top-app-bar-title md-hide-on-expanded">
+            <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %>
+        </div>
+    </div>
+    
+    <div class="md-top-app-bar-center">
+        <!-- Page title will be set by JavaScript -->
+        <h1 id="pageTitle" class="md-hide-on-compact"></h1>
+    </div>
+    
+    <div class="md-top-app-bar-end">
+        <!-- Language switcher -->
+        <div class="md-language-switcher">
+            <button class="md-button-text" onclick="toggleLanguageMenu()" title="<%= typeof t !== 'undefined' ? t('navigation.change_language') : "Tilni o'zgartirish" %>">
+                <span class="material-symbols-outlined">language</span>
+                <span class="md-hide-on-compact">
+                    <% if (typeof locale !== 'undefined') { %>
+                        <% if (locale === 'uz-latin') { %><%= typeof t !== 'undefined' ? t('language.uz_latin_short') : "O'zb" %><% } else if (locale === 'uz-cyrillic') { %><%= typeof t !== 'undefined' ? t('language.uz_cyrillic_short') : 'Ўзб' %><% } else if (locale === 'ru') { %><%= typeof t !== 'undefined' ? t('language.ru_short') : 'Рус' %><% } else { %><%= typeof t !== 'undefined' ? t('language.uz_latin_short') : "O'zb" %><% } %>
+                    <% } else { %><%= typeof t !== 'undefined' ? t('language.uz_latin_short') : "O'zb" %><% } %>
+                </span>
+            </button>
+            <div class="md-menu language-menu" id="languageMenu">
+                <a href="<%= typeof getLocaleUrl !== 'undefined' ? getLocaleUrl('uz-latin') : '?locale=uz-latin' %>" class="md-menu-item <%= typeof locale !== 'undefined' && locale === 'uz-latin' ? 'active' : '' %>">
+                    <%= typeof t !== 'undefined' ? t('language.uz_latin') : "O'zbek (lotin)" %>
+                </a>
+                <a href="<%= typeof getLocaleUrl !== 'undefined' ? getLocaleUrl('uz-cyrillic') : '?locale=uz-cyrillic' %>" class="md-menu-item <%= typeof locale !== 'undefined' && locale === 'uz-cyrillic' ? 'active' : '' %>">
+                    <%= typeof t !== 'undefined' ? t('language.uz_cyrillic') : 'Ўзбек (кирилл)' %>
+                </a>
+                <a href="<%= typeof getLocaleUrl !== 'undefined' ? getLocaleUrl('ru') : '?locale=ru' %>" class="md-menu-item <%= typeof locale !== 'undefined' && locale === 'ru' ? 'active' : '' %>">
+                    <%= typeof t !== 'undefined' ? t('language.ru') : 'Русский' %>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Theme toggle button -->
+        <button class="md-button-text theme-toggle" onclick="toggleTheme()" title="<%= typeof t !== 'undefined' ? t('navigation.theme_toggle') : 'Tungi/Kungi rejim' %>">
+            <span class="material-symbols-outlined theme-icon-light">light_mode</span>
+            <span class="material-symbols-outlined theme-icon-dark">dark_mode</span>
+        </button>
+        
+        <!-- User menu for all devices -->
+        <div class="md-navigation-user">
+            <div class="md-navigation-user-avatar">
+                <%= user.username.charAt(0).toUpperCase() %>
+            </div>
+            <div class="md-navigation-user-info md-hide-on-compact">
+                <p class="md-navigation-user-name"><%= user.username %></p>
+                <p class="md-navigation-user-role">
+                    <%= user.role === 'admin' ? (typeof t !== 'undefined' ? t('user.role.admin') : 'Administrator') : (typeof t !== 'undefined' ? t('user.role.user') : 'Foydalanuvchi') %>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Logout button -->
+        <a href="/logout" class="md-button-text">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="md-hide-on-compact"><%= typeof t !== 'undefined' ? t('navigation.logout') : 'Chiqish' %></span>
+        </a>
+    </div>
+</div>
+
+<!-- MD3 Navigation Drawer -->
+<nav class="md-navigation-drawer" id="navigationDrawer">
+    <!-- Drawer Header -->
+    <div class="md-navigation-drawer-header">
+        <div class="md-navigation-drawer-logo">
+            <span class="material-symbols-outlined">cell_tower</span>
+            <div>
+                <h2 class="md-navigation-drawer-title"><%= typeof t !== 'undefined' ? t('app.organization') : 'Qashqadaryo IIB' %></h2>
+                <p style="margin: 0; margin-top: -2px; font-size: var(--md-sys-typescale-body-small-size); color: var(--md-sys-color-on-surface-variant); opacity: 0.8;">
+                    <%= typeof t !== 'undefined' ? t('app.title') : 'Xabarnoma Tizimi' %>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Items -->
+    <div class="md-navigation-list">
+        <!-- Always visible -->
+        <a href="/" class="md-navigation-item" data-page="home">
+            <span class="material-symbols-outlined">home</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.home') : 'Bosh sahifa' %></span>
+        </a>
+        
+        <!-- Permission-based navigation items -->
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.sipPhone)) { %>
+        <a href="/sip-phone" class="md-navigation-item" data-page="sip-phone">
+            <span class="material-symbols-outlined">phone</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.sip_phone') : 'SIP Telefon' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.broadcast)) { %>
+        <a href="/broadcast" class="md-navigation-item" data-page="broadcast">
+            <span class="material-symbols-outlined">mic</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.broadcast') : 'Xabar yuborish' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.employees)) { %>
+        <a href="/employees" class="md-navigation-item" data-page="employees">
+            <span class="material-symbols-outlined">people</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.employees') : 'Xodimlar' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.reports)) { %>
+        <a href="/reports" class="md-navigation-item" data-page="reports">
+            <span class="material-symbols-outlined">bar_chart</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.reports') : 'Hisobotlar' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.sipAccounts)) { %>
+        <a href="/sip-accounts" class="md-navigation-item" data-page="sip-accounts">
+            <span class="material-symbols-outlined">dialpad</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.sip_accounts') : 'SIP Raqamlar' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.phonebook)) { %>
+        <a href="/phonebook" class="md-navigation-item" data-page="phonebook">
+            <span class="material-symbols-outlined">contact_phone</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.phonebook') : 'Telefon kitobi' %></span>
+        </a>
+        <% } %>
+        
+        <!-- Section separator -->
+        <div style="margin: var(--md-sys-spacing-4) var(--md-sys-spacing-3); border-top: 1px solid var(--md-sys-color-outline-variant);"></div>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.departments)) { %>
+        <a href="/departments" class="md-navigation-item" data-page="departments">
+            <span class="material-symbols-outlined">business</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.departments') : "Bo'limlar" %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.groups)) { %>
+        <a href="/groups" class="md-navigation-item" data-page="groups">
+            <span class="material-symbols-outlined">group_work</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.groups') : 'Guruhlar' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.districts)) { %>
+        <a href="/districts" class="md-navigation-item" data-page="districts">
+            <span class="material-symbols-outlined">location_on</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.districts') : 'Shahar/Tumanlar' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin' || (user.permissions && user.permissions.users)) { %>
+        <a href="/users" class="md-navigation-item" data-page="users">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            <span class="md-navigation-item-text"><%= typeof t !== 'undefined' ? t('navigation.users') : 'Foydalanuvchilar' %></span>
+        </a>
+        <% } %>
+        
+        <% if (user.role === 'admin') { %>
+        <a href="/file-manager" class="md-navigation-item" data-page="file-manager">
+            <span class="material-symbols-outlined">folder_open</span>
+            <span class="md-navigation-item-text">Fayl Menejeri</span>
+        </a>
+        <% } %>
+    </div>
+</nav>
+
+<!-- MD3 Navigation Rail (Tablet) -->
+<nav class="md-navigation-rail" id="navigationRail">
+    <!-- Rail Header -->
+    <div style="margin-bottom: var(--md-sys-spacing-6);">
+        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-8); color: var(--md-sys-color-primary);">
+            cell_tower
+        </span>
+    </div>
+    
+    <!-- Rail Items -->
+    <a href="/" class="md-navigation-rail-item" data-page="home" title="<%= typeof t !== 'undefined' ? t('navigation.home') : 'Bosh sahifa' %>">
+        <span class="material-symbols-outlined">home</span>
+        <span class="md-navigation-rail-item-text"><%= typeof t !== 'undefined' ? t('navigation.home_short') : 'Bosh' %></span>
+    </a>
+    
+    <% if (user.role === 'admin' || (user.permissions && user.permissions.sipPhone)) { %>
+    <a href="/sip-phone" class="md-navigation-rail-item" data-page="sip-phone" title="<%= typeof t !== 'undefined' ? t('navigation.sip_phone') : 'SIP Telefon' %>">
+        <span class="material-symbols-outlined">phone</span>
+        <span class="md-navigation-rail-item-text"><%= typeof t !== 'undefined' ? t('navigation.sip_phone_short') : 'SIP' %></span>
+    </a>
+    <% } %>
+    
+    <% if (user.role === 'admin' || (user.permissions && user.permissions.broadcast)) { %>
+    <a href="/broadcast" class="md-navigation-rail-item" data-page="broadcast" title="<%= typeof t !== 'undefined' ? t('navigation.broadcast') : 'Xabar yuborish' %>">
+        <span class="material-symbols-outlined">mic</span>
+        <span class="md-navigation-rail-item-text"><%= typeof t !== 'undefined' ? t('navigation.broadcast_short') : 'Xabar' %></span>
+    </a>
+    <% } %>
+    
+    <% if (user.role === 'admin' || (user.permissions && user.permissions.employees)) { %>
+    <a href="/employees" class="md-navigation-rail-item" data-page="employees" title="<%= typeof t !== 'undefined' ? t('navigation.employees') : 'Xodimlar' %>">
+        <span class="material-symbols-outlined">people</span>
+        <span class="md-navigation-rail-item-text"><%= typeof t !== 'undefined' ? t('navigation.employees_short') : 'Xodim' %></span>
+    </a>
+    <% } %>
+    
+    <% if (user.role === 'admin' || (user.permissions && user.permissions.reports)) { %>
+    <a href="/reports" class="md-navigation-rail-item" data-page="reports" title="<%= typeof t !== 'undefined' ? t('navigation.reports') : 'Hisobotlar' %>">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span class="md-navigation-rail-item-text"><%= typeof t !== 'undefined' ? t('navigation.reports_short') : 'Hisobot' %></span>
+    </a>
+    <% } %>
+</nav>
+
+<!-- Navigation Backdrop for mobile -->
+<div class="md-navigation-backdrop" id="navigationBackdrop" onclick="closeNavigationDrawer()"></div>
+
+<!-- Navigation JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set active navigation item based on current page
+    const currentPath = window.location.pathname;
+    const navigationItems = document.querySelectorAll('.md-navigation-item, .md-navigation-rail-item');
+    
+    navigationItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPath || (currentPath === '/' && href === '/')) {
+            item.classList.add('active');
+            
+            // Set page title
+            const pageTitle = item.querySelector('.md-navigation-item-text, .md-navigation-rail-item-text');
+            if (pageTitle) {
+                const titleElement = document.getElementById('pageTitle');
+                if (titleElement) {
+                    titleElement.textContent = pageTitle.textContent;
+                }
+            }
+        }
+    });
+    
+    // Auto-close drawer on link click for mobile
+    navigationItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth < 840) {
+                closeNavigationDrawer();
+            }
+        });
+    });
+});
+
+function toggleNavigationDrawer() {
+    const drawer = document.getElementById('navigationDrawer');
+    const backdrop = document.getElementById('navigationBackdrop');
+    
+    drawer.classList.toggle('open');
+    backdrop.classList.toggle('open');
+}
+
+function closeNavigationDrawer() {
+    const drawer = document.getElementById('navigationDrawer');
+    const backdrop = document.getElementById('navigationBackdrop');
+    
+    drawer.classList.remove('open');
+    backdrop.classList.remove('open');
+}
+
+// Close drawer on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeNavigationDrawer();
+    }
+});
+
+// Auto-close drawer on window resize to desktop
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 840) {
+        closeNavigationDrawer();
+    }
+});
+
+// Language menu toggle
+function toggleLanguageMenu() {
+    const menu = document.getElementById('languageMenu');
+    menu.classList.toggle('show');
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function closeMenu(e) {
+        if (!e.target.closest('.md-language-switcher')) {
+            menu.classList.remove('show');
+            document.removeEventListener('click', closeMenu);
+        }
+    });
+}
+
+// Theme toggle functionality
+function toggleTheme() {
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    console.log('Switching from', currentTheme, 'to', newTheme);
+    
+    // Store preference
+    localStorage.setItem('theme', newTheme);
+    
+    // Apply theme
+    applyTheme(newTheme);
+}
+
+function applyTheme(theme) {
+    const html = document.documentElement;
+    
+    console.log('Applying theme:', theme);
+    console.log('HTML element:', html);
+    
+    if (theme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        html.classList.add('dark-theme');
+        console.log('Added dark theme attributes');
+    } else {
+        html.removeAttribute('data-theme');
+        html.classList.remove('dark-theme');
+        console.log('Removed dark theme attributes');
+    }
+    
+    console.log('Current data-theme:', html.getAttribute('data-theme'));
+    console.log('Current classes:', html.className);
+    
+    // Update theme toggle icons
+    updateThemeToggleIcons(theme);
+}
+
+function updateThemeToggleIcons(theme) {
+    const lightIcon = document.querySelector('.theme-icon-light');
+    const darkIcon = document.querySelector('.theme-icon-dark');
+    
+    if (theme === 'dark') {
+        lightIcon.style.display = 'inline-block';
+        darkIcon.style.display = 'none';
+    } else {
+        lightIcon.style.display = 'none';
+        darkIcon.style.display = 'inline-block';
+    }
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for saved theme preference or default to system preference
+    const savedTheme = localStorage.getItem('theme');
+    const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const initialTheme = savedTheme || systemPreference;
+    
+    console.log('Initial theme setup:');
+    console.log('Saved theme:', savedTheme);
+    console.log('System preference:', systemPreference);
+    console.log('Initial theme:', initialTheme);
+    
+    applyTheme(initialTheme);
+    
+    // Test CSS variable
+    setTimeout(() => {
+        const computedStyle = getComputedStyle(document.documentElement);
+        const bgColor = computedStyle.getPropertyValue('--md-sys-color-background');
+        console.log('Current background color:', bgColor);
+    }, 100);
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
+        }
+    });
+});
+</script>
