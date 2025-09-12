@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xabarnoma Tizimi - Bosh sahifa</title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- MD3 App Layout -->
+    <div class="md-app">
+        <!-- Include MD3 Navigation -->
+        <%- include('partials/navigation') %>
+        
+        <!-- Main App Content -->
+        <div class="md-app-content">
+            <!-- Main Content Area -->
+            <main class="md-main-content">
+                <div class="md-container">
+                    <!-- Page Header -->
+                    <header style="margin-bottom: var(--md-sys-spacing-8);">
+                        <h1 class="md-typescale-display-small" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                            Bosh sahifa
+                        </h1>
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            Qashqadaryo IIB xabarnoma tizimi boshqaruv paneli
+                        </p>
+                    </header>
+
+                    <!-- Statistics Cards Grid -->
+                    <section style="margin-bottom: var(--md-sys-spacing-10);">
+                        <h2 class="md-typescale-headline-medium" style="margin-bottom: var(--md-sys-spacing-6); color: var(--md-sys-color-on-surface);">
+                            Tizim statistikasi
+                        </h2>
+                        
+                        <!-- Real-time Statistics Grid -->
+                        <div class="md-grid md-grid-cols-4" id="statisticsGrid">
+                            <!-- Statistics cards will be dynamically populated -->
+                            <div class="md-card md-card-outlined">
+                                <div style="padding: var(--md-sys-spacing-6);">
+                                    <div style="display: flex; align-items: center; margin-bottom: var(--md-sys-spacing-4);">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-8); color: var(--md-sys-color-primary); margin-right: var(--md-sys-spacing-3);">
+                                            phone
+                                        </span>
+                                        <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                            Bugungi qo'ng'iroqlar
+                                        </h3>
+                                    </div>
+                                    <div style="display: flex; align-items: baseline;">
+                                        <span id="todayCallsCount" class="md-typescale-display-large" style="color: var(--md-sys-color-primary); margin-right: var(--md-sys-spacing-2);">
+                                            0
+                                        </span>
+                                        <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                            ta qo'ng'iroq
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="md-card md-card-outlined">
+                                <div style="padding: var(--md-sys-spacing-6);">
+                                    <div style="display: flex; align-items: center; margin-bottom: var(--md-sys-spacing-4);">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-8); color: var(--md-sys-color-secondary); margin-right: var(--md-sys-spacing-3);">
+                                            campaign
+                                        </span>
+                                        <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                            Faol xabarlar
+                                        </h3>
+                                    </div>
+                                    <div style="display: flex; align-items: baseline;">
+                                        <span id="activeBroadcastsCount" class="md-typescale-display-large" style="color: var(--md-sys-color-secondary); margin-right: var(--md-sys-spacing-2);">
+                                            0
+                                        </span>
+                                        <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                            ta xabar
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="md-card md-card-outlined">
+                                <div style="padding: var(--md-sys-spacing-6);">
+                                    <div style="display: flex; align-items: center; margin-bottom: var(--md-sys-spacing-4);">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-8); color: var(--md-sys-color-tertiary); margin-right: var(--md-sys-spacing-3);">
+                                            group
+                                        </span>
+                                        <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                            Faol xodimlar
+                                        </h3>
+                                    </div>
+                                    <div style="display: flex; align-items: baseline;">
+                                        <span id="activeEmployeesCount" class="md-typescale-display-large" style="color: var(--md-sys-color-tertiary); margin-right: var(--md-sys-spacing-2);">
+                                            0
+                                        </span>
+                                        <span class="md-typescale-body-small" style="color: var(--md-sys-color-on-surface-variant);">
+                                            kishi
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="md-card md-card-outlined">
+                                <div style="padding: var(--md-sys-spacing-6);">
+                                    <div style="display: flex; align-items: center; margin-bottom: var(--md-sys-spacing-4);">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-8); color: var(--md-sys-color-error); margin-right: var(--md-sys-spacing-3);">
+                                            link
+                                        </span>
+                                        <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                                            SIP holati
+                                        </h3>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <div id="sipStatusIndicator" class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; background: var(--md-sys-color-error); margin-right: var(--md-sys-spacing-2);"></div>
+                                        <span id="sipStatusText" class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface);">
+                                            Ulanmagan
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quick Actions Grid -->
+                    <section style="margin-bottom: var(--md-sys-spacing-10);">
+                        <h2 class="md-typescale-headline-medium" style="margin-bottom: var(--md-sys-spacing-6); color: var(--md-sys-color-on-surface);">
+                            Tezkor harakatlar
+                        </h2>
+                        
+                        <div class="md-grid md-grid-cols-4">
+                            <a href="/sip-phone" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-primary-container);">
+                                            phone
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        SIP Telefon
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Web-based SIP telefon
+                                    </p>
+                                </div>
+                            </a>
+                            
+                            <a href="/broadcast" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-secondary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-secondary-container);">
+                                            mic
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        Xabar yuborish
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Yangi xabarnoma yaratish
+                                    </p>
+                                </div>
+                            </a>
+                            
+                            <a href="/employees" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-tertiary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-tertiary-container);">
+                                            group
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        Xodimlar
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Xodimlar ro'yxati
+                                    </p>
+                                </div>
+                            </a>
+                            
+                            <a href="/call-history" class="md-card md-card-outlined" style="text-decoration: none; transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);">
+                                <div style="padding: var(--md-sys-spacing-6); text-align: center;">
+                                    <div style="width: var(--md-sys-spacing-16); height: var(--md-sys-spacing-16); background: var(--md-sys-color-primary-container); border-radius: var(--md-sys-shape-corner-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--md-sys-spacing-4) auto;">
+                                        <span class="material-symbols-outlined" style="font-size: var(--md-sys-spacing-10); color: var(--md-sys-color-on-primary-container);">
+                                            history
+                                        </span>
+                                    </div>
+                                    <h3 class="md-typescale-title-medium" style="color: var(--md-sys-color-on-surface); margin: 0 0 var(--md-sys-spacing-2) 0;">
+                                        Qo'ng'iroqlar tarixi
+                                    </h3>
+                                    <p class="md-typescale-body-medium" style="color: var(--md-sys-color-on-surface-variant); margin: 0;">
+                                        Barcha qo'ng'iroqlar
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- Recent Activities Table -->
+                    <section>
+                        <div class="md-card md-card-outlined">
+                            <div class="md-card-header">
+                                <h2 class="md-card-title">So'nggi faoliyat</h2>
+                                <p class="md-card-subtitle">Oxirgi qo'ng'iroqlar va xabarlar</p>
+                            </div>
+                            <div class="md-card-content">
+                                <div style="overflow-x: auto;">
+                                    <table id="recentActivitiesTable" style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr style="border-bottom: 1px solid var(--md-sys-color-outline-variant);">
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Vaqt
+                                                </th>
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Tur
+                                                </th>
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Ma'lumot
+                                                </th>
+                                                <th class="md-typescale-title-small" style="text-align: left; padding: var(--md-sys-spacing-4); color: var(--md-sys-color-on-surface-variant);">
+                                                    Status
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4" class="md-typescale-body-medium" style="text-align: center; padding: var(--md-sys-spacing-8); color: var(--md-sys-color-on-surface-variant);">
+                                                    Ma'lumot yuklanmoqda...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- FAB for quick actions -->
+    <a href="/sip-phone" class="md-fab md-fab-extended" title="SIP telefon ochish">
+        <span class="material-symbols-outlined">phone</span>
+        Telefon
+    </a>
+
+    <script src="/js/language-manager.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Initialize WebSocket connection for real-time updates
+        const socket = io();
+        
+        socket.on('connect', function() {
+            console.log('Dashboard WebSocket connected');
+            loadDashboardData();
+        });
+        
+        // Listen for real-time updates
+        socket.on('call-status-update', function(data) {
+            updateCallStatistics();
+        });
+        
+        socket.on('broadcast-status-update', function(data) {
+            updateBroadcastStatistics();
+        });
+        
+        socket.on('system-notification', function(data) {
+            showNotification(data.message, data.type);
+        });
+        
+        // Load dashboard data
+        function loadDashboardData() {
+            updateCallStatistics();
+            updateBroadcastStatistics();
+            updateEmployeeStatistics();
+            updateSipStatus();
+            loadRecentActivities();
+        }
+        
+        function updateCallStatistics() {
+            fetch('/api/sip/stats?period=today')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('todayCallsCount').textContent = data.data.totalCalls || 0;
+                    }
+                })
+                .catch(console.error);
+        }
+        
+        function updateBroadcastStatistics() {
+            fetch('/api/broadcast')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const activeBroadcasts = data.data.broadcasts.filter(b => 
+                            b.status === 'in_progress' || b.status === 'pending'
+                        ).length;
+                        document.getElementById('activeBroadcastsCount').textContent = activeBroadcasts;
+                    }
+                })
+                .catch(console.error);
+        }
+        
+        function updateEmployeeStatistics() {
+            fetch('/api/employee')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const activeEmployees = data.data.employees.filter(e => e.isActive).length;
+                        document.getElementById('activeEmployeesCount').textContent = activeEmployees;
+                    }
+                })
+                .catch(console.error);
+        }
+        
+        function updateSipStatus() {
+            fetch('/api/sip/health')
+                .then(response => response.json())
+                .then(data => {
+                    const indicator = document.getElementById('sipStatusIndicator');
+                    const text = document.getElementById('sipStatusText');
+                    
+                    if (data.success && data.data.services.sip === 'connected') {
+                        indicator.style.background = 'var(--md-sys-color-primary)';
+                        text.textContent = 'Ulangan';
+                    } else {
+                        indicator.style.background = 'var(--md-sys-color-error)';
+                        text.textContent = 'Ulanmagan';
+                    }
+                })
+                .catch(() => {
+                    const indicator = document.getElementById('sipStatusIndicator');
+                    const text = document.getElementById('sipStatusText');
+                    indicator.style.background = 'var(--md-sys-color-error)';
+                    text.textContent = 'Xatolik';
+                });
+        }
+        
+        function loadRecentActivities() {
+            fetch('/api/sip/calls?limit=10')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        populateActivitiesTable(data.data.calls);
+                    }
+                })
+                .catch(console.error);
+        }
+        
+        function populateActivitiesTable(activities) {
+            const tbody = document.querySelector('#recentActivitiesTable tbody');
+            
+            if (!activities || activities.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="md-typescale-body-medium" style="text-align: center; padding: var(--md-sys-spacing-8); color: var(--md-sys-color-on-surface-variant);">
+                            Faoliyat topilmadi
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = activities.map(activity => `
+                <tr style="border-bottom: 1px solid var(--md-sys-color-outline-variant);">
+                    <td class="md-typescale-body-medium" style="padding: var(--md-sys-spacing-4);">
+                        ${new Date(activity.startTime).toLocaleString('uz-UZ')}
+                    </td>
+                    <td class="md-typescale-body-medium" style="padding: var(--md-sys-spacing-4);">
+                        ${activity.type === 'broadcast' ? 'Xabar' : 'Qo\'ng\'iroq'}
+                    </td>
+                    <td class="md-typescale-body-medium" style="padding: var(--md-sys-spacing-4);">
+                        ${activity.from} → ${activity.to}
+                    </td>
+                    <td class="md-typescale-body-medium" style="padding: var(--md-sys-spacing-4);">
+                        <span class="status-badge status-${activity.status}">${getStatusText(activity.status)}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function getStatusText(status) {
+            const statusTexts = {
+                'completed': 'Yakunlandi',
+                'answered': 'Javob berildi',
+                'failed': 'Muvaffaqiyatsiz',
+                'busy': 'Band',
+                'no_answer': 'Javob yo\'q',
+                'cancelled': 'Bekor qilindi'
+            };
+            return statusTexts[status] || status;
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Simple notification system
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Refresh data every 30 seconds
+        setInterval(loadDashboardData, 30000);
+    </script>
+</body>
+</html>

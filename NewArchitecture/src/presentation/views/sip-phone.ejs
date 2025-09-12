@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP Telefon - Xabarnoma Tizimi</title>
+    <link rel="stylesheet" href="/css/material-icons-local.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/sip-phone.css">
+</head>
+<body>
+    <%- include('partials/navigation') %>
+
+    <div class="md-app">
+        <div class="md-app-content">
+            <main class="md-main-content">
+                <div class="md-container">
+                    <!-- Page Header -->
+                    <header style="margin-bottom: var(--md-sys-spacing-8);">
+                        <h1 class="md-typescale-display-small" style="color: var(--md-sys-color-on-surface); margin: 0;">
+                            SIP Telefon
+                        </h1>
+                        <p class="md-typescale-body-large" style="color: var(--md-sys-color-on-surface-variant);">
+                            Web-asosli SIP telefon interfeysi
+                        </p>
+                    </header>
+
+                    <div class="sip-phone-container">
+                        <!-- SIP Connection Status -->
+                        <div class="md-card md-card-outlined" style="margin-bottom: var(--md-sys-spacing-6);">
+                            <div style="padding: var(--md-sys-spacing-6);">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div id="sipConnectionStatus" class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; background: var(--md-sys-color-error); margin-right: var(--md-sys-spacing-3);"></div>
+                                        <div>
+                                            <h3 class="md-typescale-title-medium" style="margin: 0; color: var(--md-sys-color-on-surface);">
+                                                SIP Ulanishi
+                                            </h3>
+                                            <p id="sipStatusText" class="md-typescale-body-small" style="margin: 0; color: var(--md-sys-color-on-surface-variant);">
+                                                Ulanmagan
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <button id="connectButton" class="md-button md-button-filled" onclick="toggleSipConnection()">
+                                        <span class="material-symbols-outlined">link</span>
+                                        <span>Ulash</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- SIP Configuration -->
+                                <div id="sipConfig" style="margin-top: var(--md-sys-spacing-6); display: none;">
+                                    <div class="md-grid md-grid-cols-2" style="gap: var(--md-sys-spacing-4);">
+                                        <div class="md-textfield">
+                                            <input type="text" id="sipUri" placeholder="SIP URI (sip:user@domain)" class="md-textfield-input">
+                                            <label class="md-textfield-label">SIP URI</label>
+                                        </div>
+                                        <div class="md-textfield">
+                                            <input type="password" id="sipPassword" placeholder="Parol" class="md-textfield-input">
+                                            <label class="md-textfield-label">Parol</label>
+                                        </div>
+                                        <div class="md-textfield">
+                                            <input type="text" id="sipServer" placeholder="WebSocket Server" class="md-textfield-input">
+                                            <label class="md-textfield-label">WebSocket Server</label>
+                                        </div>
+                                        <div class="md-textfield">
+                                            <input type="text" id="displayName" placeholder="Ko'rsatish nomi" class="md-textfield-input">
+                                            <label class="md-textfield-label">Ko'rsatish nomi</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phone Interface -->
+                        <div class="md-grid md-grid-cols-2" style="gap: var(--md-sys-spacing-6);">
+                            <!-- Phone Display and Dialpad -->
+                            <div>
+                                <!-- Phone Display -->
+                                <div class="md-card md-card-outlined phone-display-card" style="margin-bottom: var(--md-sys-spacing-6);">
+                                    <div style="padding: var(--md-sys-spacing-6);">
+                                        <div class="phone-display">
+                                            <input type="text" id="phoneNumber" class="phone-input" placeholder="Telefon raqamini kiriting">
+                                            
+                                            <!-- Call Info (shown during calls) -->
+                                            <div id="callInfo" class="call-info" style="display: none;">
+                                                <div class="caller-info">
+                                                    <div id="callerName" class="caller-name">Noma'lum</div>
+                                                    <div id="callerNumber" class="caller-number"></div>
+                                                </div>
+                                                <div id="callTimer" class="call-timer">00:00</div>
+                                                <div id="callStatus" class="call-status">Qo'ng'iroq qilish...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dialpad -->
+                                <div class="md-card md-card-outlined">
+                                    <div style="padding: var(--md-sys-spacing-4);">
+                                        <div class="dialpad">
+                                            <button class="dial-btn" onclick="appendNumber('1')">
+                                                1
+                                                <small></small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('2')">
+                                                2
+                                                <small>ABC</small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('3')">
+                                                3
+                                                <small>DEF</small>
+                                            </button>
+                                            
+                                            <button class="dial-btn" onclick="appendNumber('4')">
+                                                4
+                                                <small>GHI</small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('5')">
+                                                5
+                                                <small>JKL</small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('6')">
+                                                6
+                                                <small>MNO</small>
+                                            </button>
+                                            
+                                            <button class="dial-btn" onclick="appendNumber('7')">
+                                                7
+                                                <small>PQRS</small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('8')">
+                                                8
+                                                <small>TUV</small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('9')">
+                                                9
+                                                <small>WXYZ</small>
+                                            </button>
+                                            
+                                            <button class="dial-btn" onclick="appendNumber('*')">
+                                                *
+                                                <small></small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('0')">
+                                                0
+                                                <small>+</small>
+                                            </button>
+                                            <button class="dial-btn" onclick="appendNumber('#')">
+                                                #
+                                                <small></small>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Call Actions -->
+                                <div class="call-actions" style="margin-top: var(--md-sys-spacing-6);">
+                                    <button id="callBtn" class="action-btn call-btn" onclick="makeCall()" disabled>
+                                        <span class="material-symbols-outlined">call</span>
+                                    </button>
+                                    
+                                    <button id="clearBtn" class="action-btn clear-btn" onclick="clearNumber()">
+                                        <span class="material-symbols-outlined">backspace</span>
+                                    </button>
+                                    
+                                    <button id="hangupBtn" class="action-btn hangup-btn" onclick="hangupCall()" style="display: none;">
+                                        <span class="material-symbols-outlined">call_end</span>
+                                    </button>
+                                </div>
+
+                                <!-- Additional Call Controls (shown during call) -->
+                                <div id="callControls" class="call-controls" style="display: none; margin-top: var(--md-sys-spacing-4);">
+                                    <button id="muteBtn" class="control-btn" onclick="toggleMute()">
+                                        <span class="material-symbols-outlined">mic</span>
+                                        <span>Mute</span>
+                                    </button>
+                                    
+                                    <button id="holdBtn" class="control-btn" onclick="toggleHold()">
+                                        <span class="material-symbols-outlined">pause</span>
+                                        <span>Hold</span>
+                                    </button>
+                                    
+                                    <button id="transferBtn" class="control-btn" onclick="showTransfer()">
+                                        <span class="material-symbols-outlined">call_made</span>
+                                        <span>Transfer</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Call History and Quick Contacts -->
+                            <div>
+                                <!-- Quick Dial Buttons -->
+                                <div class="md-card md-card-outlined" style="margin-bottom: var(--md-sys-spacing-6);">
+                                    <div style="padding: var(--md-sys-spacing-6);">
+                                        <h3 class="md-typescale-title-medium" style="margin: 0 0 var(--md-sys-spacing-4) 0;">
+                                            Tezkor raqamlar
+                                        </h3>
+                                        
+                                        <div class="quick-dial-grid">
+                                            <button class="quick-btn emergency" onclick="quickDial('101')">
+                                                <span class="material-symbols-outlined">local_police</span>
+                                                <span>101 - Politsiya</span>
+                                            </button>
+                                            
+                                            <button class="quick-btn emergency" onclick="quickDial('102')">
+                                                <span class="material-symbols-outlined">local_fire_department</span>
+                                                <span>102 - O'rt o'chirish</span>
+                                            </button>
+                                            
+                                            <button class="quick-btn emergency" onclick="quickDial('103')">
+                                                <span class="material-symbols-outlined">local_hospital</span>
+                                                <span>103 - Tez yordam</span>
+                                            </button>
+                                            
+                                            <button class="quick-btn" onclick="quickDial('1050')">
+                                                <span class="material-symbols-outlined">support_agent</span>
+                                                <span>1050 - Ma'lumot</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Calls -->
+                                <div class="md-card md-card-outlined">
+                                    <div style="padding: var(--md-sys-spacing-6);">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--md-sys-spacing-4);">
+                                            <h3 class="md-typescale-title-medium" style="margin: 0;">
+                                                Oxirgi qo'ng'iroqlar
+                                            </h3>
+                                            <button class="md-icon-button" onclick="refreshCallHistory()">
+                                                <span class="material-symbols-outlined">refresh</span>
+                                            </button>
+                                        </div>
+                                        
+                                        <div id="callHistoryList" class="call-history-list">
+                                            <div class="loading-placeholder">
+                                                Ma'lumot yuklanmoqda...
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div id="transferModal" class="md-modal" style="display: none;">
+        <div class="md-modal-content">
+            <div class="md-modal-header">
+                <h2>Qo'ng'iroqni o'tkazish</h2>
+                <button class="md-icon-button" onclick="closeTransferModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="md-modal-body">
+                <div class="md-textfield">
+                    <input type="text" id="transferNumber" placeholder="Raqamni kiriting" class="md-textfield-input">
+                    <label class="md-textfield-label">O'tkazish raqami</label>
+                </div>
+            </div>
+            <div class="md-modal-footer">
+                <button class="md-button md-button-outlined" onclick="closeTransferModal()">
+                    Bekor qilish
+                </button>
+                <button class="md-button md-button-filled" onclick="executeTransfer()">
+                    O'tkazish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/sip-phone.js"></script>
+    <script>
+        // Initialize SIP phone
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof SipPhoneClient !== 'undefined') {
+                window.sipPhone = new SipPhoneClient();
+                loadCallHistory();
+            } else {
+                console.error('SIP Phone client not loaded');
+                showNotification('SIP telefon yuklanmadi', 'error');
+            }
+        });
+        
+        function loadCallHistory() {
+            fetch('/api/sip/calls?limit=10')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayCallHistory(data.data.calls);
+                    }
+                })
+                .catch(console.error);
+        }
+        
+        function displayCallHistory(calls) {
+            const container = document.getElementById('callHistoryList');
+            
+            if (!calls || calls.length === 0) {
+                container.innerHTML = '<div class="empty-state">Qo\'ng\'iroqlar tarixi bo\'sh</div>';
+                return;
+            }
+            
+            container.innerHTML = calls.map(call => `
+                <div class="call-history-item" onclick="dialNumber('${call.direction === 'outbound' ? call.to : call.from}')">
+                    <div class="call-info">
+                        <div class="call-direction">
+                            <span class="material-symbols-outlined ${call.direction === 'outbound' ? 'outbound' : 'inbound'}">
+                                ${call.direction === 'outbound' ? 'call_made' : 'call_received'}
+                            </span>
+                        </div>
+                        <div class="call-details">
+                            <div class="call-number">${call.direction === 'outbound' ? call.to : call.from}</div>
+                            <div class="call-meta">
+                                <span class="call-time">${formatCallTime(call.startTime)}</span>
+                                <span class="call-status status-${call.status}">${formatCallStatus(call.status)}</span>
+                                ${call.duration ? `<span class="call-duration">${formatDuration(call.duration)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function formatCallTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('uz-UZ');
+        }
+        
+        function formatCallStatus(status) {
+            const statusTexts = {
+                'completed': 'Yakunlandi',
+                'answered': 'Javob berildi',
+                'failed': 'Muvaffaqiyatsiz',
+                'busy': 'Band',
+                'no_answer': 'Javob yo\'q',
+                'cancelled': 'Bekor qilindi'
+            };
+            return statusTexts[status] || status;
+        }
+        
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        function refreshCallHistory() {
+            loadCallHistory();
+        }
+        
+        function dialNumber(number) {
+            document.getElementById('phoneNumber').value = number;
+        }
+    </script>
+</body>
+</html>
