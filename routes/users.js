@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const bcrypt = require('bcrypt');
-const db = require('../lib/database');
+const { AppDataSource } = require('../lib/typeorm-config');
+const User = require('../lib/entities/User');
 const safeFileOps = require('../lib/safe-file-ops');
 
 const permissionsFile = path.join(__dirname, '../data/permissions.json');
@@ -10,15 +11,19 @@ const permissionsFile = path.join(__dirname, '../data/permissions.json');
 // Get all users
 router.get('/', async (req, res) => {
     try {
-        const users = await db.all('SELECT * FROM users ORDER BY username');
+        const userRepository = AppDataSource.getRepository(User);
 
-        // Remove passwords before sending and parse JSON fields
+        // Get all users using TypeORM (NO SQL INJECTION!)
+        const users = await userRepository.find({
+            order: { username: 'ASC' }
+        });
+
+        // Remove passwords before sending
         const safeUsers = users.map(user => {
-            const { password, permissions, allowed_districts, ...baseUser } = user;
+            const { password, ...safeUser } = user;
             return {
-                ...baseUser,
-                permissions: JSON.parse(permissions || '{}'),
-                allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+                ...safeUser,
+                allowedDistricts: safeUser.allowed_districts
             };
         });
 
@@ -43,18 +48,22 @@ router.get('/permissions', async (req, res) => {
 // Get single user
 router.get('/:id', async (req, res) => {
     try {
-        const user = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Find user by ID using TypeORM (NO SQL INJECTION!)
+        const user = await userRepository.findOne({
+            where: { id: req.params.id }
+        });
 
         if (!user) {
             return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
         }
 
-        // Remove password and parse JSON fields
-        const { password, permissions, allowed_districts, ...baseUser } = user;
+        // Remove password
+        const { password, ...safeUser } = user;
         res.json({
-            ...baseUser,
-            permissions: JSON.parse(permissions || '{}'),
-            allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+            ...safeUser,
+            allowedDistricts: safeUser.allowed_districts
         });
     } catch (error) {
         console.error('Error reading user:', error);
@@ -72,41 +81,40 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Barcha maydonlar to\'ldirilishi kerak' });
         }
 
-        // Check if username exists
-        const existing = await db.get('SELECT id FROM users WHERE username = ?', [username]);
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Check if username exists using TypeORM (NO SQL INJECTION!)
+        const existing = await userRepository.findOne({
+            where: { username: username }
+        });
         if (existing) {
             return res.status(400).json({ error: 'Bu foydalanuvchi nomi band' });
         }
 
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-        const id = Date.now().toString();
 
-        // Create new user
-        await db.run(
-            `INSERT INTO users (id, username, password, name, role, permissions, allowed_districts, active)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
-            [
-                id,
-                username,
-                hashedPassword,
-                name,
-                role,
-                JSON.stringify(permissions || {}),
-                JSON.stringify(allowedDistricts || ['all'])
-            ]
-        );
+        // Create new user using TypeORM
+        const newUser = userRepository.create({
+            id: Date.now().toString(),
+            username,
+            password: hashedPassword,
+            name,
+            role,
+            permissions: permissions || {},
+            allowed_districts: allowedDistricts || ['all'],
+            active: true
+        });
 
-        // Get created user and return without password
-        const newUser = await db.get('SELECT * FROM users WHERE id = ?', [id]);
-        const { password: _, permissions: perms, allowed_districts, ...baseUser } = newUser;
+        await userRepository.save(newUser);
 
+        // Return without password
+        const { password: _, ...safeUser } = newUser;
         res.json({
             success: true,
             user: {
-                ...baseUser,
-                permissions: JSON.parse(perms || '{}'),
-                allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+                ...safeUser,
+                allowedDistricts: safeUser.allowed_districts
             }
         });
     } catch (error) {
@@ -118,7 +126,12 @@ router.post('/', async (req, res) => {
 // Update user
 router.put('/:id', async (req, res) => {
     try {
-        const user = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Find user using TypeORM (NO SQL INJECTION!)
+        const user = await userRepository.findOne({
+            where: { id: req.params.id }
+        });
 
         if (!user) {
             return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
@@ -128,38 +141,32 @@ router.put('/:id', async (req, res) => {
 
         // Check if new username is available
         if (username && username !== user.username) {
-            const existing = await db.get('SELECT id FROM users WHERE username = ? AND id != ?', [username, req.params.id]);
-            if (existing) {
+            const existing = await userRepository.findOne({
+                where: { username: username }
+            });
+            if (existing && existing.id !== user.id) {
                 return res.status(400).json({ error: 'Bu foydalanuvchi nomi band' });
             }
         }
 
-        const updates = [];
-        const params = [];
-        if (username) { updates.push('username = ?'); params.push(username); }
-        if (password) { updates.push('password = ?'); params.push(await bcrypt.hash(password, 10)); }
-        if (name) { updates.push('name = ?'); params.push(name); }
-        if (role) { updates.push('role = ?'); params.push(role); }
-        if (permissions) { updates.push('permissions = ?'); params.push(JSON.stringify(permissions)); }
-        if (typeof active === 'boolean') { updates.push('active = ?'); params.push(active ? 1 : 0); }
-        if (allowedDistricts) { updates.push('allowed_districts = ?'); params.push(JSON.stringify(allowedDistricts)); }
-        params.push(req.params.id);
+        // Update fields using TypeORM
+        if (username) user.username = username;
+        if (password) user.password = await bcrypt.hash(password, 10);
+        if (name) user.name = name;
+        if (role) user.role = role;
+        if (permissions) user.permissions = permissions;
+        if (typeof active === 'boolean') user.active = active;
+        if (allowedDistricts) user.allowed_districts = allowedDistricts;
 
-        await db.run(
-            `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
-            params
-        );
+        await userRepository.save(user);
 
-        // Get updated user
-        const updated = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
-        const { password: _, permissions: perms, allowed_districts, ...baseUser } = updated;
-
+        // Return without password
+        const { password: _, ...safeUser } = user;
         res.json({
             success: true,
             user: {
-                ...baseUser,
-                permissions: JSON.parse(perms || '{}'),
-                allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+                ...safeUser,
+                allowedDistricts: safeUser.allowed_districts
             }
         });
     } catch (error) {
@@ -171,7 +178,12 @@ router.put('/:id', async (req, res) => {
 // Delete user
 router.delete('/:id', async (req, res) => {
     try {
-        const userToDelete = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Find user using TypeORM (NO SQL INJECTION!)
+        const userToDelete = await userRepository.findOne({
+            where: { id: req.params.id }
+        });
 
         if (!userToDelete) {
             return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
@@ -179,13 +191,15 @@ router.delete('/:id', async (req, res) => {
 
         // Don't allow deleting the last admin
         if (userToDelete.role === 'admin') {
-            const adminCount = await db.get('SELECT COUNT(*) as count FROM users WHERE role = ?', ['admin']);
-            if (adminCount.count === 1) {
+            const adminCount = await userRepository.count({
+                where: { role: 'admin' }
+            });
+            if (adminCount === 1) {
                 return res.status(400).json({ error: 'Oxirgi administratorni o\'chirish mumkin emas' });
             }
         }
 
-        await db.run('DELETE FROM users WHERE id = ?', [req.params.id]);
+        await userRepository.remove(userToDelete);
         res.status(204).send();
     } catch (error) {
         console.error('Error deleting user:', error);
