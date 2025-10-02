@@ -1,7 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const fs = require('fs').promises;
-const path = require('path');
+const db = require('../lib/database');
 
 const router = express.Router();
 
@@ -19,15 +18,11 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Read users from users.json
-        const usersData = await fs.readFile(
-            path.join(__dirname, '../data/users.json'),
-            'utf8'
+        // Find active user from database
+        const user = await db.get(
+            'SELECT * FROM users WHERE username = ? AND active = 1',
+            [username]
         );
-        const users = JSON.parse(usersData);
-
-        // Find active user
-        const user = users.find(u => u.username === username && u.active);
 
         if (!user) {
             return res.render('login', { error: 'Login yoki parol xato!' });
@@ -40,11 +35,14 @@ router.post('/login', async (req, res) => {
         }
 
         // Update last login
-        user.lastLogin = new Date().toISOString();
-        await fs.writeFile(
-            path.join(__dirname, '../data/users.json'),
-            JSON.stringify(users, null, 2)
+        await db.run(
+            'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
+            [user.id]
         );
+
+        // Parse JSON fields
+        const permissions = JSON.parse(user.permissions || '{}');
+        const allowedDistricts = JSON.parse(user.allowed_districts || '["all"]');
 
         // Set session
         req.session.user = {
@@ -52,8 +50,8 @@ router.post('/login', async (req, res) => {
             username: user.username,
             name: user.name,
             role: user.role,
-            permissions: user.permissions,
-            allowedDistricts: user.allowedDistricts || ['all']
+            permissions: permissions,
+            allowedDistricts: allowedDistricts
         };
 
         // Force session save before redirect
