@@ -8,6 +8,12 @@ const { configureSession } = require('./lib/config/session');
 const { getHTTPSOptions } = require('./lib/config/ssl');
 const { configureSocketIO } = require('./lib/config/socket');
 
+// Import utilities
+const { loadRoutes } = require('./lib/routes-loader');
+const { setupErrorHandlers, setupGlobalErrorHandlers } = require('./lib/error-handlers');
+const { startMemoryMonitoring } = require('./lib/monitoring');
+const { setupShutdownHandlers, initializeSIPBackend, printStartupBanner } = require('./lib/server-lifecycle');
+
 // Initialize database
 const database = require('./lib/database');
 database.initialize().then(() => {
@@ -34,133 +40,21 @@ const server = https.createServer(httpsOptions, app);
 // Configure Socket.IO
 configureSocketIO(server, PORT);
 
-// Import middleware
-const { auth, requirePermission } = require('./middleware/auth');
-const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
+// Load all routes
+loadRoutes(app);
 
-// ==================== ROUTES ====================
+// Setup error handlers
+setupErrorHandlers(app);
+setupGlobalErrorHandlers();
 
-// Auth routes (login, logout)
-app.use('/', require('./routes/auth'));
+// Setup monitoring
+startMemoryMonitoring();
 
-// View routes (pages)
-app.use('/', require('./routes/views'));
+// Setup graceful shutdown
+setupShutdownHandlers(server);
 
-// Special API routes
-app.use('/api', require('./routes/api/special'));
-
-// Main API routes
-app.use('/api/sip', auth, requirePermission('sipPhone'), require('./routes/sip'));
-app.use('/api/sip-accounts', auth, require('./routes/sip-accounts'));
-app.use('/api/broadcast', auth, requirePermission('broadcast'), require('./routes/broadcast-simple'));
-
-// Use database version for production, JSON version as fallback
-const useDatabase = false; // process.env.USE_DATABASE !== 'false';
-console.log('[SERVER] Using employees route:', useDatabase ? 'employees-db' : 'employees');
-app.use('/api/employees', auth, requirePermission('employees'),
-    require(useDatabase ? './routes/employees-db' : './routes/employees'));
-
-app.use('/api/groups', auth, requirePermission('groups'), require('./routes/groups'));
-app.use('/api/departments', auth, requirePermission('departments'), require('./routes/departments'));
-app.use('/api/districts', auth, requirePermission('districts'), require('./routes/districts'));
-app.use('/api/users', auth, requirePermission('users'), require('./routes/users'));
-app.use('/api/test', auth, require('./routes/test'));
-app.use('/api/excel-template', auth, require('./routes/excel-template'));
-app.use('/api/phonebook', auth, requirePermission('phonebook'), require('./routes/phonebook'));
-app.use('/api/system', auth, requirePermission('reports'), require('./routes/system-stats'));
-app.use('/api/test-auth', require('./routes/test-auth'));
-
-// Error handlers
-app.use(notFoundHandler);
-app.use(errorHandler);
-
-// ==================== ERROR HANDLING ====================
-
-// Global error handlers to prevent crashes
-process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
-    console.error('Stack:', error.stack);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-// ==================== MONITORING ====================
-
-// Memory monitoring (every 5 minutes)
-setInterval(() => {
-    const usage = process.memoryUsage();
-    console.log('[MEMORY]', new Date().toISOString(), {
-        rss: `${(usage.rss / 1024 / 1024).toFixed(2)} MB`,
-        heapTotal: `${(usage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
-        heapUsed: `${(usage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
-        external: `${(usage.external / 1024 / 1024).toFixed(2)} MB`
-    });
-}, 300000);
-
-// ==================== GRACEFUL SHUTDOWN ====================
-
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
-
-async function gracefulShutdown() {
-    console.log('\n[SHUTDOWN] Graceful shutdown initiated...');
-
-    // Stop accepting new connections
-    server.close(() => {
-        console.log('[SHUTDOWN] HTTP server closed');
-    });
-
-    // Clean up resources
-    if (global.wsToUdpProxy) {
-        global.wsToUdpProxy.closeAll();
-        console.log('[SHUTDOWN] WebSocket proxy cleaned up');
-    }
-
-    if (global.sipBackend) {
-        global.sipBackend.destroy();
-        console.log('[SHUTDOWN] SIP backend destroyed');
-    }
-
-    // Close Socket.IO
-    if (global.io) {
-        global.io.close();
-        console.log('[SHUTDOWN] Socket.IO closed');
-    }
-
-    // Wait a bit for cleanup
-    setTimeout(() => {
-        console.log('[SHUTDOWN] Process exiting...');
-        process.exit(0);
-    }, 2000);
-}
-
-// ==================== START SERVER ====================
-
+// Start server
 server.listen(PORT, '0.0.0.0', async () => {
-    console.log(`
-========================================
-Qashqadaryo IIB Xabarnoma Tizimi
-========================================
-HTTPS Server: https://0.0.0.0:${PORT}
-Local access: https://localhost:${PORT}
-Network access: https://172.27.64.10:${PORT}
-
-Login ma'lumotlari .env faylida
-
-WebSocket: wss://172.27.64.10:${PORT}/ws
-========================================
-    `);
-
-    // Initialize SIP backend
-    const { getSIPBackend } = require('./lib/sip-backend');
-    const sipConfig = {
-        username: process.env.SIP_USERNAME || '5530',
-        password: process.env.SIP_PASSWORD || '554466asd',
-        domain: process.env.SIP_DOMAIN || '10.105.0.3',
-        instanceId: 'default'
-    };
-    global.sipBackend = await getSIPBackend(sipConfig);
-    console.log('✅ Server started successfully with SIP enabled');
+    printStartupBanner(PORT);
+    await initializeSIPBackend();
 });
