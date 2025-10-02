@@ -35,11 +35,13 @@
     "memorystore": "^1.6.7",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2",
+    "reflect-metadata": "^0.2.2",
     "sdp-transform": "^2.15.0",
     "sip": "^0.0.6",
     "sip.js": "^0.21.2",
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.27",
     "uuid": "^9.0.0",
     "ws": "^8.18.3",
     "xlsx": "^0.18.5"
