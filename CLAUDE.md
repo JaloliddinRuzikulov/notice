@@ -285,18 +285,6 @@ wss.clients.forEach(client => {
 
 ## Deployment
 
-### Systemd Service
-```bash
-./setup-autostart.sh  # Creates qashqadaryo-iib.service
-sudo systemctl start qashqadaryo-iib
-sudo systemctl enable qashqadaryo-iib
-```
-
-### Server Deployment
-```bash
-./deploy-to-server.sh  # Automated deployment script
-```
-
 ### Manual Deployment
 1. Run security audit: `npm run security:audit`
 2. Build/bundle: Not required (no build step)
