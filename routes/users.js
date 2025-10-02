@@ -2,22 +2,26 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const bcrypt = require('bcrypt');
+const db = require('../lib/database');
 const safeFileOps = require('../lib/safe-file-ops');
 
-const usersFile = path.join(__dirname, '../data/users.json');
 const permissionsFile = path.join(__dirname, '../data/permissions.json');
 
 // Get all users
 router.get('/', async (req, res) => {
     try {
-        const users = await safeFileOps.readJSON(usersFile, []);
-        
-        // Remove passwords before sending
+        const users = await db.all('SELECT * FROM users ORDER BY username');
+
+        // Remove passwords before sending and parse JSON fields
         const safeUsers = users.map(user => {
-            const { password, ...safeUser } = user;
-            return safeUser;
+            const { password, permissions, allowed_districts, ...baseUser } = user;
+            return {
+                ...baseUser,
+                permissions: JSON.parse(permissions || '{}'),
+                allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+            };
         });
-        
+
         res.json(safeUsers);
     } catch (error) {
         console.error('Error reading users:', error);
@@ -39,16 +43,19 @@ router.get('/permissions', async (req, res) => {
 // Get single user
 router.get('/:id', async (req, res) => {
     try {
-        const users = await safeFileOps.readJSON(usersFile, []);
-        const user = users.find(u => u.id === req.params.id);
-        
+        const user = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+
         if (!user) {
             return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
         }
-        
-        // Remove password
-        const { password, ...safeUser } = user;
-        res.json(safeUser);
+
+        // Remove password and parse JSON fields
+        const { password, permissions, allowed_districts, ...baseUser } = user;
+        res.json({
+            ...baseUser,
+            permissions: JSON.parse(permissions || '{}'),
+            allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+        });
     } catch (error) {
         console.error('Error reading user:', error);
         res.status(500).json({ error: 'Server xatosi' });
@@ -59,43 +66,49 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const { username, password, name, role, permissions, allowedDistricts } = req.body;
-        
+
         // Validate required fields
         if (!username || !password || !name || !role) {
             return res.status(400).json({ error: 'Barcha maydonlar to\'ldirilishi kerak' });
         }
-        
-        // Read existing users
-        const users = await safeFileOps.readJSON(usersFile, []);
-        
+
         // Check if username exists
-        if (users.some(u => u.username === username)) {
+        const existing = await db.get('SELECT id FROM users WHERE username = ?', [username]);
+        if (existing) {
             return res.status(400).json({ error: 'Bu foydalanuvchi nomi band' });
         }
-        
+
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-        
+        const id = Date.now().toString();
+
         // Create new user
-        const newUser = {
-            id: Date.now().toString(),
-            username,
-            password: hashedPassword,
-            name,
-            role,
-            permissions: permissions || {},
-            allowedDistricts: allowedDistricts || ['all'], // 'all' means access to all districts
-            active: true,
-            createdAt: new Date().toISOString(),
-            lastLogin: null
-        };
-        
-        users.push(newUser);
-        await safeFileOps.writeJSON(usersFile, users);
-        
-        // Return without password
-        const { password: _, ...safeUser } = newUser;
-        res.json({ success: true, user: safeUser });
+        await db.run(
+            `INSERT INTO users (id, username, password, name, role, permissions, allowed_districts, active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+            [
+                id,
+                username,
+                hashedPassword,
+                name,
+                role,
+                JSON.stringify(permissions || {}),
+                JSON.stringify(allowedDistricts || ['all'])
+            ]
+        );
+
+        // Get created user and return without password
+        const newUser = await db.get('SELECT * FROM users WHERE id = ?', [id]);
+        const { password: _, permissions: perms, allowed_districts, ...baseUser } = newUser;
+
+        res.json({
+            success: true,
+            user: {
+                ...baseUser,
+                permissions: JSON.parse(perms || '{}'),
+                allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+            }
+        });
     } catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: 'Server xatosi' });
@@ -105,41 +118,50 @@ router.post('/', async (req, res) => {
 // Update user
 router.put('/:id', async (req, res) => {
     try {
-        const users = await safeFileOps.readJSON(usersFile, []);
-        const index = users.findIndex(u => u.id === req.params.id);
-        
-        if (index === -1) {
+        const user = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+
+        if (!user) {
             return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
         }
-        
+
         const { username, password, name, role, permissions, active, allowedDistricts } = req.body;
-        const user = users[index];
-        
-        // Update fields
+
+        // Check if new username is available
         if (username && username !== user.username) {
-            // Check if new username is available
-            if (users.some(u => u.username === username && u.id !== user.id)) {
+            const existing = await db.get('SELECT id FROM users WHERE username = ? AND id != ?', [username, req.params.id]);
+            if (existing) {
                 return res.status(400).json({ error: 'Bu foydalanuvchi nomi band' });
             }
-            user.username = username;
         }
-        
-        if (password) {
-            user.password = await bcrypt.hash(password, 10);
-        }
-        
-        if (name) user.name = name;
-        if (role) user.role = role;
-        if (permissions) user.permissions = permissions;
-        if (typeof active === 'boolean') user.active = active;
-        if (allowedDistricts) user.allowedDistricts = allowedDistricts;
-        
-        users[index] = user;
-        await safeFileOps.writeJSON(usersFile, users);
-        
-        // Return without password
-        const { password: _, ...safeUser } = user;
-        res.json({ success: true, user: safeUser });
+
+        const updates = [];
+        const params = [];
+        if (username) { updates.push('username = ?'); params.push(username); }
+        if (password) { updates.push('password = ?'); params.push(await bcrypt.hash(password, 10)); }
+        if (name) { updates.push('name = ?'); params.push(name); }
+        if (role) { updates.push('role = ?'); params.push(role); }
+        if (permissions) { updates.push('permissions = ?'); params.push(JSON.stringify(permissions)); }
+        if (typeof active === 'boolean') { updates.push('active = ?'); params.push(active ? 1 : 0); }
+        if (allowedDistricts) { updates.push('allowed_districts = ?'); params.push(JSON.stringify(allowedDistricts)); }
+        params.push(req.params.id);
+
+        await db.run(
+            `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
+            params
+        );
+
+        // Get updated user
+        const updated = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+        const { password: _, permissions: perms, allowed_districts, ...baseUser } = updated;
+
+        res.json({
+            success: true,
+            user: {
+                ...baseUser,
+                permissions: JSON.parse(perms || '{}'),
+                allowedDistricts: JSON.parse(allowed_districts || '["all"]')
+            }
+        });
     } catch (error) {
         console.error('Error updating user:', error);
         res.status(500).json({ error: 'Server xatosi' });
@@ -149,23 +171,21 @@ router.put('/:id', async (req, res) => {
 // Delete user
 router.delete('/:id', async (req, res) => {
     try {
-        const users = await safeFileOps.readJSON(usersFile, []);
-        
-        // Don't allow deleting the last admin
-        const admins = users.filter(u => u.role === 'admin');
-        const userToDelete = users.find(u => u.id === req.params.id);
-        
-        if (userToDelete && userToDelete.role === 'admin' && admins.length === 1) {
-            return res.status(400).json({ error: 'Oxirgi administratorni o\'chirish mumkin emas' });
-        }
-        
-        const filteredUsers = users.filter(u => u.id !== req.params.id);
-        
-        if (filteredUsers.length === users.length) {
+        const userToDelete = await db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+
+        if (!userToDelete) {
             return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
         }
-        
-        await safeFileOps.writeJSON(usersFile, filteredUsers);
+
+        // Don't allow deleting the last admin
+        if (userToDelete.role === 'admin') {
+            const adminCount = await db.get('SELECT COUNT(*) as count FROM users WHERE role = ?', ['admin']);
+            if (adminCount.count === 1) {
+                return res.status(400).json({ error: 'Oxirgi administratorni o\'chirish mumkin emas' });
+            }
+        }
+
+        await db.run('DELETE FROM users WHERE id = ?', [req.params.id]);
         res.status(204).send();
     } catch (error) {
         console.error('Error deleting user:', error);
