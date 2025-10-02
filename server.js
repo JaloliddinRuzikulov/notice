@@ -486,7 +486,6 @@ app.use('/api/excel-template', auth, require('./routes/excel-template'));
 app.use('/api/phonebook', auth, requirePermission('phonebook'), require('./routes/phonebook'));
 app.use('/api/system', auth, requirePermission('reports'), require('./routes/system-stats'));
 app.use('/api/test-auth', require('./routes/test-auth')); // No auth middleware for testing
-app.use('/api/file-manager', auth, require('./routes/file-manager')); // Web file manager
 
 // Localization API endpoint with direct file loading as fallback
 app.get('/api/translations', (req, res) => {
@@ -633,11 +632,6 @@ app.get('/sip-accounts', auth, requirePermission('sipAccounts'), (req, res) => {
 // Professional Phone page
 app.get('/professional-phone', auth, (req, res) => {
     res.render('professional-phone', { user: req.session.user });
-});
-
-// File Manager page
-app.get('/file-manager', auth, (req, res) => {
-    res.render('file-manager', { user: req.session.user });
 });
 
 // Phonebook page
