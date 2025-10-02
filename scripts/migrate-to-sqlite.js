@@ -26,7 +26,9 @@ class MigrationManager {
             users: { json: 0, db: 0, migrated: 0, errors: 0 },
             departments: { json: 0, db: 0, migrated: 0, errors: 0 },
             districts: { json: 0, db: 0, migrated: 0, errors: 0 },
-            groups: { json: 0, db: 0, migrated: 0, errors: 0 }
+            groups: { json: 0, db: 0, migrated: 0, errors: 0 },
+            sip_accounts: { json: 0, db: 0, migrated: 0, errors: 0 },
+            broadcast_history: { json: 0, db: 0, migrated: 0, errors: 0 }
         };
     }
 
@@ -261,6 +263,118 @@ class MigrationManager {
         this.stats.groups.db = dbCount.count;
     }
 
+    async migrateSIPAccounts() {
+        console.log('\n📞 Migrating SIP Accounts...');
+        const sipAccounts = await this.readJSON('sip-accounts.json');
+        if (!sipAccounts) return;
+
+        this.stats.sip_accounts.json = sipAccounts.length;
+
+        for (const account of sipAccounts) {
+            try {
+                if (this.dryRun) {
+                    console.log(`  [DRY-RUN] Would insert: ${account.name} (${account.extension})`);
+                    this.stats.sip_accounts.migrated++;
+                } else {
+                    // Check if exists
+                    const exists = await this.get(
+                        'SELECT id FROM sip_accounts WHERE extension = ?',
+                        [account.extension]
+                    );
+
+                    if (!exists) {
+                        await this.run(
+                            `INSERT INTO sip_accounts (id, extension, password, name, server, active, channels, updated_at)
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                            [
+                                account.id,
+                                account.extension,
+                                account.password,
+                                account.name,
+                                account.server,
+                                account.active ? 1 : 0,
+                                account.channels || 1,
+                                account.updatedAt || null
+                            ]
+                        );
+                        this.stats.sip_accounts.migrated++;
+                        console.log(`  ✓ Inserted: ${account.name} (${account.extension})`);
+                    } else {
+                        console.log(`  ⏭ Skipped (exists): ${account.name}`);
+                    }
+                }
+            } catch (error) {
+                console.error(`  ❌ Error migrating ${account.name}:`, error.message);
+                this.stats.sip_accounts.errors++;
+            }
+        }
+
+        const dbCount = await this.get('SELECT COUNT(*) as count FROM sip_accounts');
+        this.stats.sip_accounts.db = dbCount.count;
+    }
+
+    async migrateBroadcastHistory() {
+        console.log('\n📡 Migrating Broadcast History...');
+        const broadcasts = await this.readJSON('broadcast-history.json');
+        if (!broadcasts) return;
+
+        this.stats.broadcast_history.json = broadcasts.length;
+
+        for (const broadcast of broadcasts) {
+            try {
+                if (this.dryRun) {
+                    if (this.stats.broadcast_history.migrated < 5) {
+                        console.log(`  [DRY-RUN] Would insert: ${broadcast.broadcastName || 'Unnamed'}`);
+                    }
+                    this.stats.broadcast_history.migrated++;
+                } else {
+                    // Check if exists
+                    const exists = await this.get(
+                        'SELECT id FROM broadcast_history WHERE id = ?',
+                        [broadcast.id]
+                    );
+
+                    if (!exists) {
+                        await this.run(
+                            `INSERT INTO broadcast_history (
+                                id, broadcast_name, audio_file, target_group, target_district, target_department,
+                                total_recipients, completed_calls, failed_calls, confirmed_calls,
+                                status, started_at, completed_at, started_by
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            [
+                                broadcast.id,
+                                broadcast.broadcastName || '',
+                                broadcast.audioFile || '',
+                                broadcast.targetGroup || '',
+                                broadcast.targetDistrict || '',
+                                broadcast.targetDepartment || '',
+                                broadcast.totalRecipients || 0,
+                                broadcast.completedCalls || 0,
+                                broadcast.failedCalls || 0,
+                                broadcast.confirmedCalls || 0,
+                                broadcast.status || 'completed',
+                                broadcast.startedAt || null,
+                                broadcast.completedAt || null,
+                                broadcast.startedBy || 'migration'
+                            ]
+                        );
+                        this.stats.broadcast_history.migrated++;
+                        if (this.stats.broadcast_history.migrated % 100 === 0) {
+                            console.log(`  ✓ Migrated ${this.stats.broadcast_history.migrated} broadcasts...`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error(`  ❌ Error migrating broadcast ${broadcast.id}:`, error.message);
+                this.stats.broadcast_history.errors++;
+            }
+        }
+
+        const dbCount = await this.get('SELECT COUNT(*) as count FROM broadcast_history');
+        this.stats.broadcast_history.db = dbCount.count;
+        console.log(`  ✓ Total migrated: ${this.stats.broadcast_history.migrated}`);
+    }
+
     async migrateEmployees() {
         console.log('\n👔 Migrating Employees...');
         const employees = await this.readJSON('employees.json');
@@ -343,6 +457,8 @@ class MigrationManager {
             await this.migrateDepartments();
             await this.migrateUsers();
             await this.migrateGroups();
+            await this.migrateSIPAccounts();
+            await this.migrateBroadcastHistory();
             await this.migrateEmployees();
 
             await this.validateData();
