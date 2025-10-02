@@ -1,27 +1,22 @@
 {
-  "name": "qashqadaryo-iib-xabarnoma",
+  "name": "notice",
   "version": "1.0.0",
-  "description": "Qashqadaryo IIB Xabarnoma tizimi - SIP asosida",
+  "description": "Notice - SIP-based broadcast notification system",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "security:audit": "npm audit --audit-level=moderate",
     "security:fix": "npm audit fix",
-    "security:check": "npm run security:audit && npm run lint:security",
-    "lint:security": "eslint . --ext .js --config .eslintrc.security.js",
-    "migrate:sip-passwords": "node scripts/encrypt-sip-passwords.js",
-    "ssl:setup": "sudo bash scripts/setup-letsencrypt.sh",
-    "test": "jest",
-    "test:security": "jest --testPathPattern=security"
+    "test": "jest"
   },
   "keywords": [
     "notification",
     "sip",
-    "police",
-    "uzbekistan"
+    "broadcast",
+    "voip"
   ],
-  "author": "Qashqadaryo IIB",
+  "author": "Notice Team",
   "license": "ISC",
   "dependencies": {
     "asterisk-manager": "^0.1.16",
