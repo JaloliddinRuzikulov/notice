@@ -14,12 +14,12 @@ const { setupErrorHandlers, setupGlobalErrorHandlers } = require('./lib/error-ha
 const { startMemoryMonitoring } = require('./lib/monitoring');
 const { setupShutdownHandlers, initializeSIPBackend, printStartupBanner } = require('./lib/server-lifecycle');
 
-// Initialize database
-const database = require('./lib/database');
-database.initialize().then(() => {
-    console.log('Database initialized successfully');
+// Initialize TypeORM
+const { initializeDatabase } = require('./lib/typeorm-config');
+initializeDatabase().then(() => {
+    console.log('✅ TypeORM database initialized successfully');
 }).catch(err => {
-    console.error('Failed to initialize database:', err);
+    console.error('❌ Failed to initialize TypeORM:', err);
     process.exit(1);
 });
 
