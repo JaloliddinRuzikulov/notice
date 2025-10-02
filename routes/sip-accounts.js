@@ -1,85 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs').promises;
-const path = require('path');
+const db = require('../lib/database');
 const { requirePermission } = require('../middleware/auth');
 
 console.log('[SIP-ACCOUNTS] Route module loaded at', new Date().toISOString());
 
-// SIP accounts storage (in production, use database)
-const sipAccountsFile = path.join(__dirname, '../data/sip-accounts.json');
-
-// Ensure data directory exists
-async function ensureDataDir() {
-    const dataDir = path.join(__dirname, '../data');
-    try {
-        await fs.mkdir(dataDir, { recursive: true });
-    } catch (error) {
-        // Directory might already exist
-    }
-}
-
-// Load SIP accounts
-async function loadSIPAccounts() {
-    try {
-        await ensureDataDir();
-        const data = await fs.readFile(sipAccountsFile, 'utf8');
-        const accounts = JSON.parse(data);
-        if (accounts) return accounts;
-    } catch (error) {
-        console.log('[SIP-ACCOUNTS] Using default accounts, file error:', error.message);
-        // Default SIP accounts
-        return [
-            {
-                id: '1',
-                extension: '5530',
-                password: '5530',
-                name: 'Asosiy linja 1',
-                server: '10.105.0.3',
-                active: true,
-                channels: 15,
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: '2',
-                extension: '5531',
-                password: '5531',
-                name: 'Asosiy linja 2',
-                server: '10.105.0.3',
-                active: true,
-                channels: 15,
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: '3',
-                extension: '5532',
-                password: '5532',
-                name: 'Asosiy linja 3',
-                server: '10.105.0.3',
-                active: true,
-                channels: 15,
-                createdAt: new Date().toISOString()
-            }
-        ];
-    }
-}
-
-// Save SIP accounts
-async function saveSIPAccounts(accounts) {
-    try {
-        await ensureDataDir();
-        await fs.writeFile(sipAccountsFile, JSON.stringify(accounts, null, 2), 'utf8');
-        return true;
-    } catch (error) {
-        console.error('Error saving SIP accounts:', error);
-        return false;
-    }
-}
-
 // Get all SIP accounts - requires sipAccounts permission
 router.get('/', requirePermission('sipAccounts'), async (req, res) => {
     try {
-        const accounts = await loadSIPAccounts();
+        const accounts = await db.all('SELECT * FROM sip_accounts ORDER BY extension');
         res.json(accounts);
     } catch (error) {
         res.status(500).json({
@@ -93,9 +22,8 @@ router.get('/', requirePermission('sipAccounts'), async (req, res) => {
 router.get('/active', async (req, res) => {
     try {
         // No permission check here - broadcast users need to see SIP accounts
-        const accounts = await loadSIPAccounts();
-        const activeAccounts = accounts.filter(acc => acc.active);
-        res.json(activeAccounts);
+        const accounts = await db.all('SELECT * FROM sip_accounts WHERE active = 1 ORDER BY extension');
+        res.json(accounts);
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -108,38 +36,32 @@ router.get('/active', async (req, res) => {
 router.post('/', requirePermission('sipAccounts'), async (req, res) => {
     try {
         const { extension, password, name, server, channels } = req.body;
-        
+
         if (!extension || !password || !name) {
             return res.status(400).json({
                 success: false,
                 message: 'Extension, parol va nom kiritilishi shart'
             });
         }
-        
-        const accounts = await loadSIPAccounts();
-        
+
         // Check if extension already exists
-        if (accounts.find(acc => acc.extension === extension)) {
+        const existing = await db.get('SELECT id FROM sip_accounts WHERE extension = ?', [extension]);
+        if (existing) {
             return res.status(400).json({
                 success: false,
                 message: 'Bu extension allaqachon mavjud'
             });
         }
-        
-        const newAccount = {
-            id: Date.now().toString(),
-            extension,
-            password,
-            name,
-            server: server || '10.105.0.3',
-            channels: channels || 15,
-            active: true,
-            createdAt: new Date().toISOString()
-        };
-        
-        accounts.push(newAccount);
-        await saveSIPAccounts(accounts);
-        
+
+        const id = Date.now().toString();
+        await db.run(
+            `INSERT INTO sip_accounts (id, extension, password, name, server, channels, active)
+             VALUES (?, ?, ?, ?, ?, ?, 1)`,
+            [id, extension, password, name, server || '10.105.0.3', channels || 15]
+        );
+
+        const newAccount = await db.get('SELECT * FROM sip_accounts WHERE id = ?', [id]);
+
         res.json({
             success: true,
             account: newAccount
@@ -156,32 +78,36 @@ router.post('/', requirePermission('sipAccounts'), async (req, res) => {
 router.put('/:id', requirePermission('sipAccounts'), async (req, res) => {
     try {
         const { id } = req.params;
-        const updates = req.body;
-        
-        const accounts = await loadSIPAccounts();
-        const index = accounts.findIndex(acc => acc.id === id);
-        
-        if (index === -1) {
+        const { password, name, server, channels, active } = req.body;
+
+        const existing = await db.get('SELECT id FROM sip_accounts WHERE id = ?', [id]);
+        if (!existing) {
             return res.status(404).json({
                 success: false,
                 message: 'SIP account topilmadi'
             });
         }
-        
-        // Don't allow changing extension
-        delete updates.extension;
-        
-        accounts[index] = {
-            ...accounts[index],
-            ...updates,
-            updatedAt: new Date().toISOString()
-        };
-        
-        await saveSIPAccounts(accounts);
-        
+
+        const updates = [];
+        const params = [];
+        if (password !== undefined) { updates.push('password = ?'); params.push(password); }
+        if (name !== undefined) { updates.push('name = ?'); params.push(name); }
+        if (server !== undefined) { updates.push('server = ?'); params.push(server); }
+        if (channels !== undefined) { updates.push('channels = ?'); params.push(channels); }
+        if (active !== undefined) { updates.push('active = ?'); params.push(active ? 1 : 0); }
+        updates.push('updated_at = CURRENT_TIMESTAMP');
+        params.push(id);
+
+        await db.run(
+            `UPDATE sip_accounts SET ${updates.join(', ')} WHERE id = ?`,
+            params
+        );
+
+        const updated = await db.get('SELECT * FROM sip_accounts WHERE id = ?', [id]);
+
         res.json({
             success: true,
-            account: accounts[index]
+            account: updated
         });
     } catch (error) {
         res.status(500).json({
@@ -195,19 +121,16 @@ router.put('/:id', requirePermission('sipAccounts'), async (req, res) => {
 router.delete('/:id', requirePermission('sipAccounts'), async (req, res) => {
     try {
         const { id } = req.params;
-        
-        const accounts = await loadSIPAccounts();
-        const filtered = accounts.filter(acc => acc.id !== id);
-        
-        if (filtered.length === accounts.length) {
+
+        const result = await db.run('DELETE FROM sip_accounts WHERE id = ?', [id]);
+
+        if (result.changes === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'SIP account topilmadi'
             });
         }
-        
-        await saveSIPAccounts(filtered);
-        
+
         res.json({
             success: true,
             message: 'SIP account o\'chirildi'
@@ -224,17 +147,16 @@ router.delete('/:id', requirePermission('sipAccounts'), async (req, res) => {
 router.post('/test/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        
-        const accounts = await loadSIPAccounts();
-        const account = accounts.find(acc => acc.id === id);
-        
+
+        const account = await db.get('SELECT * FROM sip_accounts WHERE id = ?', [id]);
+
         if (!account) {
             return res.status(404).json({
                 success: false,
                 message: 'SIP account topilmadi'
             });
         }
-        
+
         // In production, this would actually test the SIP connection
         // For now, simulate test
         res.json({
