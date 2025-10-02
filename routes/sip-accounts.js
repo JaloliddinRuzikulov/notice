@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../lib/database');
+const { AppDataSource } = require('../lib/typeorm-config');
+const SIPAccount = require('../lib/entities/SIPAccount');
 const { requirePermission } = require('../middleware/auth');
 
 console.log('[SIP-ACCOUNTS] Route module loaded at', new Date().toISOString());
@@ -8,7 +9,12 @@ console.log('[SIP-ACCOUNTS] Route module loaded at', new Date().toISOString());
 // Get all SIP accounts - requires sipAccounts permission
 router.get('/', requirePermission('sipAccounts'), async (req, res) => {
     try {
-        const accounts = await db.all('SELECT * FROM sip_accounts ORDER BY extension');
+        const sipRepository = AppDataSource.getRepository(SIPAccount);
+
+        // Get all SIP accounts using TypeORM (NO SQL INJECTION!)
+        const accounts = await sipRepository.find({
+            order: { extension: 'ASC' }
+        });
         res.json(accounts);
     } catch (error) {
         res.status(500).json({
@@ -21,8 +27,13 @@ router.get('/', requirePermission('sipAccounts'), async (req, res) => {
 // Get active SIP accounts - accessible to anyone with broadcast permission
 router.get('/active', async (req, res) => {
     try {
-        // No permission check here - broadcast users need to see SIP accounts
-        const accounts = await db.all('SELECT * FROM sip_accounts WHERE active = 1 ORDER BY extension');
+        const sipRepository = AppDataSource.getRepository(SIPAccount);
+
+        // Get active accounts using TypeORM (NO SQL INJECTION!)
+        const accounts = await sipRepository.find({
+            where: { active: true },
+            order: { extension: 'ASC' }
+        });
         res.json(accounts);
     } catch (error) {
         res.status(500).json({
@@ -44,8 +55,12 @@ router.post('/', requirePermission('sipAccounts'), async (req, res) => {
             });
         }
 
-        // Check if extension already exists
-        const existing = await db.get('SELECT id FROM sip_accounts WHERE extension = ?', [extension]);
+        const sipRepository = AppDataSource.getRepository(SIPAccount);
+
+        // Check if extension exists using TypeORM (NO SQL INJECTION!)
+        const existing = await sipRepository.findOne({
+            where: { extension: extension }
+        });
         if (existing) {
             return res.status(400).json({
                 success: false,
@@ -53,14 +68,18 @@ router.post('/', requirePermission('sipAccounts'), async (req, res) => {
             });
         }
 
-        const id = Date.now().toString();
-        await db.run(
-            `INSERT INTO sip_accounts (id, extension, password, name, server, channels, active)
-             VALUES (?, ?, ?, ?, ?, ?, 1)`,
-            [id, extension, password, name, server || '10.105.0.3', channels || 15]
-        );
+        // Create new account using TypeORM
+        const newAccount = sipRepository.create({
+            id: Date.now().toString(),
+            extension,
+            password,
+            name,
+            server: server || '10.105.0.3',
+            channels: channels || 15,
+            active: true
+        });
 
-        const newAccount = await db.get('SELECT * FROM sip_accounts WHERE id = ?', [id]);
+        await sipRepository.save(newAccount);
 
         res.json({
             success: true,
@@ -80,34 +99,32 @@ router.put('/:id', requirePermission('sipAccounts'), async (req, res) => {
         const { id } = req.params;
         const { password, name, server, channels, active } = req.body;
 
-        const existing = await db.get('SELECT id FROM sip_accounts WHERE id = ?', [id]);
-        if (!existing) {
+        const sipRepository = AppDataSource.getRepository(SIPAccount);
+
+        // Find account using TypeORM (NO SQL INJECTION!)
+        const account = await sipRepository.findOne({
+            where: { id: id }
+        });
+
+        if (!account) {
             return res.status(404).json({
                 success: false,
                 message: 'SIP account topilmadi'
             });
         }
 
-        const updates = [];
-        const params = [];
-        if (password !== undefined) { updates.push('password = ?'); params.push(password); }
-        if (name !== undefined) { updates.push('name = ?'); params.push(name); }
-        if (server !== undefined) { updates.push('server = ?'); params.push(server); }
-        if (channels !== undefined) { updates.push('channels = ?'); params.push(channels); }
-        if (active !== undefined) { updates.push('active = ?'); params.push(active ? 1 : 0); }
-        updates.push('updated_at = CURRENT_TIMESTAMP');
-        params.push(id);
+        // Update fields using TypeORM
+        if (password !== undefined) account.password = password;
+        if (name !== undefined) account.name = name;
+        if (server !== undefined) account.server = server;
+        if (channels !== undefined) account.channels = channels;
+        if (active !== undefined) account.active = active;
 
-        await db.run(
-            `UPDATE sip_accounts SET ${updates.join(', ')} WHERE id = ?`,
-            params
-        );
-
-        const updated = await db.get('SELECT * FROM sip_accounts WHERE id = ?', [id]);
+        await sipRepository.save(account);
 
         res.json({
             success: true,
-            account: updated
+            account: account
         });
     } catch (error) {
         res.status(500).json({
@@ -122,14 +139,21 @@ router.delete('/:id', requirePermission('sipAccounts'), async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await db.run('DELETE FROM sip_accounts WHERE id = ?', [id]);
+        const sipRepository = AppDataSource.getRepository(SIPAccount);
 
-        if (result.changes === 0) {
+        // Find and delete using TypeORM (NO SQL INJECTION!)
+        const account = await sipRepository.findOne({
+            where: { id: id }
+        });
+
+        if (!account) {
             return res.status(404).json({
                 success: false,
                 message: 'SIP account topilmadi'
             });
         }
+
+        await sipRepository.remove(account);
 
         res.json({
             success: true,
@@ -148,7 +172,12 @@ router.post('/test/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        const account = await db.get('SELECT * FROM sip_accounts WHERE id = ?', [id]);
+        const sipRepository = AppDataSource.getRepository(SIPAccount);
+
+        // Find account using TypeORM (NO SQL INJECTION!)
+        const account = await sipRepository.findOne({
+            where: { id: id }
+        });
 
         if (!account) {
             return res.status(404).json({
