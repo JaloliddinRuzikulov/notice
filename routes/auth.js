@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const db = require('../lib/database');
+const { AppDataSource } = require('../lib/typeorm-config');
+const User = require('../lib/entities/User');
 
 const router = express.Router();
 
@@ -18,11 +19,15 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Find active user from database
-        const user = await db.get(
-            'SELECT * FROM users WHERE username = ? AND active = 1',
-            [username]
-        );
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Find active user using TypeORM (NO SQL INJECTION!)
+        const user = await userRepository.findOne({
+            where: {
+                username: username,
+                active: true
+            }
+        });
 
         if (!user) {
             return res.render('login', { error: 'Login yoki parol xato!' });
@@ -34,15 +39,9 @@ router.post('/login', async (req, res) => {
             return res.render('login', { error: 'Login yoki parol xato!' });
         }
 
-        // Update last login
-        await db.run(
-            'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
-            [user.id]
-        );
-
-        // Parse JSON fields
-        const permissions = JSON.parse(user.permissions || '{}');
-        const allowedDistricts = JSON.parse(user.allowed_districts || '["all"]');
+        // Update last login using TypeORM
+        user.last_login = new Date();
+        await userRepository.save(user);
 
         // Set session
         req.session.user = {
@@ -50,8 +49,8 @@ router.post('/login', async (req, res) => {
             username: user.username,
             name: user.name,
             role: user.role,
-            permissions: permissions,
-            allowedDistricts: allowedDistricts
+            permissions: user.permissions, // Already parsed by transformer
+            allowedDistricts: user.allowed_districts // Already parsed by transformer
         };
 
         // Force session save before redirect
