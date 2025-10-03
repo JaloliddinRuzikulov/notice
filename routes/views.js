@@ -12,21 +12,6 @@ router.get('/', auth, (req, res) => {
 });
 
 /**
- * Test HTML files routes
- */
-router.get('/simple-test.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/simple-test.html'));
-});
-
-router.get('/xodimlar-final.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/xodimlar-final.html'));
-});
-
-router.get('/test-buttons.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/test-buttons.html'));
-});
-
-/**
  * GET /sip-phone - SIP Phone page
  */
 router.get('/sip-phone', auth, requirePermission('sipPhone'), (req, res) => {
