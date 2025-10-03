@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const { parseExcelFile } = require('../lib/excel-parser');
-const safeFileOps = require('../lib/safe-file-ops');
+const { AppDataSource, initializeDatabase } = require('../lib/typeorm-config');
 
 // Configure multer for file uploads
 const upload = multer({
@@ -88,29 +88,14 @@ router.post('/import-excel', upload.single('file'), async (req, res) => {
             });
         }
         
-        // Load existing data
-        const fs = require('fs').promises;
-        const DATA_FILE = path.join(__dirname, '../data/employees.json');
-        
-        let employeesList = [];
-        try {
-            const data = await fs.readFile(DATA_FILE, 'utf8');
-            employeesList = JSON.parse(data);
-        } catch (error) {
-            console.log('No existing employees file, starting fresh');
-            employeesList = [];
-        }
-        
-        // Convert to Map for easy management
-        const employeesMap = new Map();
-        employeesList.forEach(emp => {
-            if (emp.id) {
-                employeesMap.set(emp.id, emp);
-            }
-        });
-        
+        // Initialize database and get repositories
+        await initializeDatabase();
+        const employeeRepo = AppDataSource.getRepository('Employee');
+        const districtRepo = AppDataSource.getRepository('District');
+        const departmentRepo = AppDataSource.getRepository('Department');
+
         // Load districts
-        const districtsData = await safeFileOps.readJSON(path.join(__dirname, '../data/districts.json'), []);
+        const districtsData = await districtRepo.find();
         const existingDistrictNames = new Set(districtsData.map(d => d.name));
         
         // Process employees
@@ -161,23 +146,22 @@ router.post('/import-excel', upload.single('file'), async (req, res) => {
                     failed++;
                     continue;
                 }
-                
-                // Create employee
-                const employeeData = {
-                    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+
+                // Create employee entity (TypeORM will auto-generate ID and timestamps)
+                const newEmployee = employeeRepo.create({
                     name: emp.name,
-                    phoneNumber: formattedPhone,
-                    servicePhone: emp.servicePhone || '',
+                    phone_number: formattedPhone,
+                    service_phone: emp.servicePhone || '',
                     position: emp.position || '',
                     rank: emp.rank || '',
                     department: emp.department || '',
                     district: districtName,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                };
-                
-                // Add to map
-                employeesMap.set(employeeData.id, employeeData);
+                    deleted: false,
+                    created_by: user.username || user.name
+                });
+
+                // Save to database
+                await employeeRepo.save(newEmployee);
                 imported++;
                 
             } catch (error) {
@@ -189,41 +173,28 @@ router.post('/import-excel', upload.single('file'), async (req, res) => {
         // Create new districts if any
         if (newDistricts.size > 0) {
             for (const districtName of newDistricts) {
-                const newDistrict = {
-                    id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                    name: districtName,
-                    type: districtName.toLowerCase().includes('shahar') ? 'shahar' : 'tuman'
-                };
-                districtsData.push(newDistrict);
+                const newDistrict = districtRepo.create({
+                    name: districtName
+                });
+                await districtRepo.save(newDistrict);
             }
-            await safeFileOps.writeJSON(path.join(__dirname, '../data/districts.json'), districtsData);
         }
-        
+
         // Create new departments if any
         if (newDepartments.size > 0) {
-            const departmentsFile = path.join(__dirname, '../data/departments.json');
-            let departmentsData = [];
-            try {
-                departmentsData = await safeFileOps.readJSON(departmentsFile, []);
-            } catch (e) {
-                // File might not exist
-            }
-            
+            const existingDepartments = await departmentRepo.find();
+            const existingDeptNames = new Set(existingDepartments.map(d => d.name));
+
             for (const deptName of newDepartments) {
-                if (!departmentsData.find(d => d.name === deptName)) {
-                    departmentsData.push({
-                        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                if (!existingDeptNames.has(deptName)) {
+                    const newDepartment = departmentRepo.create({
                         name: deptName,
-                        createdAt: new Date().toISOString()
+                        description: ''
                     });
+                    await departmentRepo.save(newDepartment);
                 }
             }
-            await safeFileOps.writeJSON(departmentsFile, departmentsData);
         }
-        
-        // Save employees to file
-        const updatedEmployeesList = Array.from(employeesMap.values());
-        await fs.writeFile(DATA_FILE, JSON.stringify(updatedEmployeesList, null, 2));
         
         let resultMessage = `Import yakunlandi: ${imported} ta qo'shildi, ${failed} ta xato`;
         if (newDistricts.size > 0) {

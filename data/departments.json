@@ -1,0 +1,764 @@
+[
+  {
+    "id": 51,
+    "name": "",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 48,
+    "name": "1-sonli IIB",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 47,
+    "name": "2-sonli IIB",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 18,
+    "name": "Bo‘lim tеrgov guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 4,
+    "name": "Dеhqonobod tuman IIB Rahbariyati",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 43,
+    "name": "Ekspert Kriminalistika Guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 57,
+    "name": "Ekspert-krimanilistika",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 27,
+    "name": "Eksport Kriminalistika Guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 19,
+    "name": "Eksport-kriminalistika guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 34,
+    "name": "Huquqbuzarlik Profilaktikasi Bo'limi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 35,
+    "name": "Huquqbuzarlik Profilaktikasi Bo'limi Profilaktika Inspektorlari",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 46,
+    "name": "Huquqbuzarliklar Profilaktikasi Bo'limi Profilaktika Inspektorlari",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 45,
+    "name": "Huquqbuzarliklar Profilaktikasi Bo'limi apparati",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 61,
+    "name": "Huquqbuzarliklar profilaktikasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 13,
+    "name": "Huquqbuzarliklar profilaktikasi bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 14,
+    "name": "Huquqbuzarliklar profilaktikasi bo‘linmasi  Ma’muriy amalyot guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 36,
+    "name": "Inspektor-psixologlar",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 15,
+    "name": "Inspеktor psixologlar",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 28,
+    "name": "Jamoat Tartibini Saqlash Guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 11,
+    "name": "Jamoat tartibini saqlash guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 12,
+    "name": "Jamoat xavfsizligi  xizmati yo‘l harakati xavfsizligi bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 59,
+    "name": "Jamoat xavfsizligi xizmati",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 64,
+    "name": "Jamoat xavfsizligi xizmati yo‘l harakati xavfsizligi bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 25,
+    "name": "Jinoyat Qidiruv Bo'limi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 54,
+    "name": "Jinoyat qidiruv",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 9,
+    "name": "Jinoyat qidiruv bo‘limi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 38,
+    "name": "Jinoyat qidiruv bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 21,
+    "name": "Kadirlar bilan ta’minlash guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 56,
+    "name": "Kadrlar bo'limi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 30,
+    "name": "Kadrlar guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 42,
+    "name": "Kanselyariya",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 8,
+    "name": "Kanцеlyariya",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 63,
+    "name": "Kasbi TIIB Rahbariyat",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 86,
+    "name": "Kitob tuman IIB  jamoat tartibini saqlash guruhi katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 68,
+    "name": "Kitob tumani  IIB boshlig‘ining ma’naviy-ma’rifiy ishlar bo‘yicha o‘rinbosari",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 79,
+    "name": "Kitob tumani IIB Tashkiliy bo‘linma navbatchilik qismi  katta inspektor-navbatchisi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 78,
+    "name": "Kitob tumani IIB Tashkiliy bo‘linma navbatchilik qismi katta inspektor-navbatchisi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 80,
+    "name": "Kitob tumani IIB Tashkiliy bo‘linma navbatchilik qismi navbatchi yordamchisi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 67,
+    "name": "Kitob tumani IIB boshlig‘ining 1-o‘rinbosari, tezkor-qidiruv xizmati boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 69,
+    "name": "Kitob tumani IIB boshlig‘ining o‘rinbosari, jamoat xavfsizligi xizmati boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 85,
+    "name": "Kitob tumani IIB ekspert-kriminalistika guruhi katta eksperti",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 82,
+    "name": "Kitob tumani IIB huzuridagi tergov guruxi katta tergovchisi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 84,
+    "name": "Kitob tumani IIB huzuridagi tergov guruxi surishtiruvchi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 83,
+    "name": "Kitob tumani IIB huzuridagi tergov guruxi tergovchisi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 102,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati YHXB YPXG YPX inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 101,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati YHXB YPXG YPX katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 104,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huqubuzarliklar profilaktika bo‘linmasi inspektor psixologi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 103,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huqubuzarliklar profilaktika bo‘linmasi katta inspektor psixologi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 99,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huqubuzarliklar profilaktika bo‘linmasi profilaktika inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 98,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huqubuzarliklar profilaktika bo‘linmasi profilaktika katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 105,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huqubuzarliklar profilaktika bo‘linmasi voyaga yetmaganlar va yoshlar bilan guruhi inspektor psixologi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 93,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huquqbuzarliklar profilaktikasi bo‘linmasi boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 96,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huquqbuzarliklar profilaktikasi bo‘linmasi ma’muriy amaliyot katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 94,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huquqbuzarliklar profilaktikasi bo‘linmasi tashkiliy tahlil guruhi katta  inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 95,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huquqbuzarliklar profilaktikasi bo‘linmasi voyaga yetmaganlar va yoshlar o‘rtasida huquqbuzarliklar profilaktikasini tashkil etish guruhi katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 97,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati huquqbuzarliklar profilaktikasi bo‘linmasi xotin-qizlar masalalari bo‘yicha katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 100,
+    "name": "Kitob tumani IIB jamoat xavfsizligi xizmati yo‘l harakati xavfsizligi bo‘linmasi boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 76,
+    "name": "Kitob tumani IIB kadrlar bilan ta’minlash guruhi katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 89,
+    "name": "Kitob tumani IIB migratsiya va fuqarolikni rasmiylashtirish bo‘linmasi boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 90,
+    "name": "Kitob tumani IIB migratsiya va fuqarolikni rasmiylashtirish katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 91,
+    "name": "Kitob tumani IIB migratsiya va fuqarolikni rasmiylashtirish pasportchisi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 88,
+    "name": "Kitob tumani IIB probatsiya guruhi inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 87,
+    "name": "Kitob tumani IIB probatsiya guruhi katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 77,
+    "name": "Kitob tumani IIB tashkiliy bo‘linma boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 81,
+    "name": "Kitob tumani IIB tashkiliy bo‘linma murojaatlar bilan ishlash guruhi katta inspektori",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 92,
+    "name": "Kitob tumani IIB ta’minlash va xizmat ko‘rsatish bo‘linmalari komendanti",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 75,
+    "name": "Kitob tumani IIB tezkor-qidiruv xizmati Tog‘li va chegara hududlardagi tezkor guruh katta tezkor vakili",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 70,
+    "name": "Kitob tumani IIB tezkor-qidiruv xizmati jinoyat qidiruv bo‘linmasi boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 71,
+    "name": "Kitob tumani IIB tezkor-qidiruv xizmati jinoyat qidiruv bo‘linmasi tezkor vakili",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 73,
+    "name": "Kitob tumani IIB tezkor-qidiruv xizmati terrorizmga qarshi kurash guruhi katta tezkor vakili",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 74,
+    "name": "Kitob tumani IIB tezkor-qidiruv xizmati terrorizmga qarshi kurash guruhi tezkor vakili",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 72,
+    "name": "Kitob tumani IIB tezkor-qidiruv xizmatijinoyat qidiruv bo‘linmasi tezkor vakili",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 66,
+    "name": "Kitob tumani ichki ishlar bo‘limi boshlig‘i",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 37,
+    "name": "Koson TIIB Rahbariyati",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 31,
+    "name": "Migratsiya va Fuqaroligni Rasmiylashtirish Guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 60,
+    "name": "Migratsiya va fuqarolikni rasmiylashtirish",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 44,
+    "name": "Migratsiya va fuqarolikni rasmiylashtirish bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 65,
+    "name": "Migratsiya va fuqarolikni rasmiylashtirish guruh",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 20,
+    "name": "Migratsiya va fuqarolikni rasmiylashtirish guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 23,
+    "name": "Muborak TIIB Rahbariyat",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 7,
+    "name": "Murojaatlar bilan ishlash guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 6,
+    "name": "Navbatchilik qismi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 33,
+    "name": "Probatsiya",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 49,
+    "name": "Probatsiya guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 17,
+    "name": "Probatцiya guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 52,
+    "name": "Rahbariyat",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 2,
+    "name": "Raqamlashtirish va Huquqiy Statistika xizmati Huquqiy Statistika  bo'limi",
+    "description": "Raqamlashtirish va Huquqiy Statistika xizmati Huquqiy Statistika  bo'limi",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 1,
+    "name": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "description": "Raqamlashtirish va Huquqiy Statistika xizmati Raqamlashtirsh bo'limi",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 22,
+    "name": "Taminlash va xizmat ko‘rsatish bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 24,
+    "name": "Tashkiliy Departament",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 53,
+    "name": "Tashkiliy bo'linma",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 5,
+    "name": "Tashkiliy bo‘linma",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 41,
+    "name": "Ta’minlash bo‘linmalari",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 29,
+    "name": "Ta’minlash bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 55,
+    "name": "Tergov bo'limi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 40,
+    "name": "Tergov bo‘linmasi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 26,
+    "name": "Tergov guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 39,
+    "name": "Terrorizmga qarshi kurashish guruxi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 10,
+    "name": "Tog‘li va chеgara xududlari guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 50,
+    "name": "VE va YoBIG inspektorlai",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 62,
+    "name": "VSX",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 16,
+    "name": "Voyaga еtmaganlar va yoshlar o‘rtasida huquqbuzarliklar profilaktikasini tashkil qilish guruhi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 3,
+    "name": "Xarbiy Safarbarlik",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 32,
+    "name": "Yo'l Harakati Xavfsizligi Bo'limi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 58,
+    "name": "Yo'l harakati xavfsizligi bo'limi",
+    "description": "",
+    "created_at": "2025-10-02T22:23:31.000Z"
+  },
+  {
+    "id": 112,
+    "name": "ЖХХ Жамоат тартибини сақлаш бўлинмаси",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 113,
+    "name": "ЖХХ Жамоат тартибини сақлаш бўлинмаси вақтинча сақлаш ҳибсхонаси",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 114,
+    "name": "ЖХХ йўл ҳаракати хавфсизлиги бўлинмаси",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 117,
+    "name": "ЖХХ пробация бўлинасми",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 115,
+    "name": "ЖХХ ҳуқуқбузарликлар профилактикаси бўлими",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 116,
+    "name": "ЖХХ ҳуқуқбузарликлар профилактикаси бўлими вояга етмаганлар ва ёшлар билан ишлаш гуруҳи",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 107,
+    "name": "Ташкилий бўлим",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 109,
+    "name": "Тезкор қидирув хизмати ноошкора фаолият гуруҳи",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 110,
+    "name": "Тезкор қидирув хизмати қидирув ишини таъминлаш гуруҳи",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 108,
+    "name": "ТҚХ жиноят қидирув бўлинмаси",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 111,
+    "name": "ТҚХ терроризмга қарши курашиш бўлинмаси",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 106,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 124,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ 1-сон ички ишлар бўлими",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 125,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ 2-сон ички ишлар бўлими",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 126,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ 3-сон ички ишлар бўлими",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 127,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ 4-сон ички ишлар бўлими",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 122,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ кадрлар билан таъминлаш гуруҳи",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 121,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ меграция ва фуқароликни расмийлаштириш бўлими",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 123,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ таъминлаш ва хизмат кўрсатиш бўлинмалари",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 120,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ эксперт криминалистика бўлинмаси",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 119,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ ҳузуридаги тергов бўлими жиноятларни тергов қилиш бўлинмаси",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  },
+  {
+    "id": 118,
+    "name": "Қарши шаҳар бўйича ИИО ФМБ ҳузуридаги тергов бўлими тахлил ва назорат гуруҳи",
+    "description": "",
+    "created_at": "2025-10-02T22:23:32.000Z"
+  }
+]

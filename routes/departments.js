@@ -1,24 +1,33 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const safeFileOps = require('../lib/safe-file-ops');
-
-const departmentsFile = path.join(__dirname, '../data/departments.json');
-const employeesFile = path.join(__dirname, '../data/employees.json');
+const { AppDataSource, initializeDatabase } = require('../lib/typeorm-config');
 
 // Get all departments
 router.get('/', async (req, res) => {
     try {
-        const departments = await safeFileOps.readJSON(departmentsFile, []);
-        
+        await initializeDatabase();
+        const departmentRepo = AppDataSource.getRepository('Department');
+        const employeeRepo = AppDataSource.getRepository('Employee');
+
+        const departments = await departmentRepo.find({
+            order: { name: 'ASC' }
+        });
+
         // Get employee counts for each department
-        const employees = await safeFileOps.readJSON(employeesFile, []);
-        
+        const employees = await employeeRepo.find({
+            where: { deleted: false }
+        });
+
         const departmentsWithCounts = departments.map(dept => {
             const employeeCount = employees.filter(emp => emp.department === dept.name).length;
-            return { ...dept, employeeCount };
+            return {
+                id: dept.id,
+                name: dept.name,
+                description: dept.description,
+                employeeCount
+            };
         });
-        
+
         res.json(departmentsWithCounts);
     } catch (error) {
         console.error('Error reading departments:', error);
@@ -29,11 +38,33 @@ router.get('/', async (req, res) => {
 // Get employees by department
 router.get('/:departmentName/employees', async (req, res) => {
     try {
+        await initializeDatabase();
+        const employeeRepo = AppDataSource.getRepository('Employee');
         const { departmentName } = req.params;
-        const employees = await safeFileOps.readJSON(employeesFile, []);
-        
-        const departmentEmployees = employees.filter(emp => emp.department === departmentName);
-        res.json(departmentEmployees);
+
+        const departmentEmployees = await employeeRepo.find({
+            where: {
+                department: departmentName,
+                deleted: false
+            },
+            order: { name: 'ASC' }
+        });
+
+        // Map to camelCase format
+        const mappedEmployees = departmentEmployees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            position: emp.position,
+            rank: emp.rank,
+            department: emp.department,
+            phoneNumber: emp.phone_number,
+            servicePhone: emp.service_phone,
+            district: emp.district,
+            createdAt: emp.created_at,
+            updatedAt: emp.updated_at
+        }));
+
+        res.json(mappedEmployees);
     } catch (error) {
         console.error('Error reading employees:', error);
         res.status(500).json({ error: 'Server xatosi' });
@@ -43,32 +74,39 @@ router.get('/:departmentName/employees', async (req, res) => {
 // Create new department
 router.post('/', async (req, res) => {
     try {
-        const { name, description, head, district } = req.body;
-        
+        await initializeDatabase();
+        const departmentRepo = AppDataSource.getRepository('Department');
+        const { name, description } = req.body;
+
         if (!name) {
             return res.status(400).json({ success: false, message: 'Bo\'lim nomi kiritilishi shart!' });
         }
-        
-        const departments = await safeFileOps.readJSON(departmentsFile, []);
-        
-        // Check if department exists
-        if (departments.some(d => d.name === name && d.district === district)) {
+
+        // Check if department exists (using TypeORM)
+        const existingDept = await departmentRepo.findOne({
+            where: { name: name }
+        });
+
+        if (existingDept) {
             return res.status(400).json({ success: false, message: 'Bu bo\'lim allaqachon mavjud!' });
         }
-        
-        const newDepartment = {
-            id: Date.now().toString(),
+
+        // Create new department using TypeORM
+        const newDepartment = departmentRepo.create({
             name,
-            description: description || '',
-            head: head || '',
-            district: district || 'all',
-            createdAt: new Date().toISOString()
-        };
-        
-        departments.push(newDepartment);
-        await safeFileOps.writeJSON(departmentsFile, departments);
-        
-        res.json({ success: true, department: newDepartment });
+            description: description || ''
+        });
+
+        await departmentRepo.save(newDepartment);
+
+        res.json({
+            success: true,
+            department: {
+                id: newDepartment.id,
+                name: newDepartment.name,
+                description: newDepartment.description
+            }
+        });
     } catch (error) {
         console.error('Error creating department:', error);
         res.status(500).json({ success: false, message: 'Server xatosi' });
@@ -78,33 +116,45 @@ router.post('/', async (req, res) => {
 // Update department
 router.put('/:id', async (req, res) => {
     try {
+        await initializeDatabase();
+        const departmentRepo = AppDataSource.getRepository('Department');
         const { id } = req.params;
-        const { name, description, head, district } = req.body;
-        
-        const departments = await safeFileOps.readJSON(departmentsFile, []);
-        
-        const index = departments.findIndex(d => d.id === id);
-        if (index === -1) {
+        const { name, description } = req.body;
+
+        // Find department by ID (using TypeORM)
+        const department = await departmentRepo.findOne({
+            where: { id: parseInt(id) }
+        });
+
+        if (!department) {
             return res.status(404).json({ success: false, message: 'Bo\'lim topilmadi!' });
         }
-        
-        // Check duplicate name in same district
-        if (departments.some(d => d.id !== id && d.name === name && d.district === (district || departments[index].district))) {
-            return res.status(400).json({ success: false, message: 'Bu bo\'lim allaqachon mavjud!' });
+
+        // Check duplicate name
+        if (name && name !== department.name) {
+            const existingDept = await departmentRepo.findOne({
+                where: { name: name }
+            });
+
+            if (existingDept) {
+                return res.status(400).json({ success: false, message: 'Bu bo\'lim allaqachon mavjud!' });
+            }
         }
-        
-        departments[index] = {
-            ...departments[index],
-            name: name || departments[index].name,
-            description: description !== undefined ? description : departments[index].description,
-            head: head !== undefined ? head : departments[index].head,
-            district: district !== undefined ? district : departments[index].district,
-            updatedAt: new Date().toISOString()
-        };
-        
-        await safeFileOps.writeJSON(departmentsFile, departments);
-        
-        res.json({ success: true, department: departments[index] });
+
+        // Update department using TypeORM
+        if (name) department.name = name;
+        if (description !== undefined) department.description = description;
+
+        await departmentRepo.save(department);
+
+        res.json({
+            success: true,
+            department: {
+                id: department.id,
+                name: department.name,
+                description: department.description
+            }
+        });
     } catch (error) {
         console.error('Error updating department:', error);
         res.status(500).json({ success: false, message: 'Server xatosi' });
@@ -114,29 +164,38 @@ router.put('/:id', async (req, res) => {
 // Delete department
 router.delete('/:id', async (req, res) => {
     try {
+        await initializeDatabase();
+        const departmentRepo = AppDataSource.getRepository('Department');
+        const employeeRepo = AppDataSource.getRepository('Employee');
         const { id } = req.params;
-        
-        const departments = await safeFileOps.readJSON(departmentsFile, []);
-        
-        const index = departments.findIndex(d => d.id === id);
-        if (index === -1) {
+
+        // Find department (using TypeORM)
+        const department = await departmentRepo.findOne({
+            where: { id: parseInt(id) }
+        });
+
+        if (!department) {
             return res.status(404).json({ success: false, message: 'Bo\'lim topilmadi!' });
         }
-        
-        // Check if department has employees
-        const employees = await safeFileOps.readJSON(employeesFile, []);
-        const deptEmployees = employees.filter(emp => emp.department === departments[index].id || emp.department === departments[index].name);
-        
+
+        // Check if department has employees (using TypeORM)
+        const deptEmployees = await employeeRepo.find({
+            where: {
+                department: department.name,
+                deleted: false
+            }
+        });
+
         if (deptEmployees.length > 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: `Bu bo'limda ${deptEmployees.length} ta xodim mavjud. Avval xodimlarni boshqa bo'limga o'tkazing!` 
+            return res.status(400).json({
+                success: false,
+                message: `Bu bo'limda ${deptEmployees.length} ta xodim mavjud. Avval xodimlarni boshqa bo'limga o'tkazing!`
             });
         }
-        
-        departments.splice(index, 1);
-        await safeFileOps.writeJSON(departmentsFile, departments);
-        
+
+        // Delete department using TypeORM
+        await departmentRepo.remove(department);
+
         res.json({ success: true, message: 'Bo\'lim muvaffaqiyatli o\'chirildi' });
     } catch (error) {
         console.error('Error deleting department:', error);

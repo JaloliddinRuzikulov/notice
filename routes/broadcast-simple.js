@@ -8,12 +8,12 @@ const { v4: uuidv4 } = require('uuid');
 // TTS generator is loaded when needed
 const AudioProcessor = require('../lib/audio-processor');
 const { checkDistrictAccess } = require('../middleware/auth');
+const { AppDataSource, initializeDatabase } = require('../lib/typeorm-config');
 const { filterBroadcastsByDistrict } = require('../lib/district-filter');
 const PhoneFormatter = require('../lib/phone-formatter');
-const safeFileOps = require('../lib/safe-file-ops');
 
-// Broadcast history file
-const broadcastHistoryFile = path.join(__dirname, '../data/broadcast-history.json');
+// TypeORM imports
+const BroadcastHistory = require('../lib/entities/BroadcastHistory');
 
 // Configure multer for audio uploads
 const storage = multer.diskStorage({
@@ -91,21 +91,54 @@ setInterval(() => {
 // Load broadcast history on startup
 async function loadBroadcastHistory() {
     try {
-        const history = await safeFileOps.readJSON(broadcastHistoryFile, []);
+        await initializeDatabase();
+        const broadcastRepo = AppDataSource.getRepository(BroadcastHistory);
+
         // Load last 100 broadcasts into memory for quick access
-        history.slice(-100).forEach(broadcast => {
-            broadcasts.set(broadcast.id, broadcast);
+        const history = await broadcastRepo.find({
+            order: { created_at: 'DESC' },
+            take: 100
         });
-        console.log(`Loaded ${history.length} broadcasts from history`);
-        
+
+        history.forEach(broadcast => {
+            // Convert database entity to broadcast object format
+            const broadcastObj = {
+                id: broadcast.id,
+                subject: broadcast.subject,
+                message: broadcast.message,
+                audioFile: broadcast.audio_file,
+                originalAudioFile: broadcast.original_audio_file,
+                employeeIds: broadcast.employee_ids,
+                sipAccounts: broadcast.sip_accounts,
+                createdAt: broadcast.created_at,
+                createdBy: broadcast.created_by,
+                createdByName: broadcast.created_by_name,
+                createdByUsername: broadcast.created_by_username,
+                status: broadcast.status,
+                totalRecipients: broadcast.total_recipients,
+                confirmedCount: broadcast.confirmed_count,
+                confirmations: broadcast.confirmations,
+                callAttempts: broadcast.call_attempts,
+                smsMessage: broadcast.sms_message,
+                smsResults: broadcast.sms_results,
+                smsSentTo: broadcast.sms_sent_to,
+                error: broadcast.error,
+                activeCalls: broadcast.active_calls,
+                channelStatus: broadcast.channel_status
+            };
+            broadcasts.set(broadcast.id, broadcastObj);
+        });
+
+        console.log(`Loaded ${history.length} broadcasts from database`);
+
         // Check for stuck broadcasts and fix them
         let stuckCount = 0;
         for (const broadcast of history) {
-            if (broadcast.status === 'active' || (broadcast.status === 'pending' && broadcast.totalRecipients > 0)) {
-                const createdAt = new Date(broadcast.createdAt);
+            if (broadcast.status === 'active' || (broadcast.status === 'pending' && broadcast.total_recipients > 0)) {
+                const createdAt = new Date(broadcast.created_at);
                 const now = new Date();
                 const hoursSinceCreated = (now - createdAt) / (1000 * 60 * 60);
-                
+
                 // If broadcast is older than 1 hour and still active/pending, mark as failed
                 if (hoursSinceCreated > 1) {
                     broadcast.status = 'failed';
@@ -114,15 +147,15 @@ async function loadBroadcastHistory() {
                 }
             }
         }
-        
+
         if (stuckCount > 0) {
             console.log(`Fixed ${stuckCount} stuck broadcasts`);
-            await safeFileOps.writeJSON(broadcastHistoryFile, history);
+            await broadcastRepo.save(history);
         }
     } catch (error) {
         console.error('Error loading broadcast history:', error);
     }
-    
+
     // Reset processing flag on startup
     isProcessingBroadcasts = false;
 }
@@ -130,39 +163,53 @@ async function loadBroadcastHistory() {
 // Process save queue
 async function processSaveQueue() {
     if (isSaving || saveQueue.length === 0) return;
-    
+
     isSaving = true;
     const broadcast = saveQueue.shift();
-    
+
     try {
-        let history = await safeFileOps.readJSON(broadcastHistoryFile, []);
-        
-        // Find existing broadcast to update or add new
-        const existingIndex = history.findIndex(b => b.id === broadcast.id);
-        if (existingIndex !== -1) {
-            // Update existing broadcast
-            history[existingIndex] = {
-                ...broadcast,
-                smsSentTo: broadcast.smsSentTo ? Array.from(broadcast.smsSentTo) : [], // Convert Set to Array
-                savedAt: new Date().toISOString()
-            };
+        const broadcastRepo = AppDataSource.getRepository(BroadcastHistory);
+
+        // Check if broadcast already exists
+        const existing = await broadcastRepo.findOne({ where: { id: broadcast.id } });
+
+        // Convert broadcast object to database entity format
+        const entity = {
+            id: broadcast.id,
+            subject: broadcast.subject,
+            message: broadcast.message,
+            audio_file: broadcast.audioFile,
+            original_audio_file: broadcast.originalAudioFile,
+            employee_ids: broadcast.employeeIds,
+            sip_accounts: broadcast.sipAccounts,
+            created_at: broadcast.createdAt,
+            created_by: broadcast.createdBy,
+            created_by_name: broadcast.createdByName,
+            created_by_username: broadcast.createdByUsername,
+            status: broadcast.status,
+            total_recipients: broadcast.totalRecipients,
+            confirmed_count: broadcast.confirmedCount,
+            confirmations: broadcast.confirmations,
+            call_attempts: broadcast.callAttempts,
+            sms_message: broadcast.smsMessage,
+            sms_results: broadcast.smsResults,
+            sms_sent_to: broadcast.smsSentTo,
+            error: broadcast.error,
+            active_calls: broadcast.activeCalls,
+            channel_status: broadcast.channelStatus,
+            saved_at: new Date()
+        };
+
+        if (existing) {
+            // Update existing
+            await broadcastRepo.update({ id: broadcast.id }, entity);
         } else {
-            // Add new broadcast
-            history.push({
-                ...broadcast,
-                smsSentTo: broadcast.smsSentTo ? Array.from(broadcast.smsSentTo) : [], // Convert Set to Array
-                savedAt: new Date().toISOString()
-            });
+            // Insert new
+            await broadcastRepo.save(entity);
         }
-        
-        // Keep only last 1000 broadcasts to prevent file from growing too large (reduced from 10000)
-        if (history.length > 1000) {
-            history = history.slice(-1000);
-        }
-        
-        await safeFileOps.writeJSON(broadcastHistoryFile, history);
+
     } catch (error) {
-        console.error('Error saving broadcast to history:', error);
+        console.error('Error saving broadcast to database:', error);
     } finally {
         isSaving = false;
         // Process next item in queue
@@ -176,10 +223,15 @@ async function processSaveQueue() {
 async function saveBroadcastToHistory(broadcast) {
     // Make a deep copy to avoid issues with concurrent modifications
     const broadcastCopy = JSON.parse(JSON.stringify(broadcast));
-    
+
+    // Convert Set to Array for smsSentTo if needed
+    if (broadcastCopy.smsSentTo && broadcastCopy.smsSentTo instanceof Set) {
+        broadcastCopy.smsSentTo = Array.from(broadcastCopy.smsSentTo);
+    }
+
     // Add to queue
     saveQueue.push(broadcastCopy);
-    
+
     // Start processing if not already running
     if (!isSaving) {
         processSaveQueue();
@@ -448,27 +500,30 @@ async function processBroadcast(broadcastId) {
             }
         }
         
-        // Get employee phone numbers from employees.json
+        // Get employee phone numbers using TypeORM (NO SQL INJECTION!)
         console.log('Loading employee data...');
-        // Clear require cache to get fresh data
-        delete require.cache[require.resolve('../data/employees.json')];
-        const employeeData = require('../data/employees.json');
+        const Employee = require('../lib/entities/Employee');
+        const { AppDataSource } = require('../lib/typeorm-config');
+        const employeeRepository = AppDataSource.getRepository(Employee);
+
         const employees = [];
-        
+
         console.log('Employee IDs to process:', broadcast.employeeIds);
         for (const empId of broadcast.employeeIds) {
-            const employee = employeeData.find(emp => emp.id === empId);
+            const employee = await employeeRepository.findOne({
+                where: { id: parseInt(empId), deleted: false }
+            });
             if (employee) {
                 employees.push({
                     id: employee.id,
                     name: employee.name,
-                    phoneNumber: employee.phoneNumber
+                    phoneNumber: employee.phone_number
                 });
-                console.log('Found employee:', employee.name, 'with phone:', employee.phoneNumber);
-                
+                console.log('Found employee:', employee.name, 'with phone:', employee.phone_number);
+
                 // Initialize call attempts for this phone number
-                if (!broadcast.callAttempts[employee.phoneNumber]) {
-                    broadcast.callAttempts[employee.phoneNumber] = [];
+                if (!broadcast.callAttempts[employee.phone_number]) {
+                    broadcast.callAttempts[employee.phone_number] = [];
                 }
             } else {
                 console.log('Employee not found:', empId);
@@ -1298,100 +1353,61 @@ router.get('/status/:broadcastId', (req, res) => {
 // Get recent broadcasts
 router.get('/recent', checkDistrictAccess(), async (req, res) => {
     try {
-        // First try to get from history file
-        const history = await safeFileOps.readJSON(broadcastHistoryFile, []);
-        
-        if (history.length > 0) {
-            
-            // Get all broadcasts (sorted by date, newest first)
-            const recentBroadcasts = history
-                .reverse()
-                .map(broadcast => ({
-                    ...broadcast,
-                    createdAt: new Date(broadcast.createdAt)
-                }));
-            
-            // Load employees to check districts
-            const employeesFile = path.join(__dirname, '../data/employees.json');
-            let employees = [];
-            try {
-                employees = await safeFileOps.readJSON(employeesFile, []);
-            } catch (e) {
-                console.error('Error loading employees for filtering:', e);
-            }
-            
-            // Filter broadcasts by district AND by creator
-            let filteredBroadcasts = [];
-            
-            console.log('[BROADCAST] User role:', req.session?.user?.role);
-            console.log('[BROADCAST] User can access all districts:', req.userCanAccessAllDistricts);
-            console.log('[BROADCAST] Total broadcasts before filter:', recentBroadcasts.length);
-            console.log('[BROADCAST] Current user:', req.session?.user?.username, req.session?.user?.id);
-            
-            if (req.session?.user?.role === 'admin') {
-                // Only admins see all broadcasts
-                filteredBroadcasts = recentBroadcasts;
-                console.log('[BROADCAST] Admin access - showing all broadcasts');
-            } else {
-                // All other users only see their own broadcasts
-                // More defensive filtering - exclude broadcasts without creator info unless they match current user
-                filteredBroadcasts = recentBroadcasts.filter(broadcast => {
-                    // If broadcast has creator info, check if it matches current user
-                    if (broadcast.createdBy || broadcast.createdByUsername) {
-                        return broadcast.createdBy === req.session?.user?.id ||
-                               broadcast.createdByUsername === req.session?.user?.username;
-                    }
-                    // If no creator info, don't show to non-admin users
-                    return false;
-                });
-                console.log('[BROADCAST] User access - filtered to:', filteredBroadcasts.length);
-            }
-            
-            res.json(filteredBroadcasts);
+        const broadcastRepo = AppDataSource.getRepository(BroadcastHistory);
+
+        // Build query based on user role
+        let query = broadcastRepo.createQueryBuilder('broadcast');
+
+        console.log('[BROADCAST] User role:', req.session?.user?.role);
+        console.log('[BROADCAST] Current user:', req.session?.user?.username, req.session?.user?.id);
+
+        if (req.session?.user?.role === 'admin') {
+            // Admins see all broadcasts
+            console.log('[BROADCAST] Admin access - showing all broadcasts');
         } else {
-            // Fallback to memory
-            const recentBroadcasts = Array.from(broadcasts.values())
-                .sort((a, b) => b.createdAt - a.createdAt)
-                .slice(0, 10);
-            
-            // Load employees to check districts
-            const employeesFile = path.join(__dirname, '../data/employees.json');
-            let employees = [];
-            try {
-                employees = await safeFileOps.readJSON(employeesFile, []);
-            } catch (e) {
-                console.error('Error loading employees for filtering:', e);
-            }
-            
-            // Filter broadcasts by district AND by creator
-            let filteredBroadcasts = [];
-            
-            console.log('[BROADCAST] User role:', req.session?.user?.role);
-            console.log('[BROADCAST] User can access all districts:', req.userCanAccessAllDistricts);
-            console.log('[BROADCAST] Total broadcasts before filter:', recentBroadcasts.length);
-            console.log('[BROADCAST] Current user:', req.session?.user?.username, req.session?.user?.id);
-            
-            if (req.session?.user?.role === 'admin') {
-                // Only admins see all broadcasts
-                filteredBroadcasts = recentBroadcasts;
-                console.log('[BROADCAST] Admin access - showing all broadcasts');
-            } else {
-                // All other users only see their own broadcasts
-                // More defensive filtering - exclude broadcasts without creator info unless they match current user
-                filteredBroadcasts = recentBroadcasts.filter(broadcast => {
-                    // If broadcast has creator info, check if it matches current user
-                    if (broadcast.createdBy || broadcast.createdByUsername) {
-                        return broadcast.createdBy === req.session?.user?.id ||
-                               broadcast.createdByUsername === req.session?.user?.username;
-                    }
-                    // If no creator info, don't show to non-admin users
-                    return false;
-                });
-                console.log('[BROADCAST] User access - filtered to:', filteredBroadcasts.length);
-            }
-            
-            res.json(filteredBroadcasts);
+            // Other users only see their own broadcasts
+            query = query.where('broadcast.created_by = :userId OR broadcast.created_by_username = :username', {
+                userId: req.session?.user?.id,
+                username: req.session?.user?.username
+            });
+            console.log('[BROADCAST] User access - filtering by creator');
         }
+
+        // Order by created_at descending
+        query = query.orderBy('broadcast.created_at', 'DESC');
+
+        const history = await query.getMany();
+
+        console.log('[BROADCAST] Total broadcasts found:', history.length);
+
+        // Convert database entities to response format
+        const recentBroadcasts = history.map(broadcast => ({
+            id: broadcast.id,
+            subject: broadcast.subject,
+            message: broadcast.message,
+            audioFile: broadcast.audio_file,
+            originalAudioFile: broadcast.original_audio_file,
+            employeeIds: broadcast.employee_ids,
+            sipAccounts: broadcast.sip_accounts,
+            createdAt: new Date(broadcast.created_at),
+            createdBy: broadcast.created_by,
+            createdByName: broadcast.created_by_name,
+            createdByUsername: broadcast.created_by_username,
+            status: broadcast.status,
+            totalRecipients: broadcast.total_recipients,
+            confirmedCount: broadcast.confirmed_count,
+            confirmations: broadcast.confirmations,
+            callAttempts: broadcast.call_attempts,
+            smsMessage: broadcast.sms_message,
+            smsResults: broadcast.sms_results,
+            smsSentTo: broadcast.sms_sent_to,
+            error: broadcast.error,
+            activeCalls: broadcast.active_calls,
+            channelStatus: broadcast.channel_status,
+            savedAt: broadcast.saved_at
+        }));
+
+        res.json(recentBroadcasts);
     } catch (error) {
         console.error('Error getting recent broadcasts:', error);
         res.json([]);
@@ -1408,56 +1424,63 @@ router.delete('/delete/:broadcastId', async (req, res) => {
                 message: 'Faqat admin xabarlarni o\'chirishi mumkin'
             });
         }
-        
+
         const broadcastId = req.params.broadcastId;
-        
+        const broadcastRepo = AppDataSource.getRepository(BroadcastHistory);
+
+        // Find broadcast in database
+        const broadcast = await broadcastRepo.findOne({ where: { id: broadcastId } });
+
+        if (!broadcast) {
+            // Check if it's in memory only
+            const memoryBroadcast = broadcasts.get(broadcastId);
+            if (!memoryBroadcast) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Xabar topilmadi'
+                });
+            }
+        }
+
+        // Delete associated audio files
+        const audioFile = broadcast?.audio_file || broadcasts.get(broadcastId)?.audioFile;
+        const originalAudioFile = broadcast?.original_audio_file || broadcasts.get(broadcastId)?.originalAudioFile;
+
+        if (audioFile) {
+            const audioPath = path.join(__dirname, '../public/audio/uploads', audioFile);
+            try {
+                if (fs.existsSync(audioPath)) {
+                    fs.unlinkSync(audioPath);
+                }
+            } catch (err) {
+                console.error('Error deleting audio file:', err);
+            }
+        }
+
+        if (originalAudioFile && originalAudioFile !== audioFile) {
+            const originalPath = path.join(__dirname, '../public/audio/uploads', originalAudioFile);
+            try {
+                if (fs.existsSync(originalPath)) {
+                    fs.unlinkSync(originalPath);
+                }
+            } catch (err) {
+                console.error('Error deleting original audio file:', err);
+            }
+        }
+
         // Remove from memory
-        const broadcast = broadcasts.get(broadcastId);
-        if (broadcast) {
-            // Delete associated audio files
-            if (broadcast.audioFile) {
-                const audioPath = path.join(__dirname, '../public/audio/uploads', broadcast.audioFile);
-                try {
-                    if (fs.existsSync(audioPath)) {
-                        fs.unlinkSync(audioPath);
-                    }
-                } catch (err) {
-                    console.error('Error deleting audio file:', err);
-                }
-            }
-            
-            if (broadcast.originalAudioFile && broadcast.originalAudioFile !== broadcast.audioFile) {
-                const originalPath = path.join(__dirname, '../public/audio/uploads', broadcast.originalAudioFile);
-                try {
-                    if (fs.existsSync(originalPath)) {
-                        fs.unlinkSync(originalPath);
-                    }
-                } catch (err) {
-                    console.error('Error deleting original audio file:', err);
-                }
-            }
-        }
-        
         broadcasts.delete(broadcastId);
-        
-        // Remove from history file
-        let history = await safeFileOps.readJSON(broadcastHistoryFile, []);
-        const filteredHistory = history.filter(b => b.id !== broadcastId);
-        
-        if (history.length === filteredHistory.length && !broadcast) {
-            return res.status(404).json({
-                success: false,
-                message: 'Xabar topilmadi'
-            });
+
+        // Remove from database
+        if (broadcast) {
+            await broadcastRepo.delete({ id: broadcastId });
         }
-        
-        await safeFileOps.writeJSON(broadcastHistoryFile, filteredHistory);
-        
+
         res.json({
             success: true,
             message: 'Xabar muvaffaqiyatli o\'chirildi'
         });
-        
+
     } catch (error) {
         console.error('Error deleting broadcast:', error);
         res.status(500).json({
@@ -1471,19 +1494,47 @@ router.delete('/delete/:broadcastId', async (req, res) => {
 router.get('/report/:broadcastId', async (req, res) => {
     try {
         const broadcastId = req.params.broadcastId;
-        
+
         console.log('[BROADCAST REPORT] Request for broadcast:', broadcastId);
         console.log('[BROADCAST REPORT] User:', req.session?.user?.username, 'Role:', req.session?.user?.role);
-        
+
+        const broadcastRepo = AppDataSource.getRepository(BroadcastHistory);
+
         // Try to find in memory first
         let broadcast = broadcasts.get(broadcastId);
-        
-        // If not in memory, search in history
+
+        // If not in memory, search in database
         if (!broadcast) {
-            const history = await safeFileOps.readJSON(broadcastHistoryFile, []);
-            broadcast = history.find(b => b.id === broadcastId);
+            const dbBroadcast = await broadcastRepo.findOne({ where: { id: broadcastId } });
+            if (dbBroadcast) {
+                // Convert to broadcast object format
+                broadcast = {
+                    id: dbBroadcast.id,
+                    subject: dbBroadcast.subject,
+                    message: dbBroadcast.message,
+                    audioFile: dbBroadcast.audio_file,
+                    originalAudioFile: dbBroadcast.original_audio_file,
+                    employeeIds: dbBroadcast.employee_ids,
+                    sipAccounts: dbBroadcast.sip_accounts,
+                    createdAt: dbBroadcast.created_at,
+                    createdBy: dbBroadcast.created_by,
+                    createdByName: dbBroadcast.created_by_name,
+                    createdByUsername: dbBroadcast.created_by_username,
+                    status: dbBroadcast.status,
+                    totalRecipients: dbBroadcast.total_recipients,
+                    confirmedCount: dbBroadcast.confirmed_count,
+                    confirmations: dbBroadcast.confirmations,
+                    callAttempts: dbBroadcast.call_attempts,
+                    smsMessage: dbBroadcast.sms_message,
+                    smsResults: dbBroadcast.sms_results,
+                    smsSentTo: dbBroadcast.sms_sent_to,
+                    error: dbBroadcast.error,
+                    activeCalls: dbBroadcast.active_calls,
+                    channelStatus: dbBroadcast.channel_status
+                };
+            }
         }
-        
+
         if (!broadcast) {
             console.log('[BROADCAST REPORT] Broadcast not found:', broadcastId);
             return res.status(404).json({
@@ -1491,18 +1542,16 @@ router.get('/report/:broadcastId', async (req, res) => {
                 message: 'Broadcast not found'
             });
         }
-        
+
         console.log('[BROADCAST REPORT] Broadcast found. CreatedBy:', broadcast.createdBy, 'CreatedByUsername:', broadcast.createdByUsername);
-        
+
         // Check if user can view this broadcast
-        // Only admin can see all broadcasts
-        // Other users can only see their own broadcasts
         const userRole = req.session?.user?.role;
-        
+
         // If user is not admin
         if (userRole !== 'admin') {
             // Users can only see their own broadcasts
-            if (broadcast.createdBy !== req.session?.user?.id && 
+            if (broadcast.createdBy !== req.session?.user?.id &&
                 broadcast.createdByUsername !== req.session?.user?.username) {
                 console.log('[BROADCAST REPORT] Access denied. User ID:', req.session?.user?.id, 'Username:', req.session?.user?.username);
                 return res.status(403).json({
@@ -1511,12 +1560,12 @@ router.get('/report/:broadcastId', async (req, res) => {
                 });
             }
         }
-        
+
         // Calculate statistics
         const stats = {
             totalRecipients: broadcast.totalRecipients || 0,
             confirmedCount: broadcast.confirmedCount || 0,
-            confirmationRate: broadcast.totalRecipients > 0 
+            confirmationRate: broadcast.totalRecipients > 0
                 ? ((broadcast.confirmedCount || 0) / broadcast.totalRecipients * 100).toFixed(2) + '%'
                 : '0%',
             totalCallAttempts: 0,
@@ -1524,11 +1573,11 @@ router.get('/report/:broadcastId', async (req, res) => {
             failedCalls: 0,
             averageCallDuration: 0
         };
-        
+
         // Calculate call statistics
         let totalDuration = 0;
         let answeredCallsCount = 0;
-        
+
         Object.values(broadcast.callAttempts || {}).forEach(attempts => {
             stats.totalCallAttempts += attempts.length;
             attempts.forEach(attempt => {
@@ -1543,11 +1592,11 @@ router.get('/report/:broadcastId', async (req, res) => {
                 }
             });
         });
-        
+
         if (answeredCallsCount > 0) {
             stats.averageCallDuration = (totalDuration / answeredCallsCount).toFixed(2) + ' seconds';
         }
-        
+
         res.json({
             success: true,
             broadcast: {

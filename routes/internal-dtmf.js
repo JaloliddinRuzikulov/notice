@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs').promises;
-const path = require('path');
+const BroadcastHistory = require('../lib/entities/BroadcastHistory');
+const { AppDataSource } = require('../lib/typeorm-config');
 
 // Internal endpoint for Asterisk to report DTMF
 router.post('/dtmf-confirm', async (req, res) => {
     const { phone, digit, channel, uniqueid } = req.body;
-    
+
     console.log('[INTERNAL-DTMF] Received confirmation:', {
         phone,
         digit,
@@ -14,54 +14,55 @@ router.post('/dtmf-confirm', async (req, res) => {
         uniqueid,
         timestamp: new Date()
     });
-    
+
     try {
-        // Find active broadcast for this phone
-        const broadcastsPath = path.join(__dirname, '../data/broadcasts.json');
-        const broadcastsData = await fs.readFile(broadcastsPath, 'utf8');
-        const broadcasts = JSON.parse(broadcastsData);
-        
-        // Find most recent active broadcast
-        const activeBroadcast = broadcasts
-            .filter(b => b.status === 'in_progress')
-            .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
-        
+        const broadcastRepo = AppDataSource.getRepository(BroadcastHistory);
+
+        // Find most recent active broadcast using TypeORM (NO SQL INJECTION!)
+        const activeBroadcast = await broadcastRepo.findOne({
+            where: { status: 'active' },
+            order: { created_at: 'DESC' }
+        });
+
         if (!activeBroadcast) {
             console.log('[INTERNAL-DTMF] No active broadcast found');
             return res.json({ status: 'no_active_broadcast' });
         }
-        
-        // Find call record
-        const callHistoryPath = path.join(__dirname, '../data/broadcast-history.json');
-        const historyData = await fs.readFile(callHistoryPath, 'utf8');
-        const history = JSON.parse(historyData);
-        
-        const callRecord = history.find(h => 
-            h.broadcastId === activeBroadcast.id && 
-            h.phoneNumber === phone &&
-            h.status === 'completed' &&
-            !h.confirmed
-        );
-        
-        if (!callRecord) {
-            console.log('[INTERNAL-DTMF] No matching call record found');
-            return res.json({ status: 'no_call_record' });
+
+        // Get confirmations array
+        const confirmations = activeBroadcast.confirmations || [];
+
+        // Check if already confirmed
+        const alreadyConfirmed = confirmations.find(c => c.phoneNumber === phone);
+
+        if (alreadyConfirmed) {
+            console.log('[INTERNAL-DTMF] Already confirmed');
+            return res.json({ status: 'already_confirmed', broadcastId: activeBroadcast.id });
         }
-        
-        // Update confirmation
-        callRecord.confirmed = true;
-        callRecord.confirmedAt = new Date();
-        callRecord.confirmationMethod = 'asterisk-dtmf';
-        callRecord.dtmfDigit = digit;
-        
-        await fs.writeFile(callHistoryPath, JSON.stringify(history, null, 2));
-        
+
+        // Add confirmation
+        confirmations.push({
+            phoneNumber: phone,
+            digit: digit,
+            confirmedAt: new Date(),
+            method: 'asterisk-dtmf',
+            channel: channel,
+            uniqueid: uniqueid
+        });
+
+        // Update broadcast
+        activeBroadcast.confirmations = confirmations;
+        activeBroadcast.confirmed_count = confirmations.length;
+
+        // Save using TypeORM (NO SQL INJECTION!)
+        await broadcastRepo.save(activeBroadcast);
+
         console.log('[INTERNAL-DTMF] Successfully confirmed:', {
             broadcastId: activeBroadcast.id,
             phone,
             digit
         });
-        
+
         // Emit event to any listeners
         if (global.io) {
             global.io.emit('broadcast-confirmed', {
@@ -71,9 +72,9 @@ router.post('/dtmf-confirm', async (req, res) => {
                 timestamp: new Date()
             });
         }
-        
+
         res.json({ status: 'confirmed', broadcastId: activeBroadcast.id });
-        
+
     } catch (error) {
         console.error('[INTERNAL-DTMF] Error:', error);
         res.status(500).json({ error: error.message });

@@ -1,36 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs').promises;
-const path = require('path');
+const { AppDataSource } = require('../lib/typeorm-config');
+const Employee = require('../lib/entities/Employee');
+const Department = require('../lib/entities/Department');
+const District = require('../lib/entities/District');
 
 // Get phonebook data (combines employees, departments, and districts)
 router.get('/data', async (req, res) => {
     try {
-        // Read all necessary data files
-        const [employeesData, departmentsData, districtsData] = await Promise.all([
-            fs.readFile(path.join(__dirname, '../data/employees.json'), 'utf8'),
-            fs.readFile(path.join(__dirname, '../data/departments.json'), 'utf8'),
-            fs.readFile(path.join(__dirname, '../data/districts.json'), 'utf8')
+        const employeeRepository = AppDataSource.getRepository(Employee);
+        const departmentRepository = AppDataSource.getRepository(Department);
+        const districtRepository = AppDataSource.getRepository(District);
+
+        // Get all data using TypeORM (NO SQL INJECTION!)
+        const [employees, departments, districts] = await Promise.all([
+            employeeRepository.find({ where: { deleted: false } }),
+            departmentRepository.find(),
+            districtRepository.find()
         ]);
-
-        const employees = JSON.parse(employeesData);
-        const departments = JSON.parse(departmentsData);
-        const districts = JSON.parse(districtsData);
-
-        // Filter only active employees
-        const activeEmployees = employees.filter(emp => !emp.deleted);
 
         // Return combined data
         res.json({
-            employees: activeEmployees,
+            employees: employees,
             departments: departments,
             districts: districts
         });
     } catch (error) {
         console.error('Error reading phonebook data:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Ma\'lumotlarni o\'qishda xatolik' 
+        res.status(500).json({
+            success: false,
+            message: 'Ma\'lumotlarni o\'qishda xatolik'
         });
     }
 });

@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { auth, requirePermission } = require('../../middleware/auth');
 const localization = require('../../lib/localization');
+const { AppDataSource, initializeDatabase } = require('../../lib/typeorm-config');
 
 const router = express.Router();
 
@@ -76,11 +77,12 @@ router.get('/sip-accounts/active', auth, requirePermission('broadcast'), async (
  */
 router.get('/districts-list', auth, async (req, res) => {
     try {
-        const data = await fs.readFile(
-            path.join(__dirname, '../../data/districts.json'),
-            'utf8'
-        );
-        const districts = JSON.parse(data);
+        await initializeDatabase();
+        const districtRepo = AppDataSource.getRepository('District');
+        const districts = await districtRepo.find({
+            order: { name: 'ASC' }
+        });
+
         res.setHeader('Content-Type', 'application/json');
         res.json(districts);
     } catch (error) {
@@ -96,11 +98,12 @@ router.get('/districts-list', auth, async (req, res) => {
  */
 router.get('/employees-departments', auth, requirePermission('departments'), async (req, res) => {
     try {
-        const data = await fs.readFile(
-            path.join(__dirname, '../../data/departments.json'),
-            'utf8'
-        );
-        const departments = JSON.parse(data);
+        await initializeDatabase();
+        const departmentRepo = AppDataSource.getRepository('Department');
+        const departments = await departmentRepo.find({
+            order: { name: 'ASC' }
+        });
+
         res.json(departments);
     } catch (error) {
         console.error('Error reading departments:', error);
@@ -114,11 +117,12 @@ router.get('/employees-departments', auth, requirePermission('departments'), asy
  */
 router.get('/employees-districts', auth, requirePermission('districts'), async (req, res) => {
     try {
-        const data = await fs.readFile(
-            path.join(__dirname, '../../data/districts.json'),
-            'utf8'
-        );
-        const districts = JSON.parse(data);
+        await initializeDatabase();
+        const districtRepo = AppDataSource.getRepository('District');
+        const districts = await districtRepo.find({
+            order: { name: 'ASC' }
+        });
+
         res.json(districts);
     } catch (error) {
         console.error('Error reading districts:', error);
@@ -132,13 +136,29 @@ router.get('/employees-districts', auth, requirePermission('districts'), async (
  */
 router.get('/employees-dashboard', auth, async (req, res) => {
     try {
-        const data = await fs.readFile(
-            path.join(__dirname, '../../data/employees.json'),
-            'utf8'
-        );
-        const employees = JSON.parse(data);
-        const activeEmployees = employees.filter(emp => !emp.deleted);
-        res.json(activeEmployees);
+        await initializeDatabase();
+        const employeeRepo = AppDataSource.getRepository('Employee');
+        const activeEmployees = await employeeRepo.find({
+            where: { deleted: false },
+            order: { name: 'ASC' }
+        });
+
+        // Map database fields to JSON format for compatibility
+        const employees = activeEmployees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            position: emp.position,
+            rank: emp.rank,
+            department: emp.department,
+            phoneNumber: emp.phone_number,
+            servicePhone: emp.service_phone,
+            district: emp.district,
+            createdAt: emp.created_at,
+            updatedAt: emp.updated_at,
+            deleted: emp.deleted
+        }));
+
+        res.json(employees);
     } catch (error) {
         console.error('Error reading employees for dashboard:', error);
         res.json([]);
@@ -151,12 +171,24 @@ router.get('/employees-dashboard', auth, async (req, res) => {
  */
 router.get('/employees-groups', auth, requirePermission('groups'), async (req, res) => {
     try {
-        const data = await fs.readFile(
-            path.join(__dirname, '../../data/groups.json'),
-            'utf8'
-        );
-        const groups = JSON.parse(data);
-        res.json(groups);
+        await initializeDatabase();
+        const groupRepo = AppDataSource.getRepository('Group');
+        const groups = await groupRepo.find({
+            order: { name: 'ASC' }
+        });
+
+        // Map database fields to JSON format for compatibility
+        const groupsData = groups.map(g => ({
+            id: g.id,
+            name: g.name,
+            description: g.description,
+            members: g.members, // Already transformed by TypeORM
+            district: g.district,
+            createdBy: g.created_by,
+            createdAt: g.created_at
+        }));
+
+        res.json(groupsData);
     } catch (error) {
         console.error('Error reading groups:', error);
         res.json([]);
@@ -171,24 +203,17 @@ router.get('/employees-broadcast', auth, requirePermission('broadcast'), async (
     try {
         console.log('[EMPLOYEES-BROADCAST] Request from user:', req.session?.user?.username, 'Role:', req.session?.user?.role);
 
-        const dataPath = path.join(__dirname, '../../data/employees.json');
-        console.log('[EMPLOYEES-BROADCAST] Reading from:', dataPath);
-
-        const data = await fs.readFile(dataPath, 'utf8');
-        const employees = JSON.parse(data);
-        console.log('[EMPLOYEES-BROADCAST] Total employees:', employees.length);
+        await initializeDatabase();
+        const employeeRepo = AppDataSource.getRepository('Employee');
+        const districtRepo = AppDataSource.getRepository('District');
 
         // Filter employees based on user's allowed districts
         const user = req.session.user;
-        let filteredEmployees = employees;
+        let employees;
 
         if (user.role !== 'admin' && user.allowedDistricts && !user.allowedDistricts.includes('all')) {
             // Load districts to map IDs to names
-            const districtsPath = path.join(__dirname, '../../data/districts.json');
-            const districtsData = await fs.readFile(districtsPath, 'utf8');
-            const districts = JSON.parse(districtsData);
-
-            // Create mapping of district IDs to names
+            const districts = await districtRepo.find();
             const districtIdToName = {};
             districts.forEach(d => {
                 districtIdToName[d.id] = d.name;
@@ -202,14 +227,42 @@ router.get('/employees-broadcast', auth, requirePermission('broadcast'), async (
             console.log('[EMPLOYEES-BROADCAST] User allowed districts:', user.allowedDistricts);
             console.log('[EMPLOYEES-BROADCAST] Mapped to names:', allowedDistrictNames);
 
-            filteredEmployees = employees.filter(emp =>
-                allowedDistrictNames.includes(emp.district)
-            );
-            console.log('[EMPLOYEES-BROADCAST] Filtered to:', filteredEmployees.length, 'employees');
+            // Query with district filter
+            const queryBuilder = employeeRepo.createQueryBuilder('employee');
+            queryBuilder.where('employee.deleted = :deleted', { deleted: false });
+
+            if (allowedDistrictNames.length > 0) {
+                queryBuilder.andWhere('employee.district IN (:...districts)', { districts: allowedDistrictNames });
+            }
+
+            employees = await queryBuilder.orderBy('employee.name', 'ASC').getMany();
+            console.log('[EMPLOYEES-BROADCAST] Filtered to:', employees.length, 'employees');
+        } else {
+            // Admin or user with 'all' districts - get all non-deleted employees
+            employees = await employeeRepo.find({
+                where: { deleted: false },
+                order: { name: 'ASC' }
+            });
+            console.log('[EMPLOYEES-BROADCAST] Total employees:', employees.length);
         }
 
+        // Map database fields to JSON format for compatibility
+        const employeesData = employees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            position: emp.position,
+            rank: emp.rank,
+            department: emp.department,
+            phoneNumber: emp.phone_number,
+            servicePhone: emp.service_phone,
+            district: emp.district,
+            createdAt: emp.created_at,
+            updatedAt: emp.updated_at,
+            deleted: emp.deleted
+        }));
+
         res.setHeader('Content-Type', 'application/json');
-        res.json(filteredEmployees);
+        res.json(employeesData);
     } catch (error) {
         console.error('[EMPLOYEES-BROADCAST] Error:', error);
         res.setHeader('Content-Type', 'application/json');
@@ -223,13 +276,25 @@ router.get('/employees-broadcast', auth, requirePermission('broadcast'), async (
  */
 router.get('/groups-broadcast', auth, requirePermission('broadcast'), async (req, res) => {
     try {
-        const data = await fs.readFile(
-            path.join(__dirname, '../../data/groups.json'),
-            'utf8'
-        );
-        const groups = JSON.parse(data);
+        await initializeDatabase();
+        const groupRepo = AppDataSource.getRepository('Group');
+        const groups = await groupRepo.find({
+            order: { name: 'ASC' }
+        });
+
+        // Map database fields to JSON format for compatibility
+        const groupsData = groups.map(g => ({
+            id: g.id,
+            name: g.name,
+            description: g.description,
+            members: g.members,
+            district: g.district,
+            createdBy: g.created_by,
+            createdAt: g.created_at
+        }));
+
         res.setHeader('Content-Type', 'application/json');
-        res.json(groups);
+        res.json(groupsData);
     } catch (error) {
         console.error('Error reading groups for broadcast:', error);
         res.setHeader('Content-Type', 'application/json');
@@ -299,16 +364,16 @@ router.get('/user-info', auth, (req, res) => {
  */
 router.get('/dashboard-stats', auth, async (req, res) => {
     try {
-        const [empData, distData] = await Promise.all([
-            fs.readFile(path.join(__dirname, '../../data/employees.json'), 'utf8'),
-            fs.readFile(path.join(__dirname, '../../data/districts.json'), 'utf8')
-        ]);
+        await initializeDatabase();
+        const employeeRepo = AppDataSource.getRepository('Employee');
+        const districtRepo = AppDataSource.getRepository('District');
 
-        let employees = JSON.parse(empData);
-        const districts = JSON.parse(distData);
+        const districts = await districtRepo.find({ order: { name: 'ASC' } });
 
         // Check user's district permissions
         const user = req.session.user;
+        let employees;
+
         if (user.allowedDistricts && !user.allowedDistricts.includes('all')) {
             // Create mapping of district IDs to names
             const districtIdToName = {};
@@ -321,17 +386,41 @@ router.get('/dashboard-stats', auth, async (req, res) => {
                 districtIdToName[id] || id
             );
 
-            employees = employees.filter(emp => {
-                return allowedDistrictNames.includes(emp.district);
+            // Query with district filter and non-deleted
+            const queryBuilder = employeeRepo.createQueryBuilder('employee');
+            queryBuilder.where('employee.deleted = :deleted', { deleted: false });
+
+            if (allowedDistrictNames.length > 0) {
+                queryBuilder.andWhere('employee.district IN (:...districts)', { districts: allowedDistrictNames });
+            }
+
+            employees = await queryBuilder.orderBy('employee.name', 'ASC').getMany();
+        } else {
+            // Admin or user with 'all' districts
+            employees = await employeeRepo.find({
+                where: { deleted: false },
+                order: { name: 'ASC' }
             });
         }
 
-        // Filter out deleted employees
-        employees = employees.filter(emp => !emp.deleted);
+        // Map database fields to JSON format for compatibility
+        const employeesData = employees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            position: emp.position,
+            rank: emp.rank,
+            department: emp.department,
+            phoneNumber: emp.phone_number,
+            servicePhone: emp.service_phone,
+            district: emp.district,
+            createdAt: emp.created_at,
+            updatedAt: emp.updated_at,
+            deleted: emp.deleted
+        }));
 
         res.json({
             success: true,
-            employees: employees,
+            employees: employeesData,
             districts: districts
         });
     } catch (error) {
